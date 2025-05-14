@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PointType {
+  JOIN     @map("join")
+  DRAW     @map("draw")
+  PURCHASE @map("purchase")
+  EXCHANGE @map("exchange")
+  REFUND   @map("refund")
+}
+
+enum ExchangeStatus {
+  REQUESTED @map("requested")
+  ACCEPTED  @map("accepted")
+  REJECTED  @map("rejected")
+  CANCELLED @map("cancelled")
+  COMPLETED @map("completed")
+}
+
+enum CardStatus {
+  IDLE // 기본 상태
+  FOR_SALE // 판매 중
+  FOR_TRADE // 교환 대기 중
+  SOLD // 판매, 교환 완료
+}
+
+enum CardGrade {
+  COMMON     @map("common")
+  RARE       @map("rare")
+  SUPER_RARE @map("super_rare")
+  LEGENDARY  @map("legendary")
+}
+
+enum CardGenre {
+  TRAVEL    @map("travel")
+  LANDSCAPE @map("landscape")
+  PORTRAIT  @map("portrait")
+  OBJECT    @map("object")
+}
+
+enum NotificationType {
+  EXCHANGE_PROPOSED //교환 제안
+  EXCHANGE_ACCEPTED // 교환 승인
+  EXCHANGE_DECLINED // 교환 거절
+  PURCHASE_COMPLETED // 구매 완료
+  SELL_COMPLETED // 판매 완료
+  SOLD_OUT // 품절
+}
+
+model User {
+  id             Int            @id @default(autoincrement())
+  email          String         @unique
+  password       String
+  nickname       String         @unique
+  refreshToken   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  userCards      UserCard[]
+  exchanges      Exchange[]
+  notifications  Notification[]
+  pointHistories PointHistory[]
+  point          Point?
+  purchases      Purchase[]
+  shops          Shop[]
+}
+
+model PhotoCard {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  imageUrl    String
+  grade       CardGrade
+  genre       CardGenre
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userCards UserCard[]
+  shops     Shop[]
+}
+
+model UserCard {
+  id        Int        @id @default(autoincrement())
+  status    CardStatus @default(IDLE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  photoCard   PhotoCard @relation(fields: [photoCardId], references: [id])
+  photoCardId Int
+
+  offeredExchanges Exchange[] @relation("OfferedCard")
+  targetExchanges  Exchange[] @relation("TargetCard")
+  shop             Shop?
+}
+
+model Shop {
+  id                  Int        @id @default(autoincrement())
+  price               Int
+  initialQuantity     Int        @default(0)
+  remainingQuantity   Int        @default(0)
+  exchangeGrade       CardGrade  @default(COMMON)
+  exchangeGenre       CardGenre  @default(TRAVEL)
+  exchangeDescription String?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  userCard            UserCard   @relation(fields: [userCardId], references: [id])
+  userCardId          Int        @unique
+  seller              User       @relation(fields: [sellerId], references: [id])
+  sellerId            Int
+  Purchase            Purchase[]
+  PhotoCard           PhotoCard? @relation(fields: [photoCardId], references: [id])
+  photoCardId         Int?
+}
+
+model Purchase {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [buyerId], references: [id])
+  buyerId   Int
+  shop      Shop     @relation(fields: [shopId], references: [id])
+  shopId    Int
+}
+
+model PointHistory {
+  id        Int       @id @default(autoincrement())
+  points    Int
+  pointType PointType
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+model Point {
+  id        Int      @id @default(autoincrement())
+  balance   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+}
+
+model Notification {
+  id               Int              @id @default(autoincrement())
+  content          String
+  notificationType NotificationType
+  isRead           Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  user             User             @relation(fields: [userId], references: [id])
+  userId           Int
+}
+
+model Exchange {
+  id            Int            @id @default(autoincrement())
+  status        ExchangeStatus
+  description   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  requester     User           @relation(fields: [requesterId], references: [id])
+  requesterId   Int
+  offeredCard   UserCard       @relation("OfferedCard", fields: [offeredCardId], references: [id])
+  offeredCardId Int
+  targetCard    UserCard       @relation("TargetCard", fields: [targetCardId], references: [id])
+  targetCardId  Int
+}
