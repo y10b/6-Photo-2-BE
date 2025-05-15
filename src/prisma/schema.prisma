@@ -15,19 +15,18 @@ datasource db {
 }
 
 enum PointType {
-  JOIN     @map("join")
-  DRAW     @map("draw")
-  PURCHASE @map("purchase")
-  EXCHANGE @map("exchange")
-  REFUND   @map("refund")
+  JOIN
+  DRAW
+  PURCHASE
+  EXCHANGE
 }
 
 enum ExchangeStatus {
-  REQUESTED @map("requested")
-  ACCEPTED  @map("accepted")
-  REJECTED  @map("rejected")
-  CANCELLED @map("cancelled")
-  COMPLETED @map("completed")
+  REQUESTED
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  COMPLETED
 }
 
 enum CardStatus {
@@ -38,17 +37,17 @@ enum CardStatus {
 }
 
 enum CardGrade {
-  COMMON     @map("common")
-  RARE       @map("rare")
-  SUPER_RARE @map("super_rare")
-  LEGENDARY  @map("legendary")
+  COMMON
+  RARE
+  SUPER_RARE
+  LEGENDARY
 }
 
 enum CardGenre {
-  TRAVEL    @map("travel")
-  LANDSCAPE @map("landscape")
-  PORTRAIT  @map("portrait")
-  OBJECT    @map("object")
+  TRAVEL
+  LANDSCAPE
+  PORTRAIT
+  OBJECT
 }
 
 enum NotificationType {
@@ -73,7 +72,6 @@ model User {
   notifications  Notification[]
   pointHistories PointHistory[]
   point          Point?
-  purchases      Purchase[]
   shops          Shop[]
 }
 
@@ -122,19 +120,8 @@ model Shop {
   userCardId          Int        @unique
   seller              User       @relation(fields: [sellerId], references: [id])
   sellerId            Int
-  Purchase            Purchase[]
   PhotoCard           PhotoCard? @relation(fields: [photoCardId], references: [id])
   photoCardId         Int?
-}
-
-model Purchase {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [buyerId], references: [id])
-  buyerId   Int
-  shop      Shop     @relation(fields: [shopId], references: [id])
-  shopId    Int
 }
 
 model PointHistory {
