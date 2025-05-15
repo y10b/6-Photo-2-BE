@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.7.0",
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0"
   },
   "devDependencies": {
@@ -19,7 +20,8 @@
     "prisma": "^6.7.0"
   },
   "prisma": {
-    "schema": "./src/prisma/schema.prisma"
+    "schema": "./src/prisma/schema.prisma",
+    "seed": "node src/prisma/seed.js"
   },
   "type": "module"
 }
