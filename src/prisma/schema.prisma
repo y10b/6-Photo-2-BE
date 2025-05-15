@@ -44,10 +44,16 @@ enum CardGrade {
 }
 
 enum CardGenre {
-  TRAVEL
-  LANDSCAPE
-  PORTRAIT
-  OBJECT
+  ALBUM
+  SPECIAL
+  FANSIGN
+  SEASON_GREETING
+  FANMEETING
+  CONCERT
+  MD
+  COLLAB
+  FANCLUB
+  ETC
 }
 
 enum NotificationType {
@@ -60,19 +66,19 @@ enum NotificationType {
 }
 
 model User {
-  id             Int            @id @default(autoincrement())
-  email          String         @unique
-  password       String
-  nickname       String         @unique
-  refreshToken   String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  userCards      UserCard[]
-  exchanges      Exchange[]
-  notifications  Notification[]
-  pointHistories PointHistory[]
-  point          Point?
-  shops          Shop[]
+  id                Int            @id @default(autoincrement())
+  email             String         @unique
+  encryptedPassword String
+  nickname          String         @unique
+  refreshToken      String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  userCards         UserCard[]
+  exchanges         Exchange[]
+  notifications     Notification[]
+  pointHistories    PointHistory[]
+  point             Point?
+  shops             Shop[]
 }
 
 model PhotoCard {
@@ -112,7 +118,7 @@ model Shop {
   initialQuantity     Int        @default(0)
   remainingQuantity   Int        @default(0)
   exchangeGrade       CardGrade  @default(COMMON)
-  exchangeGenre       CardGenre  @default(TRAVEL)
+  exchangeGenre       CardGenre  @default(ALBUM)
   exchangeDescription String?
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
