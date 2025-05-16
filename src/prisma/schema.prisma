@@ -110,7 +110,7 @@ model UserCard {
   // 이 UserCard가 어떤 판매 게시글에 속해 있는지
   // UserCard는 동시에 하나의 활성 판매 게시글에만 속할 수 있음
   shopListing   Shop? @relation("ShopListedCards", fields: [shopListingId], references: [id])
-  shopListingId Int?  @unique // 이 UserCard를 포함하는 Shop의 ID (선택 사항, @unique로 하나의 리스팅에만 속하도록 함)
+  shopListingId Int? // 이 UserCard를 포함하는 Shop의 ID (선택 사항)
 
   requestExchanges Exchange[] @relation("RequestCard")
   targetExchanges  Exchange[] @relation("TargetCard")
