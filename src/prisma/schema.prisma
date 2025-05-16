@@ -28,11 +28,18 @@ enum ExchangeStatus {
   COMPLETED // 교환 완료됨
 }
 
+// UserCard의 상태를 나타내는 Enum
+// FOR_SALE, FOR_SALE_AND_TRADE는 Shop의 listingType으로 이전됨
 enum CardStatus {
   IDLE // 기본 상태 (소장 중)
+  LISTED // 판매 게시글에 현재 등록된 상태
+  SOLD // 판매 또는 교환이 완료된 상태
+}
+
+// Shop 게시글의 판매 유형을 나타내는 Enum (새로 추가)
+enum ShopListingType {
   FOR_SALE // 판매만 원하는 상태
   FOR_SALE_AND_TRADE // 판매 및 교환을 원하는 상태
-  SOLD // 판매 또는 교환이 완료된 상태
 }
 
 enum CardGrade {
@@ -55,7 +62,7 @@ enum NotificationType {
   EXCHANGE_DECLINED // 교환 거절 알림
   PURCHASE_COMPLETED // 구매 완료 알림
   SELL_COMPLETED // 판매 완료 알림
-  SOLD_OUT // 품절 알림
+  SOLD_OUT // 품절 알림 (Shop 게시글의 remainingQuantity가 0이 되었을 때)
 }
 
 model User {
@@ -70,51 +77,73 @@ model User {
   notification      Notification[] // 유저가 받은 알림 목록 (Notification 모델과 1:N 관계)
   pointHistorie     PointHistory[] // 유저의 포인트 적립/사용 기록 (PointHistory 모델과 1:N 관계)
   point             Point? // 유저의 현재 포인트 잔액 정보 (Point 모델과 1:1 관계)
+  shopListings      Shop[]         @relation("UserShopListings") // 유저가 등록한 판매 게시글 목록 (새로 추가된 관계)
 }
 
 model PhotoCard {
   id              Int        @id @default(autoincrement())
-  name            String // 포토카드 이름
-  description     String? // 포토카드 설명 (선택 사항)
-  imageUrl        String // 포토카드 이미지 URL
-  grade           CardGrade // 포토카드 등급
-  genre           CardGenre // 포토카드 장르
-  price           Int // 포토카드 판매 가격
-  initialQuantity Int // 최초 발행 수량
-  createdAt       DateTime   @default(now()) // 레코드 생성 시간
-  updatedAt       DateTime   @updatedAt // 레코드 업데이트 시간
-  userCard        UserCard[] // 이 포토카드를 소유한 UserCard 목록 (UserCard 모델과 1:N 관계)
+  name            String
+  description     String?
+  imageUrl        String
+  grade           CardGrade
+  genre           CardGenre
+  price           Int // 이 필드는 기본 가격 정보로 사용하거나, Shop에서 개별 가격을 정하므로 제거/수정 고려 가능
+  initialQuantity Int // PhotoCard 자체의 최초 발행 수량
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  userCard        UserCard[] // 이 종류의 포토카드를 소유한 UserCard 목록
+  shopListings    Shop[] // 이 종류의 포토카드가 등록된 판매 게시글 목록
 }
 
 // 유저가 소유한 포토카드 정보를 관리하는 모델
-// 한 명의 유저가 같은 종류의 포토카드를 여러 장 소유할 수 있음
 model UserCard {
-  id               Int        @id @default(autoincrement())
-  status           CardStatus @default(IDLE) // 포토카드 상태 (기본값: 소장 중)
-  createdAt        DateTime   @default(now()) // 레코드 생성 시간
-  updatedAt        DateTime   @updatedAt // 레코드 업데이트 시간
-  user             User       @relation(fields: [userId], references: [id]) // 이 포토카드를 소유한 유저 (User 모델 참조)
-  userId           Int
-  photoCard        PhotoCard  @relation(fields: [photoCardId], references: [id]) // 이 UserCard가 어떤 PhotoCard인지 (PhotoCard 모델 참조)
-  photoCardId      Int
-  requestExchanges Exchange[] @relation("RequestCard") // 이 카드를 제안한 교환 요청 목록 (Exchange 모델과 1:N 관계)
-  targetExchanges  Exchange[] @relation("TargetCard") // 이 카드를 대상으로 하는 교환 요청 목록 (Exchange 모델과 1:N 관계)
-  shop             Shop[] // 이 카드가 등록된 판매 게시글 목록 (Shop 모델과 1:N 관계)
+  id        Int        @id @default(autoincrement())
+  status    CardStatus @default(IDLE) // 포토카드 상태 (IDLE, LISTED, SOLD 등)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  photoCard   PhotoCard @relation(fields: [photoCardId], references: [id])
+  photoCardId Int
+
+  // 이 UserCard가 어떤 판매 게시글에 속해 있는지
+  // UserCard는 동시에 하나의 활성 판매 게시글에만 속할 수 있음
+  shopListing   Shop? @relation("ShopListedCards", fields: [shopListingId], references: [id])
+  shopListingId Int?  @unique // 이 UserCard를 포함하는 Shop의 ID (선택 사항, @unique로 하나의 리스팅에만 속하도록 함)
+
+  requestExchanges Exchange[] @relation("RequestCard")
+  targetExchanges  Exchange[] @relation("TargetCard")
 }
 
 // 포토카드 판매 게시글 정보를 관리하는 모델
+// 하나의 Shop 게시글이 여러 장의 동일한 PhotoCard 종류의 UserCard를 묶어서 판매 가능
 model Shop {
-  id                  Int       @id @default(autoincrement())
-  price               Int // 판매 가격
-  initialQuantity     Int       @default(0) // 최초 판매 수량
-  remainingQuantity   Int       @default(0) // 남은 판매 수량
-  exchangeGrade       CardGrade @default(COMMON) // 교환 시 원하는 포토카드 등급 (선택 사항)
-  exchangeGenre       CardGenre @default(TRAVEL) // 교환 시 원하는 포토카드 장르 (선택 사항)
+  id                Int             @id @default(autoincrement())
+  price             Int // 판매 가격 (이 게시글에 포함된 모든 카드에 동일 적용)
+  initialQuantity   Int // 이 판매 게시글에 처음 등록된 카드의 수량 (예: 3장)
+  remainingQuantity Int // 판매되고 남은 카드의 수량
+  listingType       ShopListingType // 판매 유형 (FOR_SALE, FOR_SALE_AND_TRADE)
+
+  // 교환 관련 정보 (listingType이 FOR_SALE_AND_TRADE일 때 유효)
+  exchangeGrade       CardGrade? // 교환 시 원하는 포토카드 등급 (선택 사항)
+  exchangeGenre       CardGenre? // 교환 시 원하는 포토카드 장르 (선택 사항)
   exchangeDescription String? // 교환 관련 추가 설명 (선택 사항)
-  createdAt           DateTime  @default(now()) // 레코드 생성 시간
-  updatedAt           DateTime  @updatedAt // 레코드 업데이트 시간
-  userCard            UserCard  @relation(fields: [userCardId], references: [id]) // 판매하는 UserCard (UserCard 모델 참조)
-  userCardId          Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 어떤 종류의 PhotoCard를 판매하는 게시글인지
+  photoCard   PhotoCard @relation(fields: [photoCardId], references: [id])
+  photoCardId Int
+
+  // 이 판매 게시글을 등록한 판매자
+  seller   User @relation("UserShopListings", fields: [sellerId], references: [id])
+  sellerId Int
+
+  // 이 판매 게시글에 현재 포함된 UserCard 목록
+  // UserCard의 shopListingId를 통해 연결됨
+  listedItems UserCard[] @relation("ShopListedCards")
 }
 
 // 유저의 포인트 적립/사용 기록을 관리하는 모델(필수는 아님)
