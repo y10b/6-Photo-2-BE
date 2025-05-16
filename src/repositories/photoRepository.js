@@ -58,25 +58,11 @@ function createSortOption(sort) {
 
 // 카드 타입 판별
 function getCardType(status, remainingQuantity) {
-  if (status === "FOR_SALE" && remainingQuantity === 0) return "soldout";
-  if (status === "FOR_SALE") return "for_sale";
-  if (status === "FOR_TRADE") return "exchange";
+  if (status === "FOR_SALE" && remainingQuantity === 0) return "soldout"; // 매진
+  if (status === "FOR_SALE") return "for_sale"; // 판매 중
+  if (status === "FOR_TRADE") return "exchange"; // 교환 제시 대기 중
   if (status === "IDLE") return "my_card";
   return null;
-}
-
-// 상태 텍스트 변환
-function getSaleStatusText(status) {
-  switch (status) {
-    case "FOR_SALE":
-      return "판매 중";
-    case "FOR_TRADE":
-      return "교환 제시 대기 중";
-    case "SOLD":
-      return "거래 완료";
-    default:
-      return "보유 중";
-  }
 }
 
 // 전체 포토카드 목록 조회 (필터, 정렬, 페이지네이션 포함)
@@ -126,7 +112,7 @@ export async function findAllCards({
       nickname: user?.nickname ?? null,
       quantityLeft: shop.remainingQuantity,
       quantityTotal: shop.initialQuantity,
-      saleStatus: getSaleStatusText(userCard.status),
+      saleStatus: userCard.status,
       type: getCardType(userCard.status, shop.remainingQuantity),
       createdAt: shop.createdAt,
       updatedAt: shop.updatedAt,
@@ -227,7 +213,7 @@ export async function findMyCards({
 
   const where = {
     userId,
-    status: "IDLE", // 순수 보유 카드
+    NOT: { status: "SOLD" },
     ...extraWhere?.userCard,
   };
 
@@ -253,7 +239,7 @@ export async function findMyCards({
     cardGenre: card.photoCard.genre,
     cardGrade: card.photoCard.grade,
     status: card.status,
-    saleStatus: getSaleStatusText(card.status),
+    saleStatus: card.status,
     type: getCardType(card.status, card.shop?.remainingQuantity),
     createdAt: card.createdAt,
     updatedAt: card.updatedAt,
@@ -281,7 +267,7 @@ export async function findMySales({
 
   const where = {
     sellerId: userId,
-    remainingQuantity: { gte: 0 }, // 판매등록된 카드
+    remainingQuantity: { gte: 0 }, // 판매 등록된 카드
     ...extraWhere,
   };
 
@@ -314,7 +300,7 @@ export async function findMySales({
     price: shop.price,
     quantityLeft: shop.remainingQuantity,
     quantityTotal: shop.initialQuantity,
-    saleStatus: getSaleStatusText(shop.userCard.status),
+    saleStatus: shop.userCard.status, // 같은 포토카드여도 상태가 다르면 나눠서 렌더링
     type: getCardType(shop.userCard.status, shop.remainingQuantity),
     exchangeInfo: {
       genre: shop.exchangeGenre,
