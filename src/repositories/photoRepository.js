@@ -32,8 +32,8 @@ function createFilterOption({ filterType, filterValue, keyword }) {
           values.includes("true") && !values.includes("false")
             ? 0
             : values.includes("false") && !values.includes("true")
-            ? { gt: 0 }
-            : undefined;
+              ? { gt: 0 }
+              : undefined;
         break;
       case "method":
         userCard.status = { in: values }; // ['FOR_SALE'], ['FOR_SALE_AND_TRADE']
@@ -346,9 +346,77 @@ export async function findMySales({
   };
 }
 
+//구매
+export async function purchaseCard({ userId, saleId, quantity }) {
+  const shop = await prisma.shop.findUnique({
+    where: { id: saleId },
+    include: {
+      userCard: true,
+    },
+  });
+
+  if (!shop) throw new Error("존재하지 않는 판매 정보입니다.");
+  if (shop.remainingQuantity < quantity) throw new Error("재고가 부족합니다.");
+
+  const totalPrice = shop.price * quantity;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { point: true },
+  });
+
+  if (!user || !user.point || user.point.balance < totalPrice) {
+    const err = new Error("포인트가 부족합니다.");
+    err.status = 400;
+    throw err;
+  }
+
+  const userCardsToCreate = Array.from({ length: quantity }).map(() =>
+    prisma.userCard.create({
+      data: {
+        userId,
+        photoCardId: shop.userCard.photoCardId,
+        status: "IDLE",
+      },
+    })
+  );
+
+  const [updatedPoint] = await prisma.$transaction([
+    // 포인트 차감
+    prisma.point.update({
+      where: { userId },
+      data: { balance: { decrement: totalPrice } },
+    }),
+
+    // 재고 차감
+    prisma.shop.update({
+      where: { id: saleId },
+      data: { remainingQuantity: { decrement: quantity } },
+    }),
+
+    // 구매 카드 생성
+    ...userCardsToCreate,
+
+    // 포인트 사용 기록
+    prisma.pointHistory.create({
+      data: {
+        userId,
+        points: -totalPrice,
+        pointType: "PURCHASE",
+      },
+    }),
+  ]);
+
+  return {
+    message: "구매가 완료되었습니다.",
+    remainingPoints: updatedPoint.balance,
+  };
+}
+
 export default {
   findAllCards,
   findCardById,
   findMyCards,
   findMySales,
+  purchaseCard,
 };

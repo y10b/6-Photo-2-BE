@@ -78,3 +78,18 @@ export async function getMySales(req, res, next) {
     next(err);
   }
 }
+
+// 구매
+export async function purchaseCard(req, res, next) {
+  try {
+    const { saleId, quantity } = req.body;
+    const userId = req.user.id;
+
+    const result = await photoService.purchaseCard({ userId, saleId, quantity });
+
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
