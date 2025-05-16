@@ -2,43 +2,46 @@ import prisma from "../prisma/client.js";
 
 // 필터 조건 생성 함수
 function createFilterOption({ filterType, filterValue, keyword }) {
-  const where = {};
+  const shop = {};
+  const userCard = {};
 
-  // 키워드 검색 (카드 이름 기준)
+  // 키워드(카드 이름) 검색
   if (keyword) {
-    where.userCard = {
-      photoCard: {
-        name: { contains: keyword },
+    userCard.photoCard = {
+      name: {
+        contains: keyword,
       },
     };
   }
 
-  // 필터 타입에 따른 필터링(한 번에 하나의 필터만 선택 가능)
+  // 필터링 분기(한 번에 하나의 필터타입만 선택 가능)
   if (filterType && filterValue) {
     const values = filterValue.split(",");
 
     switch (filterType) {
-      case "grade": // 등급
-        where.userCard ??= {};
-        where.userCard.photoCard ??= {};
-        where.userCard.photoCard.grade = { in: values };
+      case "grade":
+        userCard.photoCard ??= {};
+        userCard.photoCard.grade = { in: values };
         break;
-      case "genre": // 장르
-        where.userCard ??= {};
-        where.userCard.photoCard ??= {};
-        where.userCard.photoCard.genre = { in: values };
+      case "genre":
+        userCard.photoCard ??= {};
+        userCard.photoCard.genre = { in: values };
         break;
-      case "soldOut": // 매진 여부
-        where.remainingQuantity = values.includes("true") ? 0 : { gt: 0 };
+      case "soldOut":
+        shop.remainingQuantity =
+          values.includes("true") && !values.includes("false")
+            ? 0
+            : values.includes("false") && !values.includes("true")
+            ? { gt: 0 }
+            : undefined;
         break;
-      case "method": // 판매 방법
-        where.userCard ??= {};
-        where.userCard.status = { in: values };
+      case "method":
+        userCard.status = { in: values }; // ['FOR_SALE'], ['FOR_SALE_AND_TRADE']
         break;
     }
   }
 
-  return where;
+  return { shop, userCard };
 }
 
 // 정렬 조건 생성 함수
@@ -56,16 +59,16 @@ function createSortOption(sort) {
   }
 }
 
-// 카드 타입 판별
+// 카드 타입 판별 함수
 function getCardType(status, remainingQuantity) {
-  if (status === "FOR_SALE" && remainingQuantity === 0) return "soldout"; // 매진
-  if (status === "FOR_SALE") return "for_sale"; // 판매 중
-  if (status === "FOR_TRADE") return "exchange"; // 교환 제시 대기 중
+  if (status === "FOR_SALE" && remainingQuantity === 0) return "soldout";
+  if (status === "FOR_SALE") return "for_sale";
+  if (status === "FOR_SALE_AND_TRADE") return "exchange";
   if (status === "IDLE") return "my_card";
   return null;
 }
 
-// 전체 포토카드 목록 조회 (필터, 정렬, 페이지네이션 포함)
+// 마켓플레이스에 등록된 포토카드 조회
 export async function findAllCards({
   filterType,
   filterValue,
@@ -74,9 +77,20 @@ export async function findAllCards({
   page = 1,
   take = 10,
 }) {
-  const skip = (Number(page) - 1) * Number(take); // 페이지네이션 offset
-  const orderBy = createSortOption(sort); // 정렬 조건
-  const where = createFilterOption({ filterType, filterValue, keyword }); // 필터 조건
+  const skip = (Number(page) - 1) * Number(take);
+  const orderBy = createSortOption(sort);
+  const { shop, userCard } = createFilterOption({
+    filterType,
+    filterValue,
+    keyword,
+  });
+
+  const where = {
+    ...shop,
+    userCard: {
+      ...userCard,
+    },
+  };
 
   const [totalCount, shops] = await Promise.all([
     prisma.shop.count({ where }),
@@ -127,7 +141,8 @@ export async function findAllCards({
   };
 }
 
-// 카드 상세 조회
+// 포토카드 상세 조회
+// - 내가 올린 카드일 경우 교환 제안 목록도 포함됨
 export async function findCardById(userCardId, currentUserId) {
   const userCard = await prisma.userCard.findUnique({
     where: { id: userCardId },
@@ -141,7 +156,7 @@ export async function findCardById(userCardId, currentUserId) {
   if (!userCard) throw new Error("카드 정보를 찾을 수 없습니다.");
 
   const { photoCard, shop, user } = userCard;
-  const isSeller = userCard.userId === currentUserId; // 판매자 or 구매자 판별
+  const isSeller = userCard.userId === currentUserId;
 
   const baseData = {
     cardId: photoCard.id,
@@ -162,15 +177,14 @@ export async function findCardById(userCardId, currentUserId) {
     updatedAt: userCard.updatedAt,
   };
 
-  // TODO: 추후 api 연동 후 수정 예정
-  // 판매자일 경우: 교환 제안 목록 조회
+  // 내가 올린 카드일 경우 교환 제안 리스트 포함
   if (isSeller) {
     const exchanges = await prisma.exchange.findMany({
       where: { targetCardId: userCard.id },
       include: {
-        requester: { select: { nickname: true } },
-        offeredCard: {
+        requestCard: {
           include: {
+            user: true,
             photoCard: true,
           },
         },
@@ -179,16 +193,14 @@ export async function findCardById(userCardId, currentUserId) {
 
     baseData.exchangeProposals = exchanges.map((ex) => ({
       exchangeId: ex.id,
-      requesterNickname: ex.requester.nickname,
-      offeredCardId: ex.offeredCard.id,
-      offeredCardName: ex.offeredCard.photoCard.name,
-      offeredCardGrade: ex.offeredCard.photoCard.grade,
-      offeredCardGenre: ex.offeredCard.photoCard.genre,
+      requesterNickname: ex.requestCard.user.nickname,
+      offeredCardId: ex.requestCard.id,
+      offeredCardName: ex.requestCard.photoCard.name,
+      offeredCardGrade: ex.requestCard.photoCard.grade,
+      offeredCardGenre: ex.requestCard.photoCard.genre,
     }));
-  }
-
-  // 구매자일 경우: 교환 정보 제공
-  if (!isSeller && shop) {
+  } else if (shop) {
+    // 구매자일 경우 교환 정보 표시
     baseData.exchangeInfo = {
       genre: shop.exchangeGenre,
       grade: shop.exchangeGrade,
@@ -199,7 +211,9 @@ export async function findCardById(userCardId, currentUserId) {
   return baseData;
 }
 
-// 내가 가진 카드 조회 (페이지네이션 포함)
+// 마이 갤러리 전체 조회
+// - 내가 만든 카드, 구매한 카드 중 판매 안 된 상태(IDLE)만 조회
+// - 상점에 등록된 카드는 제외됨
 export async function findMyCards({
   userId,
   filterType,
@@ -209,12 +223,16 @@ export async function findMyCards({
   take = 10,
 }) {
   const skip = (Number(page) - 1) * Number(take);
-  const extraWhere = createFilterOption({ filterType, filterValue, keyword });
+  const { userCard: extraWhere } = createFilterOption({
+    filterType,
+    filterValue,
+    keyword,
+  });
 
   const where = {
     userId,
-    NOT: { status: "SOLD" },
-    ...extraWhere?.userCard,
+    status: "IDLE", // 소장 상태만 (판매 미등록)
+    ...extraWhere,
   };
 
   const [totalCount, userCards] = await Promise.all([
@@ -253,7 +271,8 @@ export async function findMyCards({
   };
 }
 
-// 내가 등록한 판매 카드 조회 (페이지네이션 포함)
+// 나의 판매 포토카드 전체 조회(상점에 등록된 것만)
+// - 동일한 카드라도 상태에 따라 분리되어 렌더링됨
 export async function findMySales({
   userId,
   filterType,
@@ -263,12 +282,19 @@ export async function findMySales({
   take = 10,
 }) {
   const skip = (Number(page) - 1) * Number(take);
-  const extraWhere = createFilterOption({ filterType, filterValue, keyword });
+  const { shop: shopFilter, userCard: userCardFilter } = createFilterOption({
+    filterType,
+    filterValue,
+    keyword,
+  });
 
   const where = {
-    sellerId: userId,
-    remainingQuantity: { gte: 0 }, // 판매 등록된 카드
-    ...extraWhere,
+    userCard: {
+      userId,
+      status: { not: "IDLE" }, // FOR_SALE, FOR_SALE_AND_TRADE, SOLD
+      ...userCardFilter,
+    },
+    ...shopFilter,
   };
 
   const [totalCount, shops] = await Promise.all([
@@ -300,7 +326,7 @@ export async function findMySales({
     price: shop.price,
     quantityLeft: shop.remainingQuantity,
     quantityTotal: shop.initialQuantity,
-    saleStatus: shop.userCard.status, // 같은 포토카드여도 상태가 다르면 나눠서 렌더링
+    saleStatus: shop.userCard.status,
     type: getCardType(shop.userCard.status, shop.remainingQuantity),
     exchangeInfo: {
       genre: shop.exchangeGenre,
