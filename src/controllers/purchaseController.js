@@ -10,12 +10,13 @@ export async function getPhotoCardDetail(req, res, next) {
         }
 
         // photoCard 정보는 모든 shop 항목에 동일하므로 첫 번째 항목에서 추출
-        const { photoCard, ...rest } = shopList[0];
+        const { photoCard } = shopList[0];
 
         const formattedShops = shopList.map(shop => ({
             price: shop.price,
             initialQuantity: shop.initialQuantity,
             remainingQuantity: shop.remainingQuantity,
+            sellerNickname: shop.seller.nickname,
         }));
 
         res.status(200).json({
