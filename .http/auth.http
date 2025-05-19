@@ -1,0 +1,55 @@
+### 회원가입 테스트
+POST http://localhost:5005/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "nickname": "testuser",
+  "password": "password123"
+}
+
+### 로그인 테스트
+POST http://localhost:5005/auth/signin
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 이메일 중복 테스트
+POST http://localhost:5005/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "nickname": "testuser2",
+  "password": "password123"
+}
+
+### 닉네임 중복 테스트
+POST http://localhost:5005/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test2@example.com",
+  "nickname": "testuser",
+  "password": "password123"
+}
+
+### 필수 필드 누락 테스트 (회원가입)
+POST http://localhost:5005/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test3@example.com"
+}
+
+### 잘못된 로그인 테스트
+POST http://localhost:5005/auth/signin
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
