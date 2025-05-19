@@ -1,0 +1,4 @@
+GET http://localhost:5005/api/purchase/1
+
+###
+GET http://localhost:5005/cards/1

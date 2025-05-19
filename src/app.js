@@ -2,6 +2,7 @@ import express from "express";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import photoRouter from "./routes/photoRoutes.js";
 import shopRouter from "./routes/shopRoutes.js";
+import purchaseRouter from "./routes/purchaseRoutes.js";
 
 const app = express();
 const PORT = 5005;
@@ -11,6 +12,7 @@ app.use(express.json());
 //라우터 등록
 app.use("/", photoRouter);
 app.use("/api", shopRouter);
+app.use("/api/purchase", purchaseRouter)
 
 //미들웨어
 app.use(errorHandler);
