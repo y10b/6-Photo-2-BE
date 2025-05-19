@@ -1,0 +1,8 @@
+POST http://localhost:5005/api/notification
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "type": "EXCHANGE_PROPOSED",
+  "content": "교환 제안이 도착했어요!" 
+}

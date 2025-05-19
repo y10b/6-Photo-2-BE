@@ -4,6 +4,7 @@ import cors from "cors";
 import photoRouter from "./routes/photoRoutes.js";
 import shopRouter from "./routes/shopRoutes.js";
 import purchaseRouter from "./routes/purchaseRoutes.js";
+import notificationRouter from "./routes/notificationRoute.js";
 
 const app = express();
 const PORT = 5005;
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/", photoRouter);
 app.use("/api", shopRouter);
 app.use("/api/purchase", purchaseRouter);
+app.use("/api/notification", notificationRouter);
 
 //미들웨어
 app.use(errorHandler);
