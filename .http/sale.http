@@ -1,0 +1,32 @@
+### 판매 등록 테스트
+POST http://localhost:5005/api/shop
+Content-Type: application/json
+
+{
+  "photoCardId": 27,
+  "quantity": 1,
+  "price": 5000,
+  "listingType": "FOR_SALE_AND_TRADE",
+  "exchangeGrade": "RARE",
+  "exchangeGenre": "LANDSCAPE",
+  "exchangeDescription": "비슷한 풍경 카드 교환 원해요"
+}
+
+### 삭제
+DELETE http://localhost:5005/api/shop/65
+
+### 수정
+PUT  http://localhost:5005/api/shop/65
+Content-Type: application/json
+
+{
+  "price": 12000,
+  "initialQuantity": 3,
+  "listingType": "FOR_SALE_AND_TRADE",
+  "exchangeGrade": "COMMON",
+  "exchangeGenre": "TRAVEL",
+  "exchangeDescription": "상태 매우 좋음"
+}
+
+
+
