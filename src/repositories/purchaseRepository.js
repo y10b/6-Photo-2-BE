@@ -8,6 +8,11 @@ export async function findShopsByPhotoCardId(id) {
             price: true,
             initialQuantity: true,
             remainingQuantity: true,
+            seller: {
+                select: {
+                    nickname: true,
+                },
+            },
             photoCard: {
                 select: {
                     name: true,
@@ -19,7 +24,7 @@ export async function findShopsByPhotoCardId(id) {
             },
         },
         orderBy: {
-            createdAt: 'desc', // 최신 게시글 순서로 정렬
+            createdAt: 'desc',
         },
     });
 }
