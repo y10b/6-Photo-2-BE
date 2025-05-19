@@ -1,11 +1,14 @@
 import express from "express";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import cors from "cors";
 import photoRouter from "./routes/photoRoutes.js";
 import shopRouter from "./routes/shopRoutes.js";
 import purchaseRouter from "./routes/purchaseRoutes.js";
 
 const app = express();
 const PORT = 5005;
+
+app.use(cors({ origin: "*" }));
 
 app.use(express.json());
 
