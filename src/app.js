@@ -8,14 +8,19 @@ import purchaseRouter from "./routes/purchaseRoutes.js";
 const app = express();
 const PORT = 5005;
 
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
 //라우터 등록
 app.use("/", photoRouter);
 app.use("/api", shopRouter);
-app.use("/api/purchase", purchaseRouter)
+app.use("/api/purchase", purchaseRouter);
 
 //미들웨어
 app.use(errorHandler);
