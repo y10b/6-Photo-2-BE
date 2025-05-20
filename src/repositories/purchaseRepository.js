@@ -1,6 +1,5 @@
 import prisma from '../prisma/client.js';
 
-// 하나의 포토카드에 대한 모든 판매 게시글 조회
 export async function findShopsByPhotoCardId(id) {
     return await prisma.shop.findMany({
         where: { photoCardId: Number(id) },
@@ -8,11 +7,7 @@ export async function findShopsByPhotoCardId(id) {
             price: true,
             initialQuantity: true,
             remainingQuantity: true,
-            seller: {
-                select: {
-                    nickname: true,
-                },
-            },
+            seller: { select: { nickname: true } },
             photoCard: {
                 select: {
                     name: true,
@@ -23,9 +18,14 @@ export async function findShopsByPhotoCardId(id) {
                 },
             },
         },
-        orderBy: {
-            createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
+    });
+}
+
+export async function findShopWithPhotoCard(shopId) {
+    return await prisma.shop.findUnique({
+        where: { id: shopId },
+        include: { photoCard: true },
     });
 }
 
@@ -42,24 +42,15 @@ export async function purchaseCard(userId, shopId, quantity) {
             },
         });
 
-        if (!shop) {
-            throw new Error('판매 게시글을 찾을 수 없습니다.');
-        }
-
+        if (!shop) throw new Error('판매 게시글을 찾을 수 없습니다.');
         if (shop.listingType !== 'FOR_SALE' && shop.listingType !== 'FOR_SALE_AND_TRADE') {
             throw new Error('해당 판매 게시글은 구매 가능한 유형이 아닙니다.');
         }
-
-        if (shop.remainingQuantity < quantity) {
-            throw new Error('재고가 부족합니다.');
-        }
-
-        if (shop.listedItems.length < quantity) {
-            throw new Error('판매 가능한 카드가 부족합니다.');
+        if (shop.remainingQuantity < quantity || shop.listedItems.length < quantity) {
+            throw new Error('재고가 부족하거나 판매 가능한 카드 수량이 부족합니다.');
         }
 
         const totalPrice = shop.price * quantity;
-
         const buyer = await tx.user.findUnique({
             where: { id: userId },
             include: { point: true },
@@ -69,13 +60,11 @@ export async function purchaseCard(userId, shopId, quantity) {
             throw new Error('포인트가 부족합니다.');
         }
 
-        // 포인트 차감
         await tx.point.update({
             where: { userId },
             data: { balance: { decrement: totalPrice } },
         });
 
-        // 포인트 히스토리 기록
         await tx.pointHistory.create({
             data: {
                 userId,
@@ -84,7 +73,6 @@ export async function purchaseCard(userId, shopId, quantity) {
             },
         });
 
-        // 카드 소유권 이전
         for (const card of shop.listedItems) {
             await tx.userCard.update({
                 where: { id: card.id },
@@ -96,12 +84,9 @@ export async function purchaseCard(userId, shopId, quantity) {
             });
         }
 
-        // 재고 감소
         const updatedShop = await tx.shop.update({
             where: { id: shopId },
-            data: {
-                remainingQuantity: { decrement: quantity },
-            },
+            data: { remainingQuantity: { decrement: quantity } },
         });
 
         return {
