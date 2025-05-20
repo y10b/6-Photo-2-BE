@@ -35,7 +35,7 @@ export async function purchaseCard(userId, shopId, quantity) {
             where: { id: shopId },
             include: {
                 listedItems: {
-                    where: { status: 'LISTED' },  // 판매 중인 카드만 조회
+                    where: { status: 'LISTED' },
                     take: quantity,
                 },
                 photoCard: true,
@@ -84,20 +84,20 @@ export async function purchaseCard(userId, shopId, quantity) {
             },
         });
 
-        // 카드 소유권 이전 및 상태 변경
+        // 카드 소유권 이전
         for (const card of shop.listedItems) {
             await tx.userCard.update({
                 where: { id: card.id },
                 data: {
                     userId,
-                    status: 'IDLE',  // 구매 후 소유 상태로 변경
+                    status: 'IDLE',
                     shopListingId: null,
                 },
             });
         }
 
         // 재고 감소
-        await tx.shop.update({
+        const updatedShop = await tx.shop.update({
             where: { id: shopId },
             data: {
                 remainingQuantity: { decrement: quantity },
@@ -105,9 +105,16 @@ export async function purchaseCard(userId, shopId, quantity) {
         });
 
         return {
-            purchasedCount: quantity,
-            newOwnerId: userId,
-            remainingQuantity: shop.remainingQuantity - quantity,
+            success: true,
+            message: `${quantity}장 구매에 성공했습니다.`,
+            shopId: shop.id,
+            photoCardId: shop.photoCard.id,
+            grade: shop.photoCard.grade,
+            genre: shop.photoCard.genre,
+            userId,
+            initialQuantity: shop.initialQuantity,
+            purchasedQuantity: quantity,
+            remainingQuantity: updatedShop.remainingQuantity,
         };
     });
 }

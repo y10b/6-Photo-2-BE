@@ -33,19 +33,44 @@ export async function getPhotoCardDetail(req, res, next) {
 
 //구매 로직
 export const purchaseCardController = async (req, res) => {
-    try {
-        const userId = req.user?.id;
-        const shopId = Number(req.params.shopId); // ✅ 수정된 부분
-        const { quantity } = req.body;
+    const userId = req.user?.id;
+    const shopId = Number(req.params.shopId);
+    const { quantity } = req.body;
 
-        if (!userId || isNaN(shopId) || !quantity) {
-            return res.status(400).json({ message: 'userId, shopId, quantity는 필수입니다.' });
-        }
+    if (!userId || isNaN(shopId) || !quantity) {
+        return res.status(400).json({ message: 'userId, shopId, quantity는 필수입니다.' });
+    }
+
+    // 실패 응답용 정보 미리 조회
+    let shopInfo;
+    try {
+        shopInfo = await prisma.shop.findUnique({
+            where: { id: shopId },
+            include: { photoCard: true },
+        });
 
         const result = await purchaseService.purchaseCardService(userId, shopId, quantity);
+
         res.status(200).json(result);
     } catch (error) {
         console.error('구매 실패:', error);
-        res.status(500).json({ message: error.message || '카드 구매 중 오류가 발생했습니다.' });
+
+        const failureResponse = {
+            success: false,
+            message: `${quantity}장 구매에 실패했습니다.`,
+            shopId,
+            userId,
+        };
+
+        if (shopInfo?.photoCard) {
+            failureResponse.photoCardId = shopInfo.photoCard.id;
+            failureResponse.grade = shopInfo.photoCard.grade;
+            failureResponse.genre = shopInfo.photoCard.genre;
+        }
+
+        res.status(500).json({
+            ...failureResponse,
+            error: error.message || '카드 구매 중 오류가 발생했습니다.',
+        });
     }
 };
