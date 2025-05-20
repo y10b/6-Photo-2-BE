@@ -335,7 +335,7 @@ export async function findMyIDLECards({
       type: getCardType(card.status, 0, null),
       createdAt: card.createdAt,
       updatedAt: card.updatedAt,
-      quantity: group.length,
+      quantityLeft: group.length,
     };
   });
 
