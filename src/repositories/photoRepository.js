@@ -3,11 +3,10 @@ import prisma from "../prisma/client.js";
 // 필터 조건 생성 함수
 function createFilterOption({ filterType, filterValue, keyword }) {
   const shop = {};
-  const userCard = {};
 
   // 키워드(카드 이름) 검색
   if (keyword) {
-    userCard.photoCard = {
+    shop.photoCard = {
       name: {
         contains: keyword,
       },
@@ -20,28 +19,28 @@ function createFilterOption({ filterType, filterValue, keyword }) {
 
     switch (filterType) {
       case "grade":
-        userCard.photoCard ??= {};
-        userCard.photoCard.grade = { in: values };
+        shop.photoCard ??= {};
+        shop.photoCard.grade = { in: values };
         break;
       case "genre":
-        userCard.photoCard ??= {};
-        userCard.photoCard.genre = { in: values };
+        shop.photoCard ??= {};
+        shop.photoCard.genre = { in: values };
         break;
       case "soldOut":
         shop.remainingQuantity =
           values.includes("true") && !values.includes("false")
             ? 0
             : values.includes("false") && !values.includes("true")
-              ? { gt: 0 }
-              : undefined;
+            ? { gt: 0 }
+            : undefined;
         break;
       case "method":
-        userCard.status = { in: values }; // ['FOR_SALE'], ['FOR_SALE_AND_TRADE']
+        shop.listingType = { in: values }; // ['FOR_SALE'], ['FOR_SALE_AND_TRADE']
         break;
     }
   }
 
-  return { shop, userCard };
+  return { shop };
 }
 
 // 정렬 조건 생성 함수
@@ -60,10 +59,11 @@ function createSortOption(sort) {
 }
 
 // 카드 타입 판별 함수
-function getCardType(status, remainingQuantity) {
-  if (status === "FOR_SALE" && remainingQuantity === 0) return "soldout";
-  if (status === "FOR_SALE") return "for_sale";
-  if (status === "FOR_SALE_AND_TRADE") return "exchange";
+function getCardType(status, remainingQuantity, listingType) {
+  if (status === "SOLD") return "soldout";
+  if (listingType === "FOR_SALE" && remainingQuantity > 0) return "for_sale";
+  if (listingType === "FOR_SALE_AND_TRADE" && remainingQuantity > 0)
+    return "exchange";
   if (status === "IDLE") return "my_card";
   return null;
 }
@@ -79,59 +79,50 @@ export async function findAllCards({
 }) {
   const skip = (Number(page) - 1) * Number(take);
   const orderBy = createSortOption(sort);
-  const { shop, userCard } = createFilterOption({
-    filterType,
-    filterValue,
-    keyword,
-  });
-
-  const where = {
-    ...shop,
-    userCard: {
-      ...userCard,
-    },
-  };
+  const { shop } = createFilterOption({ filterType, filterValue, keyword });
 
   const [totalCount, shops] = await Promise.all([
-    prisma.shop.count({ where }),
+    prisma.shop.count({ where: shop }),
     prisma.shop.findMany({
-      where,
+      where: shop,
       orderBy,
       skip,
       take: Number(take),
       include: {
-        userCard: {
+        listedItems: {
           include: {
-            photoCard: true,
             user: true,
           },
         },
+        photoCard: true,
+        seller: true,
       },
     }),
   ]);
 
-  const result = shops.map((shop) => {
-    const { userCard } = shop;
-    const { photoCard, user } = userCard;
-
-    return {
-      cardId: photoCard.id,
+  const result = shops.flatMap((shop) =>
+    shop.listedItems.map((userCard) => ({
+      cardId: shop.photoCard.id,
       userCardId: userCard.id,
-      imageUrl: photoCard.imageUrl,
+      imageUrl: shop.photoCard.imageUrl,
       price: shop.price,
-      title: photoCard.name,
-      description: photoCard.description ?? "",
-      cardGenre: photoCard.genre,
-      cardGrade: photoCard.grade,
-      nickname: user?.nickname ?? null,
+      title: shop.photoCard.name,
+      description: shop.photoCard.description ?? "",
+      cardGenre: shop.photoCard.genre,
+      cardGrade: shop.photoCard.grade,
+      nickname: userCard.user?.nickname ?? null,
       quantityLeft: shop.remainingQuantity,
       quantityTotal: shop.initialQuantity,
       saleStatus: userCard.status,
-      type: getCardType(userCard.status, shop.remainingQuantity),
+      type: getCardType(
+        userCard.status,
+        shop.remainingQuantity,
+        shop.listingType
+      ),
       createdAt: shop.createdAt,
       updatedAt: shop.updatedAt,
-    };
-  });
+    }))
+  );
 
   return {
     totalCount,
@@ -148,14 +139,14 @@ export async function findCardById(userCardId, currentUserId) {
     where: { id: userCardId },
     include: {
       photoCard: true,
-      shop: true,
+      shopListing: true,
       user: true,
     },
   });
 
   if (!userCard) throw new Error("카드 정보를 찾을 수 없습니다.");
 
-  const { photoCard, shop, user } = userCard;
+  const { photoCard, shopListing, user } = userCard;
   const isSeller = userCard.userId === currentUserId;
 
   const baseData = {
@@ -166,12 +157,16 @@ export async function findCardById(userCardId, currentUserId) {
     description: photoCard.description,
     cardGenre: photoCard.genre,
     cardGrade: photoCard.grade,
-    price: shop?.price,
+    price: shopListing?.price,
     nickname: user.nickname,
-    quantityLeft: shop?.remainingQuantity,
-    quantityTotal: shop?.initialQuantity,
+    quantityLeft: shopListing?.remainingQuantity,
+    quantityTotal: shopListing?.initialQuantity,
     saleStatus: userCard.status,
-    type: getCardType(userCard.status, shop?.remainingQuantity),
+    type: getCardType(
+      userCard.status,
+      shopListing?.remainingQuantity,
+      shopListing?.listingType
+    ),
     isSeller,
     createdAt: userCard.createdAt,
     updatedAt: userCard.updatedAt,
@@ -199,12 +194,12 @@ export async function findCardById(userCardId, currentUserId) {
       offeredCardGrade: ex.requestCard.photoCard.grade,
       offeredCardGenre: ex.requestCard.photoCard.genre,
     }));
-  } else if (shop) {
     // 구매자일 경우 교환 정보 표시
+  } else if (shopListing) {
     baseData.exchangeInfo = {
-      genre: shop.exchangeGenre,
-      grade: shop.exchangeGrade,
-      description: shop.exchangeDescription,
+      genre: shopListing.exchangeGenre,
+      grade: shopListing.exchangeGrade,
+      description: shopListing.exchangeDescription,
     };
   }
 
@@ -223,7 +218,7 @@ export async function findMyCards({
   take = 10,
 }) {
   const skip = (Number(page) - 1) * Number(take);
-  const { userCard: extraWhere } = createFilterOption({
+  const { shop: extraWhere } = createFilterOption({
     filterType,
     filterValue,
     keyword,
@@ -231,8 +226,8 @@ export async function findMyCards({
 
   const where = {
     userId,
-    status: "IDLE", // 소장 상태만 (판매 미등록)
-    ...extraWhere,
+    status: "IDLE", // 소장 상태만(판매 미등록)
+    photoCard: extraWhere?.photoCard ?? {},
   };
 
   const [totalCount, userCards] = await Promise.all([
@@ -241,7 +236,6 @@ export async function findMyCards({
       where,
       include: {
         photoCard: true,
-        shop: true,
       },
       orderBy: [{ createdAt: "desc" }],
       skip,
@@ -258,7 +252,7 @@ export async function findMyCards({
     cardGrade: card.photoCard.grade,
     status: card.status,
     saleStatus: card.status,
-    type: getCardType(card.status, card.shop?.remainingQuantity),
+    type: getCardType(card.status, 0, null),
     createdAt: card.createdAt,
     updatedAt: card.updatedAt,
   }));
@@ -282,18 +276,14 @@ export async function findMySales({
   take = 10,
 }) {
   const skip = (Number(page) - 1) * Number(take);
-  const { shop: shopFilter, userCard: userCardFilter } = createFilterOption({
+  const { shop: shopFilter } = createFilterOption({
     filterType,
     filterValue,
     keyword,
   });
 
   const where = {
-    userCard: {
-      userId,
-      status: { not: "IDLE" }, // FOR_SALE, FOR_SALE_AND_TRADE, SOLD
-      ...userCardFilter,
-    },
+    sellerId: userId,
     ...shopFilter,
   };
 
@@ -302,12 +292,12 @@ export async function findMySales({
     prisma.shop.findMany({
       where,
       include: {
-        userCard: {
+        listedItems: {
           include: {
-            photoCard: true,
             user: true,
           },
         },
+        photoCard: true,
       },
       orderBy: [{ createdAt: "desc" }],
       skip,
@@ -315,34 +305,82 @@ export async function findMySales({
     }),
   ]);
 
-  const list = shops.map((shop) => ({
-    shopId: shop.id,
-    userCardId: shop.userCard.id,
-    imageUrl: shop.userCard.photoCard.imageUrl,
-    title: shop.userCard.photoCard.name,
-    description: shop.userCard.photoCard.description,
-    cardGenre: shop.userCard.photoCard.genre,
-    cardGrade: shop.userCard.photoCard.grade,
-    price: shop.price,
-    quantityLeft: shop.remainingQuantity,
-    quantityTotal: shop.initialQuantity,
-    saleStatus: shop.userCard.status,
-    type: getCardType(shop.userCard.status, shop.remainingQuantity),
-    exchangeInfo: {
-      genre: shop.exchangeGenre,
-      grade: shop.exchangeGrade,
-      description: shop.exchangeDescription,
-    },
-    nickname: shop.userCard.user?.nickname ?? null,
-    createdAt: shop.createdAt,
-    updatedAt: shop.updatedAt,
-  }));
+  const list = shops.flatMap((shop) =>
+    shop.listedItems.map((userCard) => ({
+      shopId: shop.id,
+      userCardId: userCard.id,
+      imageUrl: shop.photoCard.imageUrl,
+      title: shop.photoCard.name,
+      description: shop.photoCard.description,
+      cardGenre: shop.photoCard.genre,
+      cardGrade: shop.photoCard.grade,
+      price: shop.price,
+      quantityLeft: shop.remainingQuantity,
+      quantityTotal: shop.initialQuantity,
+      saleStatus: userCard.status,
+      type: getCardType(
+        userCard.status,
+        shop.remainingQuantity,
+        shop.listingType
+      ),
+      exchangeInfo: {
+        genre: shop.exchangeGenre,
+        grade: shop.exchangeGrade,
+        description: shop.exchangeDescription,
+      },
+      nickname: userCard.user?.nickname ?? null,
+      createdAt: shop.createdAt,
+      updatedAt: shop.updatedAt,
+    }))
+  );
 
   return {
     totalCount,
     currentPage: Number(page),
     totalPages: Math.ceil(totalCount / Number(take)),
     list,
+  };
+}
+
+// 나의 포토카드 생성
+export async function createMyCard(userId, data) {
+  const { name, description, imageUrl, grade, genre, price, initialQuantity } =
+    data;
+
+  const photoCard = await prisma.photoCard.create({
+    data: {
+      name,
+      description,
+      imageUrl,
+      grade,
+      genre,
+      price,
+      initialQuantity,
+    },
+  });
+
+  const userCard = await prisma.userCard.create({
+    data: {
+      userId,
+      photoCardId: photoCard.id,
+    },
+    include: {
+      photoCard: true,
+    },
+  });
+
+  return {
+    userCardId: userCard.id,
+    imageUrl: userCard.photoCard.imageUrl,
+    title: userCard.photoCard.name,
+    description: userCard.photoCard.description,
+    cardGenre: userCard.photoCard.genre,
+    cardGrade: userCard.photoCard.grade,
+    status: userCard.status,
+    saleStatus: userCard.status,
+    type: "my_card",
+    createdAt: userCard.createdAt,
+    updatedAt: userCard.updatedAt,
   };
 }
 
@@ -418,5 +456,6 @@ export default {
   findCardById,
   findMyCards,
   findMySales,
+  createMyCard,
   purchaseCard,
 };
