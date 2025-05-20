@@ -1,22 +1,34 @@
-### 로그인 테스트
+### 로그인 테스트 (시드 사용자)
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
-  "password": "password123"
+  "email": "user1@example.com",
+  "password": "1234"
 }
 
-### 교환 제안
+### 1. 교환 제안 요청 (본인 카드로 요청)
 POST http://localhost:5005/api/exchange
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJpYXQiOjE3NDc3MjIxODcsImV4cCI6MTc0NzcyNTc4N30.3QYKKo_7wCiXF2b0YJD8kFwBsveVY2Z7XL27-enwSS8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0NzcyNTk5MCwiZXhwIjoxNzQ3NzI5NTkwfQ.jxkr9-M8pwZ27vSnO3mIF4YZAwJ1T4GArCcBMfrw6Cs
 
 {
-  "targetCardId": 1,
-  "requestCardId": 2
+  "targetCardId": 8,
+  "requestCardId": 30
 }
 
-### 내가 보유한 카드 목록 조회
-GET http://localhost:5005/api/my-cards
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJpYXQiOjE3NDc3MjIxODcsImV4cCI6MTc0NzcyNTc4N30.3QYKKo_7wCiXF2b0YJD8kFwBsveVY2Z7XL27-enwSS8
+
+### 2. 교환 수락 요청 (판매자 입장)
+POST http://localhost:5005/api/exchange/1/accept
+Authorization: Bearer <AccessToken>
+
+
+### 3. 교환 거절 요청 (판매자 입장)
+POST http://localhost:5005/api/exchange/1/reject
+Authorization: Bearer <AccessToken>
+
+
+### 4. 특정 카드에 대한 교환 제안 목록 조회
+GET http://localhost:5005/api/exchange/card/3
+Authorization: Bearer <AccessToken>
+
