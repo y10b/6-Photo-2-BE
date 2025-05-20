@@ -29,4 +29,5 @@ Content-Type: application/json
 }
 
 
-
+### IDLE 카드 조회(중복 카드 그룹핑, 수량 계산)
+GET http://localhost:5005/mypage/idle-cards

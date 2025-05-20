@@ -12,6 +12,10 @@ export async function getMyCards(query) {
   return photoRepository.findMyCards(query);
 }
 
+export async function getMyIDLECards(query) {
+  return photoRepository.findMyIDLECards(query);
+}
+
 export async function getMySales(query) {
   return photoRepository.findMySales(query);
 }
@@ -20,11 +24,11 @@ export async function purchaseCard({ userId, saleId, quantity }) {
   return photoRepository.purchaseCard({ userId, saleId, quantity });
 }
 
-
 export default {
   getAllCards,
   getCardDetail,
   getMyCards,
+  getMyIDLECards,
   getMySales,
   purchaseCard,
 };

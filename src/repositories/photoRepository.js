@@ -1,4 +1,5 @@
 import prisma from "../prisma/client.js";
+import _ from "lodash";
 
 // 필터 조건 생성 함수
 function createFilterOption({ filterType, filterValue, keyword }) {
@@ -265,6 +266,87 @@ export async function findMyCards({
   };
 }
 
+// 마이 갤러리 전체 조회
+// - 내가 만든 카드, 구매한 카드 중 판매 안 된 상태(IDLE)만 조회
+// - 상점에 등록된 카드는 제외됨
+// - 같은 카드는 하나로 묶어서 수량 포함(위에 코드에서 수량 계산하는 코드 포함!!!)
+export async function findMyIDLECards({
+  userId,
+  filterType,
+  filterValue,
+  keyword,
+  page = 1,
+  take = 10,
+}) {
+  const skip = (Number(page) - 1) * Number(take);
+
+  const { shop: extraWhere } = createFilterOption({
+    filterType,
+    filterValue,
+    keyword,
+  });
+
+  const where = {
+    userId,
+    status: "IDLE",
+    photoCard: extraWhere?.photoCard ?? {},
+  };
+
+  // 전체 조회 후 그룹핑 (중복 제거 및 수량 계산용)
+  const allUserCards = await prisma.userCard.findMany({
+    where,
+    include: {
+      photoCard: true,
+      user: {
+        select: { nickname: true },
+      },
+    },
+    orderBy: [{ createdAt: "desc" }],
+  });
+
+  // 동일 카드 기준으로 그룹핑
+  const grouped = _.groupBy(allUserCards, (card) =>
+    JSON.stringify({
+      nickname: card.user.nickname,
+      price: card.photoCard.price,
+      imageUrl: card.photoCard.imageUrl,
+      title: card.photoCard.name,
+      description: card.photoCard.description,
+      cardGenre: card.photoCard.genre,
+      cardGrade: card.photoCard.grade,
+      status: card.status,
+    })
+  );
+
+  // 그룹별 대표 카드 + 수량 추출
+  const groupedList = Object.values(grouped).map((group) => {
+    const card = group[0];
+    return {
+      userCardId: card.id,
+      nickname: card.user.nickname,
+      price: card.photoCard.price,
+      imageUrl: card.photoCard.imageUrl,
+      title: card.photoCard.name,
+      description: card.photoCard.description,
+      cardGenre: card.photoCard.genre,
+      cardGrade: card.photoCard.grade,
+      status: card.status,
+      saleStatus: card.status,
+      type: getCardType(card.status, 0, null),
+      createdAt: card.createdAt,
+      updatedAt: card.updatedAt,
+      quantity: group.length,
+    };
+  });
+
+  return {
+    totalCount: groupedList.length,
+    currentPage: Number(page),
+    totalPages: Math.ceil(groupedList.length / Number(take)),
+    list: groupedList,
+  };
+}
+
 // 나의 판매 포토카드 전체 조회(상점에 등록된 것만)
 // - 동일한 카드라도 상태에 따라 분리되어 렌더링됨
 export async function findMySales({
@@ -455,6 +537,7 @@ export default {
   findAllCards,
   findCardById,
   findMyCards,
+  findMyIDLECards,
   findMySales,
   createMyCard,
   purchaseCard,
