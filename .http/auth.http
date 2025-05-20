@@ -8,7 +8,16 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### 로그인 테스트
+### 로그인 테스트 (시드 사용자)
+POST http://localhost:5005/auth/signin
+Content-Type: application/json
+
+{
+  "email": "user1@example.com",
+  "password": "1234"
+}
+
+### 로그인 테스트 (신규 가입 사용자)
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
@@ -35,6 +44,15 @@ Content-Type: application/json
   "email": "test2@example.com",
   "nickname": "testuser",
   "password": "password123"
+}
+
+### 시드 사용자 로그인 (포인트 확인)
+POST http://localhost:5005/auth/signin
+Content-Type: application/json
+
+{
+  "email": "user2@example.com", 
+  "password": "1234"
 }
 
 ### 필수 필드 누락 테스트 (회원가입)
