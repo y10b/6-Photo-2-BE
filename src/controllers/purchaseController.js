@@ -1,27 +1,28 @@
 import * as purchaseService from '../services/purchaseService.js';
 
-export const getPhotoCardDetail = async (req, res, next) => {
+export const getShopDetail = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
-        const shopList = await purchaseService.getPhotoCardDetails(id);
-
-        if (!shopList || shopList.length === 0) {
-            return res.status(404).json({ success: false, message: '해당 포토카드의 판매 게시글이 없습니다.' });
+        const shopId = Number(req.params.shopId);
+        if (isNaN(shopId)) {
+            return res.status(400).json({ success: false, message: '유효한 shopId가 필요합니다.' });
         }
 
-        const { photoCard } = shopList[0];
-        const formattedShops = shopList.map(shop => ({
-            price: shop.price,
-            initialQuantity: shop.initialQuantity,
-            remainingQuantity: shop.remainingQuantity,
-            sellerNickname: shop.seller.nickname,
-        }));
+        const shop = await purchaseService.getShopDetail(shopId);
+
+        if (!shop) {
+            return res.status(404).json({ success: false, message: '해당 판매 게시글이 존재하지 않습니다.' });
+        }
+
+        const { price, initialQuantity, remainingQuantity, seller, photoCard } = shop;
 
         res.status(200).json({
             success: true,
             data: {
+                price,
+                initialQuantity,
+                remainingQuantity,
+                sellerNickname: seller.nickname,
                 ...photoCard,
-                shops: formattedShops,
             },
         });
     } catch (error) {

@@ -1,8 +1,9 @@
 import * as purchaseRepository from '../repositories/purchaseRepository.js';
 
-export async function getPhotoCardDetails(id) {
-    return await purchaseRepository.findShopsByPhotoCardId(id);
+export async function getShopDetail(shopId) {
+    return await purchaseRepository.findShopById(shopId);
 }
+
 
 export const purchaseCardService = async (userId, shopId, quantity) => {
     try {

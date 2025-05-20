@@ -1,12 +1,9 @@
 import prisma from '../prisma/client.js';
 
-export async function findShopsByPhotoCardId(id) {
-    return await prisma.shop.findMany({
-        where: { photoCardId: Number(id) },
-        select: {
-            price: true,
-            initialQuantity: true,
-            remainingQuantity: true,
+export async function findShopById(shopId) {
+    return await prisma.shop.findUnique({
+        where: { id: Number(shopId) },
+        include: {
             seller: { select: { nickname: true } },
             photoCard: {
                 select: {
@@ -18,9 +15,9 @@ export async function findShopsByPhotoCardId(id) {
                 },
             },
         },
-        orderBy: { createdAt: 'desc' },
     });
 }
+
 
 export async function findShopWithPhotoCard(shopId) {
     return await prisma.shop.findUnique({
