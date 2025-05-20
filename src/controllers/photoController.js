@@ -59,6 +59,25 @@ export async function getMyCards(req, res, next) {
   }
 }
 
+// 로그인한 유저의 IDLE 보유 카드 조회 (필터링, 페이지네이션, 갯수 포함, 카드 중복 제거)
+export async function getMyIDLECards(req, res, next) {
+  try {
+    const { filterType, filterValue, keyword, page = 1, take = 10 } = req.query;
+
+    const cards = await photoService.getMyIDLECards({
+      userId: req.user.id,
+      page,
+      take,
+      keyword,
+      filterType,
+      filterValue,
+    });
+    res.json(cards);
+  } catch (err) {
+    next(err);
+  }
+}
+
 // 로그인한 유저의 판매 중인 카드 목록 조회(for_sale) (필터링, 페이지네이션 포함)
 export async function getMySales(req, res, next) {
   try {
@@ -85,11 +104,14 @@ export async function purchaseCard(req, res, next) {
     const { saleId, quantity } = req.body;
     const userId = req.user.id;
 
-    const result = await photoService.purchaseCard({ userId, saleId, quantity });
+    const result = await photoService.purchaseCard({
+      userId,
+      saleId,
+      quantity,
+    });
 
     res.status(201).json(result);
   } catch (err) {
     next(err);
   }
 }
-
