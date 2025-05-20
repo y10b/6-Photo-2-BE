@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "./middlewares/error.middleware.js";
+import errorHandler from "./middlewares/error.middleware.js";
 import cors from "cors";
 import photoRouter from "./routes/photoRoutes.js";
 import shopRouter from "./routes/shopRoutes.js";
