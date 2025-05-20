@@ -10,9 +10,13 @@ Content-Type: application/json
 ### 교환 제안
 POST http://localhost:5005/api/exchange
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJpYXQiOjE3NDc3MjExNDIsImV4cCI6MTc0NzcyNDc0Mn0.vMQEdml2z8MCN4n4W-vg-x06DjQLQC0n_Tjj4BXlbdA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJpYXQiOjE3NDc3MjIxODcsImV4cCI6MTc0NzcyNTc4N30.3QYKKo_7wCiXF2b0YJD8kFwBsveVY2Z7XL27-enwSS8
 
 {
-  "targetCardId": 3,
-  "requestCardId": 18
+  "targetCardId": 1,
+  "requestCardId": 2
 }
+
+### 내가 보유한 카드 목록 조회
+GET http://localhost:5005/api/my-cards
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJpYXQiOjE3NDc3MjIxODcsImV4cCI6MTc0NzcyNTc4N30.3QYKKo_7wCiXF2b0YJD8kFwBsveVY2Z7XL27-enwSS8
