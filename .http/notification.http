@@ -2,7 +2,12 @@ POST http://localhost:5005/api/notification
 Content-Type: application/json
 
 {
-  "userId": 1,
   "type": "EXCHANGE_PROPOSED",
   "content": "교환 제안이 도착했어요!" 
 }
+
+###
+GET http://localhost:5005/api/notification
+
+###
+PATCH http://localhost:5005/api/notification/2/read
