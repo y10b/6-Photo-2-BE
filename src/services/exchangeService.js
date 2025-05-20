@@ -1,4 +1,3 @@
-// ✅ services/exchangeService.js
 import prisma from "../prisma/client.js";
 import { BadRequestError, NotFoundError } from "../utils/customError.js";
 
@@ -54,12 +53,12 @@ export async function acceptExchange(exchangeId) {
     // 소유권 교환
     await tx.userCard.update({
       where: { id: requestCard.id },
-      data: { userId: targetCard.userId, status: "SOLD" },
+      data: { userId: targetCard.userId, status: "IDLE" },
     });
 
     await tx.userCard.update({
       where: { id: targetCard.id },
-      data: { userId: requestCard.userId, status: "SOLD" },
+      data: { userId: requestCard.userId, status: "IDLE" },
     });
 
     // 상태 변경

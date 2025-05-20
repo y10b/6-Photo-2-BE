@@ -1,10 +1,9 @@
-// ✅ controllers/exchangeController.js
 import * as exchangeService from "../services/exchangeService.js";
 
 export async function proposeExchange(req, res, next) {
   try {
     const { targetCardId, requestCardId } = req.body;
-    const userId = req.user.id; // 인증 미들웨어에서 주입
+    const userId = req.user.id; 
     const result = await exchangeService.proposeExchange(
       userId,
       targetCardId,
