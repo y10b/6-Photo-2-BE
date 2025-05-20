@@ -8,7 +8,7 @@ const SALT_ROUNDS = 10;
 async function register({ email, nickname, password }) {
   // 1. 이메일 중복 검사
   const existingEmail = await prisma.user.findUnique({
-    where: { email }
+    where: { email },
   });
   if (existingEmail) {
     const error = new Error("이미 존재하는 이메일입니다.");
@@ -18,7 +18,7 @@ async function register({ email, nickname, password }) {
 
   // 2. 닉네임 중복 검사
   const existingNickname = await prisma.user.findUnique({
-    where: { nickname }
+    where: { nickname },
   });
   if (existingNickname) {
     const error = new Error("이미 존재하는 닉네임입니다.");
@@ -29,12 +29,21 @@ async function register({ email, nickname, password }) {
   // 3. 비밀번호 해싱
   const encryptedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-  // 4. 사용자 생성 (포인트는 나중에 추가)
+  // 4. 사용자 생성 (포인트도 함께 생성)
   const newUser = await prisma.user.create({
     data: {
       email,
       nickname,
       encryptedPassword,
+      // 포인트 생성 (기본값 0)
+      point: {
+        create: {
+          balance: 0,
+        },
+      },
+    },
+    include: {
+      point: true, // 포인트 정보도 함께 조회
     },
   });
 
@@ -44,9 +53,12 @@ async function register({ email, nickname, password }) {
 // 로그인
 async function login({ email, password }) {
   const user = await prisma.user.findUnique({
-    where: { email }
+    where: { email },
+    include: {
+      point: true, // 포인트 정보도 함께 조회
+    },
   });
-  
+
   if (!user) {
     const error = new Error("존재하지 않는 이메일입니다.");
     error.code = 401;
@@ -75,15 +87,17 @@ function generateToken(user, type = "access") {
 async function getUserById(id) {
   const user = await prisma.user.findUnique({
     where: { id },
-    // 포인트 정보는 일단 제외
+    include: {
+      point: true, // 포인트 정보도 함께 조회
+    },
   });
-  
+
   if (!user) {
     const error = new Error("사용자를 찾을 수 없습니다.");
     error.code = 404;
     throw error;
   }
-  
+
   return filterUser(user);
 }
 
@@ -94,9 +108,11 @@ async function updateUser(id, data) {
     data: {
       nickname: data.nickname, // 닉네임만 수정 가능하도록 제한
     },
-    // 포인트 정보는 일단 제외
+    include: {
+      point: true, // 포인트 정보도 함께 조회
+    },
   });
-  
+
   return filterUser(updated);
 }
 
@@ -104,9 +120,9 @@ async function updateUser(id, data) {
 async function changePassword(id, currentPassword, newPassword) {
   // 1. 현재 사용자 정보 조회
   const user = await prisma.user.findUnique({
-    where: { id }
+    where: { id },
   });
-  
+
   if (!user) {
     const error = new Error("사용자를 찾을 수 없습니다.");
     error.code = 404;
@@ -114,7 +130,10 @@ async function changePassword(id, currentPassword, newPassword) {
   }
 
   // 2. 현재 비밀번호 검증
-  const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.encryptedPassword);
+  const isCurrentPasswordValid = await bcrypt.compare(
+    currentPassword,
+    user.encryptedPassword
+  );
   if (!isCurrentPasswordValid) {
     const error = new Error("현재 비밀번호가 일치하지 않습니다.");
     error.code = 400;
@@ -126,9 +145,11 @@ async function changePassword(id, currentPassword, newPassword) {
   const updated = await prisma.user.update({
     where: { id },
     data: { encryptedPassword },
-    // 포인트 정보는 일단 제외
+    include: {
+      point: true, // 포인트 정보도 함께 조회
+    },
   });
-  
+
   return filterUser(updated);
 }
 

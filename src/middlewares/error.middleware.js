@@ -1,20 +1,26 @@
-import { NotFoundError, BadRequestError, UnauthorizedError, ForbiddenError, InternalServerError } from '../utils/customError.js';
+export default function errorHandler(error, req, res, next) {
+  // ✅ JWT 관련 에러 처리
+  if (error.name === "UnauthorizedError") {
+    return res.status(401).json({ message: "invalid token..." });
+  }
 
-export const errorHandler = (err, req, res, next) => {
-    console.error(err.stack); // 에러 스택을 콘솔에 출력
-
-    // 각 에러 타입별로 처리
-    if (err instanceof NotFoundError || err instanceof BadRequestError || err instanceof UnauthorizedError || err instanceof ForbiddenError || err instanceof InternalServerError) {
-        return res.status(err.statusCode).json({
-            success: false,
-            error: err.message,
-        });
-    }
-
-    // 예기치 않은 에러는 500으로 처리
-    return res.status(500).json({
-        success: false,
-        error: 'Internal Server Error',
-        message: err.message
+  // ✅ multer 관련 에러 처리 (추후 파일 업로드 시 사용)
+  if (error.name === "MulterError") {
+    return res.status(400).json({
+      message: error.message,
+      code: error.code,
     });
-};
+  }
+
+  // ✅ 기본 에러 처리 (error.code 사용)
+  const status = error.code ?? 500;
+
+  console.error(error);
+  return res.status(status).json({
+    path: req.path,
+    method: req.method,
+    message: error.message ?? "Internal Server Error",
+    data: error.data ?? undefined,
+    date: new Date(),
+  });
+}
