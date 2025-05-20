@@ -30,3 +30,22 @@ export async function getPhotoCardDetail(req, res, next) {
         next(error);
     }
 }
+
+//구매 로직
+export const purchaseCardController = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const shopId = Number(req.params.shopId); // ✅ 수정된 부분
+        const { quantity } = req.body;
+
+        if (!userId || isNaN(shopId) || !quantity) {
+            return res.status(400).json({ message: 'userId, shopId, quantity는 필수입니다.' });
+        }
+
+        const result = await purchaseService.purchaseCardService(userId, shopId, quantity);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('구매 실패:', error);
+        res.status(500).json({ message: error.message || '카드 구매 중 오류가 발생했습니다.' });
+    }
+};

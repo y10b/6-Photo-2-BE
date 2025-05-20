@@ -1,4 +1,10 @@
 GET http://localhost:5005/api/purchase/1
 
 ###
-GET http://localhost:5005/cards/1
+POST http://localhost:5005/api/purchase/23
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJpYXQiOjE3NDc3MDgzMDEsImV4cCI6MTc0NzcxMTkwMX0.5Sc2OwEmNL_B6-kmG6GskgHau7eGZxGEn2NcPhsOGfM
+Content-Type: application/json
+
+{
+      "quantity": 1
+}
