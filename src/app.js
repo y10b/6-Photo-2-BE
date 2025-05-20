@@ -8,6 +8,7 @@ import shopRouter from "./routes/shopRoutes.js";
 import purchaseRouter from "./routes/purchaseRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import notificationRouter from "./routes/notificationRoute.js";
+import exchangeRouter from "./routes/exchangeRoutes.js";
 
 const app = express();
 const PORT = 5005;
@@ -27,6 +28,7 @@ app.use("/auth", authRouter);
 app.use("/", photoRouter);
 app.use("/api", shopRouter);
 app.use("/api/purchase", purchaseRouter);
+app.use("/api", exchangeRouter);
 app.use("/api/notification", notificationRouter);
 
 //미들웨어

@@ -1,0 +1,36 @@
+import * as exchangeService from "../services/exchangeService.js";
+
+export async function proposeExchange(req, res, next) {
+  try {
+    const { targetCardId, requestCardId } = req.body;
+    const userId = req.user.id; // 인증 미들웨어에서 주입
+    const result = await exchangeService.proposeExchange(
+      userId,
+      targetCardId,
+      requestCardId
+    );
+    res.status(201).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function acceptExchange(req, res, next) {
+  try {
+    const exchangeId = Number(req.params.id);
+    const result = await exchangeService.acceptExchange(exchangeId);
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function rejectExchange(req, res, next) {
+  try {
+    const exchangeId = Number(req.params.id);
+    const result = await exchangeService.rejectExchange(exchangeId);
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
