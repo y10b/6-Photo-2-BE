@@ -1,3 +1,4 @@
+// ✅ services/exchangeService.js
 import prisma from "../prisma/client.js";
 import { BadRequestError, NotFoundError } from "../utils/customError.js";
 
@@ -75,5 +76,42 @@ export async function rejectExchange(exchangeId) {
   return await prisma.exchange.update({
     where: { id: exchangeId },
     data: { status: "REJECTED" },
+  });
+}
+
+export async function getProposalsByTargetCardId(cardId) {
+  const exchanges = await prisma.exchange.findMany({
+    where: {
+      targetCardId: cardId,
+      status: "REQUESTED",
+    },
+    include: {
+      requestCard: {
+        include: {
+          photoCard: true,
+          user: true,
+        },
+      },
+    },
+  });
+
+  return exchanges.map((exchange) => {
+    const card = exchange.requestCard;
+    const photoCard = card.photoCard;
+    const user = card.user;
+
+    return {
+      id: exchange.id,
+      title: photoCard.name,
+      imageUrl: photoCard.imageUrl,
+      price: 0,
+      cardGrade: photoCard.grade,
+      CardGenre: photoCard.genre,
+      nickname: user.nickname,
+      quantityLeft: 1,
+      quantityTotal: 1,
+      description: photoCard.description,
+      saleStatus: "교환 제시 대기 중",
+    };
   });
 }

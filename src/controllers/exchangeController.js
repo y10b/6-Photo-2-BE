@@ -1,3 +1,4 @@
+// ✅ controllers/exchangeController.js
 import * as exchangeService from "../services/exchangeService.js";
 
 export async function proposeExchange(req, res, next) {
@@ -29,6 +30,16 @@ export async function rejectExchange(req, res, next) {
   try {
     const exchangeId = Number(req.params.id);
     const result = await exchangeService.rejectExchange(exchangeId);
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getExchangeProposals(req, res, next) {
+  try {
+    const cardId = Number(req.params.cardId);
+    const result = await exchangeService.getProposalsByTargetCardId(cardId);
     res.status(200).json({ success: true, data: result });
   } catch (err) {
     next(err);
