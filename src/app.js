@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 // 라우터 등록
 app.use("/auth", authRouter);
-app.use("/", photoRouter);
+app.use("/api", photoRouter);
 app.use("/api", shopRouter);
 app.use("/api/purchase", purchaseRouter);
 app.use("/api/notification", notificationRouter);
