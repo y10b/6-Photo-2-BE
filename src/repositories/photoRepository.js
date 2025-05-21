@@ -16,7 +16,7 @@ function createFilterOption({ filterType, filterValue, keyword }) {
 
   // 필터링 분기(한 번에 하나의 필터타입만 선택 가능)
   if (filterType && filterValue) {
-    const values = filterValue.split(",");
+    const values = filterValue.split(",").map((v) => v.toUpperCase());
 
     switch (filterType) {
       case "grade":
@@ -28,12 +28,11 @@ function createFilterOption({ filterType, filterValue, keyword }) {
         shop.photoCard.genre = { in: values };
         break;
       case "soldOut":
-        shop.remainingQuantity =
-          values.includes("true") && !values.includes("false")
-            ? 0
-            : values.includes("false") && !values.includes("true")
-            ? { gt: 0 }
-            : undefined;
+        if (filterValue === "true") {
+          shop.remainingQuantity = 0;
+        } else if (filterValue === "false") {
+          shop.remainingQuantity = { gt: 0 };
+        }
         break;
       case "method":
         shop.listingType = { in: values }; // ['FOR_SALE'], ['FOR_SALE_AND_TRADE']
@@ -90,40 +89,27 @@ export async function findAllCards({
       skip,
       take: Number(take),
       include: {
-        listedItems: {
-          include: {
-            user: true,
-          },
-        },
         photoCard: true,
         seller: true,
       },
     }),
   ]);
 
-  const result = shops.flatMap((shop) =>
-    shop.listedItems.map((userCard) => ({
-      cardId: shop.photoCard.id,
-      userCardId: userCard.id,
-      imageUrl: shop.photoCard.imageUrl,
-      price: shop.price,
-      title: shop.photoCard.name,
-      description: shop.photoCard.description ?? "",
-      cardGenre: shop.photoCard.genre,
-      cardGrade: shop.photoCard.grade,
-      nickname: userCard.user?.nickname ?? null,
-      quantityLeft: shop.remainingQuantity,
-      quantityTotal: shop.initialQuantity,
-      saleStatus: userCard.status,
-      type: getCardType(
-        userCard.status,
-        shop.remainingQuantity,
-        shop.listingType
-      ),
-      createdAt: shop.createdAt,
-      updatedAt: shop.updatedAt,
-    }))
-  );
+  const result = shops.map((shop) => ({
+    cardId: shop.photoCard.id,
+    imageUrl: shop.photoCard.imageUrl,
+    price: shop.price,
+    title: shop.photoCard.name,
+    description: shop.photoCard.description ?? "",
+    cardGenre: shop.photoCard.genre,
+    cardGrade: shop.photoCard.grade,
+    nickname: shop.seller?.nickname ?? null,
+    quantityLeft: shop.remainingQuantity,
+    quantityTotal: shop.initialQuantity,
+    type: shop.remainingQuantity === 0 ? "soldout" : "for_sale",
+    createdAt: shop.createdAt,
+    updatedAt: shop.updatedAt,
+  }));
 
   return {
     totalCount,
