@@ -329,7 +329,7 @@ export async function findMyIDLECards({
     totalCount: groupedList.length,
     currentPage: Number(page),
     totalPages: Math.ceil(groupedList.length / Number(take)),
-    list: groupedList,
+    result: groupedList,
   };
 }
 
