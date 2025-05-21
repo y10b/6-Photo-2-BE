@@ -3,8 +3,8 @@ POST http://localhost:5005/auth/signup
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
-  "nickname": "testuser",
+  "email": "test5@example.com",
+  "nickname": "testuser5",
   "password": "password123"
 }
 
@@ -22,7 +22,7 @@ POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
+  "email": "test5@example.com",
   "password": "password123"
 }
 
@@ -41,8 +41,8 @@ POST http://localhost:5005/auth/signup
 Content-Type: application/json
 
 {
-  "email": "test2@example.com",
-  "nickname": "testuser",
+  "email": "test6@example.com",
+  "nickname": "testuser5",
   "password": "password123"
 }
 

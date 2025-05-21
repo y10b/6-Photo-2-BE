@@ -1,35 +1,38 @@
-import "dotenv/config";
-import express from "express";
-import cookieParser from "cookie-parser";
-import errorHandler from "./middlewares/error.middleware.js";
-import cors from "cors";
-import photoRouter from "./routes/photoRoutes.js";
-import shopRouter from "./routes/shopRoutes.js";
-import purchaseRouter from "./routes/purchaseRoutes.js";
-import authRouter from "./routes/authRoutes.js";
-import notificationRouter from "./routes/notificationRoute.js";
-import exchangeRouter from "./routes/exchangeRoutes.js";
+import 'dotenv/config';
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import errorHandler from './middlewares/error.middleware.js';
+import cors from 'cors';
+
+import photoRouter from './routes/photoRoutes.js';
+import shopRouter from './routes/shopRoutes.js';
+import purchaseRouter from './routes/purchaseRoutes.js';
+import authRouter from './routes/authRoutes.js';
+import notificationRouter from './routes/notificationRoute.js';
+import exchangeRouter from './routes/exchangeRoutes.js';
+import userRouter from './routes/userRoutes.js';
 
 const app = express();
 const PORT = 5005;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ['http://localhost:3000'],
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
 app.use(cookieParser());
 
 // 라우터 등록
-app.use("/auth", authRouter);
-app.use("/api", photoRouter);
-app.use("/api", shopRouter);
-app.use("/api/purchase", purchaseRouter);
-app.use("/api", exchangeRouter);
-app.use("/api/notification", notificationRouter);
+app.use('/auth', authRouter);
+app.use('/api', photoRouter);
+app.use('/api', shopRouter);
+app.use('/api/users', userRouter);
+app.use('/api/purchase', purchaseRouter);
+app.use('/api', exchangeRouter);
+app.use('/api/notification', notificationRouter);
 
 //미들웨어
 app.use(errorHandler);
