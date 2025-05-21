@@ -27,12 +27,11 @@ function createFilterOption({ filterType, filterValue, keyword }) {
         shop.photoCard.genre = { in: values };
         break;
       case "soldOut":
-        shop.remainingQuantity =
-          values.includes("true") && !values.includes("false")
-            ? 0
-            : values.includes("false") && !values.includes("true")
-            ? { gt: 0 }
-            : undefined;
+        if (filterValue === "true") {
+          shop.remainingQuantity = 0;
+        } else if (filterValue === "false") {
+          shop.remainingQuantity = { gt: 0 };
+        }
         break;
       case "method":
         shop.listingType = { in: values }; // ['FOR_SALE'], ['FOR_SALE_AND_TRADE']
