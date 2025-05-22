@@ -7,7 +7,7 @@ Content-Type: application/json
   "password": "1234"
 }
 
-### 1. 교환 제안 요청 (본인 카드로 요청)
+### 1. 교환 제안 요청 (본인 카드로 요청해야함)
 POST http://localhost:5005/api/exchange
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0NzgxMTMzMiwiZXhwIjoxNzQ3ODE0OTMyfQ.N5MOk1SG-Br1l2gUNhAX8nE8_GmkNyhmxqPkKVotKVc
