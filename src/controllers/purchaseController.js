@@ -18,6 +18,7 @@ export const getShopDetail = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: {
+                id: shop.id,
                 price,
                 initialQuantity,
                 remainingQuantity,
