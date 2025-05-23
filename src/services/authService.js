@@ -132,13 +132,17 @@ async function changePassword(id, currentPassword, newPassword) {
 
 // 비밀번호 등 민감 정보 제거
 function filterUser(user) {
-  const {encryptedPassword, refreshToken, ...safeUser} = user;
+  if (!user) {
+    throw new Error('user 객체가 null 또는 undefined입니다.');
+  }
+  const {encryptedPassword, refreshToken, point, ...safeUser} = user;
 
   // 포인트 정보 가공
-  return {
+  const result = {
     ...safeUser,
-    pointBalance: user.point?.balance || 0,
+    pointBalance: point?.balance || 0,
   };
+  return result;
 }
 
 export default {
