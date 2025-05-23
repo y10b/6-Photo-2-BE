@@ -1,11 +1,10 @@
-import express from "express";
+import express from 'express';
 import {
   getAllCards,
   getCardDetail,
-  getMyCards,
   getMySales,
   getMyIDLECards,
-} from "../controllers/photoController.js";
+} from '../controllers/photoController.js';
 // import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
