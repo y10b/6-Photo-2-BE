@@ -35,7 +35,6 @@ export async function rejectExchange(req, res, next) {
   }
 }
 
-// ✅ 수정된 부분: userId 전달
 export async function getExchangeProposals(req, res, next) {
   try {
     const cardId = Number(req.params.cardId);
