@@ -1,4 +1,4 @@
-### 로그인 테스트 (유저)
+### 로그인 테스트 (유저 로그인)
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
