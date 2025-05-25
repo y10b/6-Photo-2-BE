@@ -9,22 +9,20 @@ import {
 
 const router = express.Router();
 
-router.get('/cards', getAllCards);
-router.get('/cards/:id', getCardDetail);
-
-router.get('/mypage/idle-cards', (req, res, next) => {
-  req.user = {id: 2}; // 임시 로그인 사용자 ID
+router.get("/cards", getAllCards);
+router.get("/cards/:id", getCardDetail);
+router.get("/mypage/cards", (req, res, next) => {
+  req.user = { id: 2 }; // 임시 로그인 사용자 ID
+  getMyCards(req, res, next);
+});
+router.get("/mypage/idle-cards", (req, res, next) => {
+  req.user = { id: 2 }; // 임시 로그인 사용자 ID
   getMyIDLECards(req, res, next);
 });
-router.get('/mypage/sales', (req, res, next) => {
-  req.user = {id: 2}; // 임시 로그인 사용자 ID
+router.get("/mypage/sales", (req, res, next) => {
+  req.user = { id: 2 }; // 임시 로그인 사용자 ID
   getMySales(req, res, next);
 });
 
-//구매 라우터
-router.post('/purchase', (req, res, next) => {
-  req.user = {id: 2}; // 임시 로그인 사용자 ID
-  purchaseCard(req, res, next);
-});
 
 export default router;
