@@ -13,6 +13,10 @@ export const getShopDetail = async (req, res, next) => {
             return res.status(404).json({ success: false, message: '해당 판매 게시글이 존재하지 않습니다.' });
         }
 
+        if (shop.remainingQuantity <= 0) {
+            return res.status(410).json({ success: false, message: '이미 판매 완료된 상품입니다.' });
+        }
+
         const { price, initialQuantity, remainingQuantity, seller, photoCard } = shop;
 
         res.status(200).json({
