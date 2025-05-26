@@ -1,11 +1,10 @@
-import express from "express";
+import express from 'express';
 import {
   getAllCards,
   getCardDetail,
-  getMyCards,
   getMySales,
   getMyIDLECards,
-} from "../controllers/photoController.js";
+} from '../controllers/photoController.js';
 // import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -25,10 +24,5 @@ router.get("/mypage/sales", (req, res, next) => {
   getMySales(req, res, next);
 });
 
-//구매 라우터
-router.post("/purchase", (req, res, next) => {
-  req.user = { id: 2 }; // 임시 로그인 사용자 ID
-  purchaseCard(req, res, next);
-});
 
 export default router;
