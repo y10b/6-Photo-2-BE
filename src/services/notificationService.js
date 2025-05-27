@@ -1,5 +1,5 @@
-import { notificationRepository } from "../repositories/notificationRepository.js";
-import { formatNotificationTime } from "../utils/timeFormat.js";
+import {notificationRepository} from '../repositories/notificationRepository.js';
+import {formatNotificationTime} from '../utils/timeFormat.js';
 
 export const notificationService = {
   // 알림 생성
@@ -10,7 +10,7 @@ export const notificationService = {
   // 알림 조회
   async getUserNotification(userId) {
     const notifications = await notificationRepository.findAllByUserId(userId);
-    return notifications.map((n) => ({
+    return notifications.map(n => ({
       id: n.id,
       content: n.content,
       type: n.notificationType,

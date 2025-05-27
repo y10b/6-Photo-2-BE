@@ -19,7 +19,12 @@ notificationRouter.post(
   extractUserFromToken,
   notificationController.create,
 );
-notificationRouter.get('/', tempAuthMiddleware, notificationController.list);
+notificationRouter.get(
+  '/',
+  verifyAccessToken,
+  extractUserFromToken,
+  notificationController.list,
+);
 notificationRouter.patch('/:id/read', notificationController.markAsRead);
 
 export default notificationRouter;

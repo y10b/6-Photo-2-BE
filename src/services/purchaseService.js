@@ -1,4 +1,5 @@
 import * as purchaseRepository from '../repositories/purchaseRepository.js';
+import userRepository from '../repositories/userRepository.js';
 import {notificationService} from './notificationService.js';
 
 export async function getShopDetail(shopId) {
@@ -13,13 +14,17 @@ export const purchaseCardService = async (userId, shopId, quantity) => {
       quantity,
     );
 
+    // 구매 알림
     const shopInfo = await purchaseRepository.findShopWithPhotoCard(shopId);
     const cardName = shopInfo?.photoCard?.name || '포토카드';
-    console.log(cardName);
+
+    const user = await userRepository.findById(userId);
+    const nickname = user?.nickname || '사용자';
+
     await notificationService.createNotification(
       userId,
       'PURCHASE_COMPLETED',
-      `${cardName} ${quantity}장 구매 완료되었습니다`,
+      `${nickname}님이 [${shopInfo?.photoCard.grade} | ${cardName}]을 ${quantity}장 구매했습니다.`,
     );
 
     return purchaseResult;

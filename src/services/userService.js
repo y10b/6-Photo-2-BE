@@ -1,5 +1,9 @@
+import bcrypt from 'bcrypt';
 import userRepository from '../repositories/userRepository.js';
 import authService from './authService.js';
+import {init, createId} from '@paralleldrive/cuid2';
+
+const createCuid = init();
 
 // 내 정보 조회
 async function getUserById(id) {
@@ -12,6 +16,16 @@ async function getUserById(id) {
   }
 
   return authService.filterUser(user);
+}
+
+async function getUser(email, password) {
+  const user = await userRepository.findByEmail(email);
+  if (!user) return null;
+
+  const isMatch = await bcrypt.compare(password, user.encryptedPassword);
+  if (!isMatch) return null;
+
+  return user;
 }
 
 // 닉네임으로 사용자 조회
@@ -136,10 +150,46 @@ async function getSalesByUserId(userId) {
   };
 }
 
+async function oauthCreateOrUpdate(provider, providerId, email, name) {
+  // 1. email로 먼저 유저를 찾는다
+  const existingUser = await userRepository.findByEmail(email);
+
+  if (existingUser) {
+    // 이미 있으면 provider, providerId,만 업데이트
+    const updatedUser = await userRepository.update(existingUser.id, {
+      provider,
+      providerId,
+    });
+    return filterSensitiveUserData(updatedUser);
+  } else {
+    // 없으면 새로 생성
+    // Trim name if too long to keep the final nickname within reasonable length
+    const trimmedName = name.length > 20 ? name.substring(0, 20) : name;
+    const shortCuid = createCuid().slice(0, 8); // Take first 8 chars of cuid for brevity
+    const uniqueNickname = `${trimmedName}_${shortCuid}`;
+
+    const createdUser = await userRepository.save({
+      provider,
+      providerId,
+      email,
+      nickname: uniqueNickname,
+    });
+    return filterSensitiveUserData(createdUser);
+  }
+}
+
+function filterSensitiveUserData(user) {
+  const {encryptedPassword, refreshToken, ...rest} = user;
+  return rest;
+}
+
 export default {
+  getUser,
   getUserById,
   getUserByNickname,
   updateUser,
   getCardsByUserId,
   getSalesByUserId,
+  oauthCreateOrUpdate,
+  filterSensitiveUserData,
 };
