@@ -1,5 +1,6 @@
 POST http://localhost:5005/api/notification
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODMyMjkwMiwiZXhwIjoxNzQ4MzI2NTAyfQ.2-cTdfhRXQVKbAakR6KwKmCO5FY6i0Hl4pdfd9Dnb84
 
 {
   "type": "EXCHANGE_PROPOSED",
@@ -10,4 +11,13 @@ Content-Type: application/json
 GET http://localhost:5005/api/notification
 
 ###
-PATCH http://localhost:5005/api/notification/2/read
+PATCH http://localhost:5005/api/notification/1/read
+
+### 로그인 테스트 (유저 로그인)
+POST http://localhost:5005/auth/signin
+Content-Type: application/json
+
+{
+  "email": "user2@example.com",
+  "password": "1234"
+}
