@@ -257,7 +257,7 @@ export async function findMyIDLECards({
     const card = group[0];
     return {
       userCardId: card.id,
-      photoCardId:card.photoCardId,
+      photoCardId: card.photoCardId,
       nickname: card.user.nickname,
       price: card.photoCard.price,
       imageUrl: card.photoCard.imageUrl,
@@ -433,7 +433,7 @@ export async function createMyCard(userId, data) {
   const MAX_MONTHLY_CARDS = 3;
 
   // 이번 달 생성한 포토카드 수 조회 (userCard + photoCard 생성일 기준)
-  const createdThisMonth = await prisma.userCard.count({
+  const createdThisMonth = await prisma.userCard.findMany({
     where: {
       userId,
       createdAt: {
@@ -447,10 +447,15 @@ export async function createMyCard(userId, data) {
         },
       },
     },
+    select: {
+      photoCardId: true,
+    },
   });
 
-  // 제한 체크
-  if (createdThisMonth >= MAX_MONTHLY_CARDS) {
+  const createdCardCount = new Set(createdThisMonth.map(c => c.photoCardId))
+    .size;
+
+  if (createdCardCount >= MAX_MONTHLY_CARDS) {
     throw new Error('이번 달에는 포토카드를 최대 3개까지 생성할 수 있습니다.');
   }
 
