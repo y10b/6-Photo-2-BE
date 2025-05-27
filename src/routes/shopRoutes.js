@@ -1,16 +1,29 @@
-import express from "express";
-import shopController from "../controllers/shopController.js";
+import express from 'express';
+import shopController from '../controllers/shopController.js';
+import {
+  extractUserFromToken,
+  verifyAccessToken,
+} from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-// 임시 인증 미들웨어
-const tempAuthMiddleware = (req, res, next) => {
-  req.user = { id: 14 };
-  next();
-};
-
-router.post("/shop", tempAuthMiddleware, shopController.registerShop);
-router.put("/shop/:shopId", tempAuthMiddleware, shopController.updateShop);
-router.delete("/shop/:shopId", tempAuthMiddleware, shopController.deleteShop);
+router.post(
+  '/shop',
+  verifyAccessToken,
+  extractUserFromToken,
+  shopController.registerShop,
+);
+router.put(
+  '/shop/:shopId',
+  verifyAccessToken,
+  extractUserFromToken,
+  shopController.updateShop,
+);
+router.delete(
+  '/shop/:shopId',
+  verifyAccessToken,
+  extractUserFromToken,
+  shopController.deleteShop,
+);
 
 export default router;
