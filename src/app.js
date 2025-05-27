@@ -3,6 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middlewares/error.middleware.js';
 import cors from 'cors';
+import passport from "./config/passport.js";
 import path from 'path';
 
 import photoRouter from './routes/photoRoutes.js';
@@ -28,6 +29,8 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(passport.initialize());
 
 // 라우터 등록
 app.use('/auth', authRouter);

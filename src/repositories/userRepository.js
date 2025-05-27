@@ -1,4 +1,4 @@
-import prisma from "../prisma/client.js"; // 경로는 프로젝트 구조에 맞게 수정
+import prisma from "../prisma/client.js";
 
 async function findById(id) {
   return prisma.user.findUnique({
