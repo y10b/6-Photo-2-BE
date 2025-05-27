@@ -120,7 +120,9 @@ export async function passportGoogleCallback(req, res, next) {
       secure: true,
     });
 
-    return res.redirect(`http://localhost:3000?token=${accessToken}`);
+    return res.redirect(
+      `http://localhost:3000/auth/callback?token=${accessToken}`,
+    );
   } catch (err) {
     next(err);
   }

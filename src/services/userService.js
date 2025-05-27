@@ -160,7 +160,6 @@ async function oauthCreateOrUpdate(provider, providerId, email, name) {
       provider,
       providerId,
     });
-    console.log("✅ [OAuth] 기존 유저 업데이트:", updatedUser);
     return filterSensitiveUserData(updatedUser);
   } else {
     // 없으면 새로 생성
@@ -175,8 +174,6 @@ async function oauthCreateOrUpdate(provider, providerId, email, name) {
       email,
       nickname: uniqueNickname,
     });
-    console.log('⚠️ [OAuth] 새 유저 생성됨:', createdUser);
-
     return filterSensitiveUserData(createdUser);
   }
 }

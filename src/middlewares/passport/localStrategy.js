@@ -6,7 +6,6 @@ const localStrategy = new LocalStrategy(
     usernameField: "email",
   },
   async (email, password, done) => {
-    console.log('📌 [Passport] localStrategy 실행됨:', email); // ✅ 로그 확인
     try {
       const user = await userService.getUser(email, password);
       if (!user) {

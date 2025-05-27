@@ -9,15 +9,12 @@ const googleStrategyOptions = {
 };
 
 async function verify(accessToken, refreshToken, profile, done) {
-  console.log('✅ profile:', profile); // 여기는 찍히는가?
   const user = await userService.oauthCreateOrUpdate(
     profile.provider,
     profile.id,
     profile.emails[0].value,
     profile.displayName,
   );
-
-  console.log('✅ 유저:', user); // 이게 null or undefined 아닌가?
 
   if (!user || !user.id) {
     console.error('❌ user undefined in verify()');
