@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import dotenv from "dotenv";
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middlewares/error.middleware.js';
@@ -17,6 +17,7 @@ import uploadRouter from './routes/uploadRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5005;
+dotenv.config();
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 

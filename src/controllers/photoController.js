@@ -46,7 +46,7 @@ export async function getMyIDLECards(req, res, next) {
     const {filterType, filterValue, keyword, page = 1, take = 10} = req.query;
 
     const cards = await photoService.getMyIDLECards({
-      userId: req.user.id,
+      userId: req.auth.userId,
       page,
       take,
       keyword,
@@ -65,7 +65,7 @@ export async function getMySales(req, res, next) {
     const {filterType, filterValue, keyword, page = 1, take = 10} = req.query;
 
     const sales = await photoService.getMySales({
-      userId: req.user.id,
+      userId: req.auth.userId,
       page,
       take,
       keyword,
