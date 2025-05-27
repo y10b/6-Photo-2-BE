@@ -1,27 +1,29 @@
 ### 판매 등록 테스트
 POST http://localhost:5005/api/shop
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMwNTIxOSwiZXhwIjoxNzQ4MzA4ODE5fQ.eRmWmSPMk0uYwdeEPx-tLdg4_6JADtCeFRUkw9NAUhk
 
 {
-  "photoCardId": 27,
+  "photoCardId": 95,
   "quantity": 1,
   "price": 5000,
-  "listingType": "FOR_SALE_AND_TRADE",
-  "exchangeGrade": "RARE",
-  "exchangeGenre": "LANDSCAPE",
-  "exchangeDescription": "비슷한 풍경 카드 교환 원해요"
+  "listingType": "FOR_SALE"
 }
 
 ### 삭제
 DELETE http://localhost:5005/api/shop/65
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMwNTIxOSwiZXhwIjoxNzQ4MzA4ODE5fQ.eRmWmSPMk0uYwdeEPx-tLdg4_6JADtCeFRUkw9NAUhk
+
 
 ### 수정
 PUT  http://localhost:5005/api/shop/65
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODI0NzY0MiwiZXhwIjoxNzQ4MjUxMjQyfQ.GhQlWglMYv-wt-npBCiIBhyJ5aHmPyDf6LRTLRL0ZMM
+
 
 {
   "price": 12000,
-  "initialQuantity": 3,
+  "initialQuantity": 1,
   "listingType": "FOR_SALE_AND_TRADE",
   "exchangeGrade": "COMMON",
   "exchangeGenre": "TRAVEL",
@@ -30,4 +32,5 @@ Content-Type: application/json
 
 
 ### IDLE 카드 조회(중복 카드 그룹핑, 수량 계산)
-GET http://localhost:5005/mypage/idle-cards?page=1&take=10&
+GET http://localhost:5005/api/mypage/idle-cards
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMwNTIxOSwiZXhwIjoxNzQ4MzA4ODE5fQ.eRmWmSPMk0uYwdeEPx-tLdg4_6JADtCeFRUkw9NAUhk

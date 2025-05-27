@@ -1,5 +1,6 @@
 import prisma from '../prisma/client.js';
 import _ from 'lodash';
+import {startOfMonth, endOfMonth} from 'date-fns';
 
 // 필터 조건 생성 함수
 function createFilterOption({filterType, filterValue, keyword}) {
@@ -256,6 +257,7 @@ export async function findMyIDLECards({
     const card = group[0];
     return {
       userCardId: card.id,
+      photoCardId: card.photoCardId,
       nickname: card.user.nickname,
       price: card.photoCard.price,
       imageUrl: card.photoCard.imageUrl,
@@ -358,48 +360,6 @@ export async function findMySales({
   };
 }
 
-// 나의 포토카드 생성
-export async function createMyCard(userId, data) {
-  const {name, description, imageUrl, grade, genre, price, initialQuantity} =
-    data;
-
-  const photoCard = await prisma.photoCard.create({
-    data: {
-      name,
-      description,
-      imageUrl,
-      grade,
-      genre,
-      price,
-      initialQuantity,
-    },
-  });
-
-  const userCard = await prisma.userCard.create({
-    data: {
-      userId,
-      photoCardId: photoCard.id,
-    },
-    include: {
-      photoCard: true,
-    },
-  });
-
-  return {
-    userCardId: userCard.id,
-    imageUrl: userCard.photoCard.imageUrl,
-    title: userCard.photoCard.name,
-    description: userCard.photoCard.description,
-    cardGenre: userCard.photoCard.genre,
-    cardGrade: userCard.photoCard.grade,
-    status: userCard.status,
-    saleStatus: userCard.status,
-    type: 'my_card',
-    createdAt: userCard.createdAt,
-    updatedAt: userCard.updatedAt,
-  };
-}
-
 //구매
 export async function purchaseCard({userId, saleId, quantity}) {
   const shop = await prisma.shop.findUnique({
@@ -467,11 +427,129 @@ export async function purchaseCard({userId, saleId, quantity}) {
   };
 }
 
+export async function createMyCard(userId, data) {
+  const monthStart = startOfMonth(new Date());
+  const monthEnd = endOfMonth(new Date());
+  const MAX_MONTHLY_CARDS = 3;
+
+  // 이번 달 생성한 포토카드 수 조회 (userCard + photoCard 생성일 기준)
+  const createdThisMonth = await prisma.userCard.findMany({
+    where: {
+      userId,
+      createdAt: {
+        gte: monthStart,
+        lte: monthEnd,
+      },
+      photoCard: {
+        createdAt: {
+          gte: monthStart,
+          lte: monthEnd,
+        },
+      },
+    },
+    select: {
+      photoCardId: true,
+    },
+  });
+
+  const createdCardCount = new Set(createdThisMonth.map(c => c.photoCardId))
+    .size;
+
+  if (createdCardCount >= MAX_MONTHLY_CARDS) {
+    throw new Error('이번 달에는 포토카드를 최대 3개까지 생성할 수 있습니다.');
+  }
+
+  // 포토카드 생성
+  const photoCard = await prisma.photoCard.create({
+    data: {
+      name: data.name,
+      description: data.description,
+      imageUrl: data.imageUrl,
+      grade: data.grade,
+      genre: data.genre,
+      price: data.price,
+      initialQuantity: data.initialQuantity,
+    },
+  });
+
+  // 발행량만큼 userCard 생성
+  const userCards = await prisma.$transaction(
+    Array.from({length: data.initialQuantity}).map((_, i) =>
+      prisma.userCard.create({
+        data: {
+          userId,
+          photoCardId: photoCard.id,
+        },
+      }),
+    ),
+  );
+
+  const [firstUserCard] = await prisma.userCard.findMany({
+    where: {
+      userId,
+      photoCardId: photoCard.id,
+    },
+    include: {
+      photoCard: true,
+    },
+    take: 1,
+  });
+
+  return {
+    userCardId: firstUserCard.id,
+    imageUrl: firstUserCard.photoCard.imageUrl,
+    title: firstUserCard.photoCard.name,
+    description: firstUserCard.photoCard.description,
+    cardGenre: firstUserCard.photoCard.genre,
+    cardGrade: firstUserCard.photoCard.grade,
+    quantityTotal: photoCard.initialQuantity,
+    status: firstUserCard.status,
+    saleStatus: firstUserCard.status,
+    type: 'my_card',
+    createdAt: firstUserCard.createdAt,
+    updatedAt: firstUserCard.updatedAt,
+  };
+}
+
+// 포토카드 생성 제한
+export async function getCardCreationQuota(userId) {
+  const MAX_MONTHLY_CARDS = 3;
+  const monthStart = startOfMonth(new Date());
+  const monthEnd = endOfMonth(new Date());
+
+  const createdThisMonth = await prisma.userCard.findMany({
+    where: {
+      userId,
+      createdAt: {
+        gte: monthStart,
+        lte: monthEnd,
+      },
+      photoCard: {
+        createdAt: {
+          gte: monthStart,
+          lte: monthEnd,
+        },
+      },
+    },
+    select: {
+      photoCardId: true,
+    },
+  });
+
+  return {
+    remainingQuota: Math.max(
+      0,
+      3 - new Set(createdThisMonth.map(c => c.photoCardId)).size,
+    ),
+  };
+}
+
 export default {
   findAllCards,
   findCardById,
   findMyIDLECards,
   findMySales,
-  createMyCard,
   purchaseCard,
+  createMyCard,
+  getCardCreationQuota,
 };

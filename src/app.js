@@ -3,6 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middlewares/error.middleware.js';
 import cors from 'cors';
+import path from 'path';
 
 import photoRouter from './routes/photoRoutes.js';
 import shopRouter from './routes/shopRoutes.js';
@@ -11,13 +12,16 @@ import authRouter from './routes/authRoutes.js';
 import notificationRouter from './routes/notificationRoute.js';
 import exchangeRouter from './routes/exchangeRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import uploadRouter from './routes/uploadRoutes.js';
 
 const app = express();
-const PORT = 5005;
+const PORT = process.env.PORT || 5005;
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'https://6-photo-2-fe.vercel.app'],
     credentials: true,
   }),
 );
@@ -33,6 +37,7 @@ app.use('/api/users', userRouter);
 app.use('/api/purchase', purchaseRouter);
 app.use('/api', exchangeRouter);
 app.use('/api/notification', notificationRouter);
+app.use('/api/upload', uploadRouter);
 
 //미들웨어
 app.use(errorHandler);

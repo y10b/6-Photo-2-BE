@@ -96,3 +96,25 @@ export async function purchaseCard(req, res, next) {
     next(err);
   }
 }
+
+// 포토카드 생성
+export async function createMyCard(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const result = await photoService.createMyCard(userId, req.body);
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// 포토카드 생성 제한
+export async function getCardCreationQuota(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const result = await photoService.getCardCreationQuota(userId);
+    res.json(result); // { remainingQuota: 1 }
+  } catch (err) {
+    next(err);
+  }
+}
