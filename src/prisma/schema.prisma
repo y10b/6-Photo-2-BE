@@ -68,7 +68,7 @@ enum NotificationType {
 model User {
   id                Int            @id @default(autoincrement())
   email             String         @unique // 이메일 (유일해야 함)
-  encryptedPassword String // 암호화된 비밀번호
+  encryptedPassword String? // 암호화된 비밀번호
   nickname          String         @unique // 닉네임 (유일해야 함)
   refreshToken      String? // 리프레시 토큰 (선택 사항)
   createdAt         DateTime       @default(now()) // 레코드 생성 시간
