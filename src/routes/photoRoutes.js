@@ -27,7 +27,7 @@ router.get(
 
 // 마이페이지 (인증 필요)
 router.use('/mypage', verifyAccessToken, extractUserFromToken);
-router.get('/mypage/idle-cards', getMyIDLECards);
+router.get('/mypage/idle-cards', verifyAccessToken, getMyIDLECards);
 router.post('/mypage/create', createMyCard);
 router.get('/mypage/sales', getMySales);
 router.get('/mypage/creation-quota', getCardCreationQuota);
