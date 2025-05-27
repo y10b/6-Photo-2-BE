@@ -257,6 +257,7 @@ export async function findMyIDLECards({
     const card = group[0];
     return {
       userCardId: card.id,
+      photoCardId:card.photoCardId,
       nickname: card.user.nickname,
       price: card.photoCard.price,
       imageUrl: card.photoCard.imageUrl,
