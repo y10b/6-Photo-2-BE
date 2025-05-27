@@ -4,25 +4,32 @@ import {
   getCardDetail,
   getMySales,
   getMyIDLECards,
+  createMyCard,
+  getCardCreationQuota,
 } from '../controllers/photoController.js';
-// import authMiddleware from "../middlewares/auth.middleware.js";
+import {
+  verifyAccessToken,
+  extractUserFromToken,
+} from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.get("/cards", getAllCards);
-router.get("/cards/:id", getCardDetail);
-router.get("/mypage/cards", (req, res, next) => {
-  req.user = { id: 2 }; // 임시 로그인 사용자 ID
-  getMyCards(req, res, next);
-});
-router.get("/mypage/idle-cards", (req, res, next) => {
-  req.user = { id: 2 }; // 임시 로그인 사용자 ID
-  getMyIDLECards(req, res, next);
-});
-router.get("/mypage/sales", (req, res, next) => {
-  req.user = { id: 2 }; // 임시 로그인 사용자 ID
-  getMySales(req, res, next);
-});
+// 전체 카드 조회 (인증 불필요)
+router.get('/cards', getAllCards);
 
+// 카드 상세 조회 (인증 필요)
+router.get(
+  '/cards/:id',
+  verifyAccessToken,
+  extractUserFromToken,
+  getCardDetail,
+);
+
+// 마이페이지 (인증 필요)
+router.use('/mypage', verifyAccessToken, extractUserFromToken);
+router.get('/mypage/idle-cards', getMyIDLECards);
+router.post('/mypage/create', createMyCard);
+router.get('/mypage/sales', getMySales);
+router.get('/mypage/creation-quota', getCardCreationQuota);
 
 export default router;
