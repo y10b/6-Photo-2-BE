@@ -22,7 +22,7 @@ const pointService = {
     const diff = now - new Date(point.lastDrawAt);
     if (diff < 3600 * 1000) throw new Error('아직 뽑을 수 없습니다');
 
-    const value = Math.floor(Math.random() * 91) + 10;
+    const value = Math.floor(Math.random() * 101); // 0 - 100 생성
 
     const updated = await pointRepository.update(userId, {
       balance: point.balance + value,

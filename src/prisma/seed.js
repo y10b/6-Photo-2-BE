@@ -23,10 +23,10 @@ async function seed() {
         email: user.email,
         nickname: user.nickname,
         encryptedPassword: hashedPassword,
-        lastDrawAt: new Date('2000-01-01T00:00:00Z'),
         point: {
           create: {
             balance: user.points || 0,
+            lastDrawAt: new Date('2000-01-01T00:00:00Z'),
           },
         },
       },

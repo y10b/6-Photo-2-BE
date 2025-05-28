@@ -1,10 +1,14 @@
 ### 쿨타임 확인
 GET http://localhost:5005/api/users/me/point/check
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODQxMTM2OCwiZXhwIjoxNzQ4NDE0OTY4fQ.PIKzPooMQVrixZ_ZbrgFXUAqMMc9v0RnRbjjuDsOgRc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODQxNjU2NywiZXhwIjoxNzQ4NDIwMTY3fQ.8xzORTuwBnGPat50jM363obn8Rh5CQ6RdzxCMJaiRpg
 Content-Type: application/json
 
 
 ### 포인트 뽑기
 POST http://localhost:5005/api/users/me/point/draw
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODQxMTM2OCwiZXhwIjoxNzQ4NDE0OTY4fQ.PIKzPooMQVrixZ_ZbrgFXUAqMMc9v0RnRbjjuDsOgRc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODQxNjU2NywiZXhwIjoxNzQ4NDIwMTY3fQ.8xzORTuwBnGPat50jM363obn8Rh5CQ6RdzxCMJaiRpg
 Content-Type: application/json
+
+### 내 정보 조회
+GET http://localhost:5005/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODQxNjU2NywiZXhwIjoxNzQ4NDIwMTY3fQ.8xzORTuwBnGPat50jM363obn8Rh5CQ6RdzxCMJaiRpg
