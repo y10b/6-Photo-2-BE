@@ -1,9 +1,10 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middlewares/error.middleware.js';
 import cors from 'cors';
-import passport from "./config/passport.js";
+import passport from './config/passport.js';
 import path from 'path';
 
 import photoRouter from './routes/photoRoutes.js';
@@ -17,7 +18,6 @@ import uploadRouter from './routes/uploadRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5005;
-dotenv.config();
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
