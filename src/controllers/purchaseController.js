@@ -14,7 +14,20 @@ export const getShopDetail = async (req, res, next) => {
         }
 
         if (shop.remainingQuantity <= 0) {
-            return res.status(410).json({ success: false, message: '이미 판매 완료된 상품입니다.' });
+            const { price, initialQuantity, remainingQuantity, seller, photoCard } = shop;
+
+            return res.status(410).json({
+                success: false,
+                message: '이미 판매 완료된 상품입니다.',
+                data: {
+                    id: shop.id,
+                    price,
+                    initialQuantity,
+                    remainingQuantity,
+                    sellerNickname: seller.nickname,
+                    ...photoCard,
+                },
+            });
         }
 
         const { price, initialQuantity, remainingQuantity, seller, photoCard } = shop;
