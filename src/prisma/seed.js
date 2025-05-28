@@ -1,29 +1,34 @@
-import { readFile } from "fs/promises";
-import path from "path";
-import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
+import {readFile} from 'fs/promises';
+import path from 'path';
+import bcrypt from 'bcrypt';
+import {PrismaClient} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const cardPath = path.join(process.cwd(), "DB", "cards.json");
-const userPath = path.join(process.cwd(), "DB", "users.json");
+const cardPath = path.join(process.cwd(), 'DB', 'cards.json');
+const userPath = path.join(process.cwd(), 'DB', 'users.json');
 
 async function seed() {
-  const rawCards = await readFile(cardPath, "utf-8");
-  const rawUsers = await readFile(userPath, "utf-8");
+  const rawCards = await readFile(cardPath, 'utf-8');
+  const rawUsers = await readFile(userPath, 'utf-8');
 
   const cards = JSON.parse(rawCards);
   const users = JSON.parse(rawUsers);
 
   // 1. 유저 시딩
   for (const user of users) {
-    const hashedPassword = await bcrypt.hash("1234", 10);
+    const hashedPassword = await bcrypt.hash('1234', 10);
     await prisma.user.create({
       data: {
         email: user.email,
         nickname: user.nickname,
         encryptedPassword: hashedPassword,
-        point: { create: { balance: user.points || 0 } },
+        lastDrawAt: new Date('2000-01-01T00:00:00Z'),
+        point: {
+          create: {
+            balance: user.points || 0,
+          },
+        },
       },
     });
     console.log(`✅ Created user: ${user.nickname}`);
@@ -33,16 +38,16 @@ async function seed() {
   for (const card of cards) {
     const userId = card.userId;
 
-    const userExists = await prisma.user.findUnique({ where: { id: userId } });
+    const userExists = await prisma.user.findUnique({where: {id: userId}});
     if (!userExists) {
       console.warn(`❗️ 유저 ID ${userId} 없음 → 카드 ${card.name} 건너뜀`);
       continue;
     }
 
-    const { price, totalQuantity, remainingQuantity } = card;
-    if (typeof price !== "number" || typeof totalQuantity !== "number") {
+    const {price, totalQuantity, remainingQuantity} = card;
+    if (typeof price !== 'number' || typeof totalQuantity !== 'number') {
       console.warn(
-        `❗️ price 또는 totalQuantity 누락 → 카드 ${card.name} 건너뜀`
+        `❗️ price 또는 totalQuantity 누락 → 카드 ${card.name} 건너뜀`,
       );
       continue;
     }
@@ -64,10 +69,10 @@ async function seed() {
     const statusList = [];
 
     for (let i = 0; i < totalQuantity; i++) {
-      let status = "IDLE";
+      let status = 'IDLE';
 
       if (remainingQuantity < totalQuantity) {
-        status = i < remainingQuantity ? "LISTED" : "SOLD";
+        status = i < remainingQuantity ? 'LISTED' : 'SOLD';
       }
 
       const userCard = await prisma.userCard.create({
@@ -78,8 +83,8 @@ async function seed() {
         },
       });
 
-      if (status === "LISTED" || status === "SOLD") {
-        userCardIds.push({ id: userCard.id });
+      if (status === 'LISTED' || status === 'SOLD') {
+        userCardIds.push({id: userCard.id});
       }
 
       statusList.push(status);
@@ -92,10 +97,10 @@ async function seed() {
           price,
           initialQuantity: totalQuantity,
           remainingQuantity,
-          listingType: "FOR_SALE",
-          seller: { connect: { id: userId } },
-          photoCard: { connect: { id: photoCard.id } },
-          listedItems: { connect: userCardIds },
+          listingType: 'FOR_SALE',
+          seller: {connect: {id: userId}},
+          photoCard: {connect: {id: photoCard.id}},
+          listedItems: {connect: userCardIds},
         },
       });
     }
@@ -103,14 +108,14 @@ async function seed() {
     console.log(
       `✅ Seeded card: ${
         card.name
-      } (userId: ${userId}) → UserCards: ${statusList.join(", ")}`
+      } (userId: ${userId}) → UserCards: ${statusList.join(', ')}`,
     );
   }
 }
 
 seed()
-  .catch((err) => {
-    console.error("❌ 시딩 중 에러 발생:", err);
+  .catch(err => {
+    console.error('❌ 시딩 중 에러 발생:', err);
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
