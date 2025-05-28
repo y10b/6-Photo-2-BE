@@ -3,8 +3,13 @@ import {formatNotificationTime} from '../utils/timeFormat.js';
 
 export const notificationService = {
   // 알림 생성
-  async createNotification(userId, type, content) {
-    return await notificationRepository.create(userId, type, content);
+  async createNotification(userId, type, content, relatedShopId) {
+    return await notificationRepository.create(
+      userId,
+      type,
+      content,
+      relatedShopId,
+    );
   },
 
   // 알림 조회

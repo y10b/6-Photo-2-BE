@@ -9,7 +9,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhd
 
 ###
 GET http://localhost:5005/api/notification
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODMyNTgzMiwiZXhwIjoxNzQ4MzI5NDMyfQ.yrWxDFfQMdz0xnyKOQefi0O0lcb0YNpTW6dUfrbnqzU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODMyOTk3MywiZXhwIjoxNzQ4MzMzNTczfQ.sTfpohok5OQ_RubXonCADyXyMNvkJk5O_QOHfak2ePo
 
 ###
 PATCH http://localhost:5005/api/notification/1/read
@@ -19,6 +19,6 @@ POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
 {
-  "email": "user2@example.com",
+  "email": "user1@example.com",
   "password": "1234"
 }

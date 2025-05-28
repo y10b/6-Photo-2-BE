@@ -14,7 +14,7 @@ export const purchaseCardService = async (userId, shopId, quantity) => {
       quantity,
     );
 
-    // 구매 알림
+    // 구매됨 알림
     const shopInfo = await purchaseRepository.findShopWithPhotoCard(shopId);
     const cardName = shopInfo?.photoCard?.name || '포토카드';
 
@@ -22,9 +22,10 @@ export const purchaseCardService = async (userId, shopId, quantity) => {
     const nickname = user?.nickname || '사용자';
 
     await notificationService.createNotification(
-      userId,
-      'PURCHASE_COMPLETED',
+      shopInfo.seller.id,
+      'SELL_COMPLETED',
       `${nickname}님이 [${shopInfo?.photoCard.grade} | ${cardName}]을 ${quantity}장 구매했습니다.`,
+      shopId,
     );
 
     return purchaseResult;

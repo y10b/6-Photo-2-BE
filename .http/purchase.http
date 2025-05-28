@@ -1,8 +1,8 @@
 GET http://localhost:5005/api/purchase/1
 
 ###
-POST http://localhost:5005/api/purchase/70
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODMyNTgzMiwiZXhwIjoxNzQ4MzI5NDMyfQ.yrWxDFfQMdz0xnyKOQefi0O0lcb0YNpTW6dUfrbnqzU
+POST http://localhost:5005/api/purchase/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODM5MjI4NCwiZXhwIjoxNzQ4Mzk1ODg0fQ.ZQFoDWp2BBAmpezhMm2J3bCeB5-CeqAivF99ACSn88k
 Content-Type: application/json
 
 {
