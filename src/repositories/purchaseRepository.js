@@ -36,6 +36,7 @@ export async function purchaseCard(userId, shopId, quantity) {
                     take: quantity,
                 },
                 photoCard: true,
+                seller: true, // seller 정보도 포함시키기
             },
         });
 
@@ -57,6 +58,7 @@ export async function purchaseCard(userId, shopId, quantity) {
             throw new Error('포인트가 부족합니다.');
         }
 
+        // 1) 구매자 포인트 차감
         await tx.point.update({
             where: { userId },
             data: { balance: { decrement: totalPrice } },
@@ -70,6 +72,25 @@ export async function purchaseCard(userId, shopId, quantity) {
             },
         });
 
+        // 2) 판매자 포인트 증가
+        if (!shop.seller) {
+            throw new Error('판매자 정보를 찾을 수 없습니다.');
+        }
+
+        await tx.point.update({
+            where: { userId: shop.seller.id },
+            data: { balance: { increment: totalPrice } },
+        });
+
+        await tx.pointHistory.create({
+            data: {
+                userId: shop.seller.id,
+                points: totalPrice,
+                pointType: 'SALE',
+            },
+        });
+
+        // 3) 카드 소유권 이전 처리
         for (const card of shop.listedItems) {
             await tx.userCard.update({
                 where: { id: card.id },
@@ -81,6 +102,7 @@ export async function purchaseCard(userId, shopId, quantity) {
             });
         }
 
+        // 4) 판매 게시글 남은 수량 업데이트
         const updatedShop = await tx.shop.update({
             where: { id: shopId },
             data: { remainingQuantity: { decrement: quantity } },
