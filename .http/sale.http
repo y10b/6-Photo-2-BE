@@ -1,12 +1,12 @@
 ### 판매 등록 테스트
 POST http://localhost:5005/api/shop
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMwNTIxOSwiZXhwIjoxNzQ4MzA4ODE5fQ.eRmWmSPMk0uYwdeEPx-tLdg4_6JADtCeFRUkw9NAUhk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJpYXQiOjE3NDgzMzU3NDUsImV4cCI6MTc0ODMzOTM0NX0.vZyQM7BRr8HVm8xrv1xKAj38fllEdysKBlygLAUNNPo
 
 {
-  "photoCardId": 95,
+  "photoCardId": 122,
   "quantity": 1,
-  "price": 5000,
+  "price": 12000,
   "listingType": "FOR_SALE"
 }
 
