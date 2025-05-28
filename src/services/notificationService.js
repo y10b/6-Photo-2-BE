@@ -21,6 +21,7 @@ export const notificationService = {
       type: n.notificationType,
       isRead: n.isRead,
       formattedTime: formatNotificationTime(n.createdAt),
+      relatedShopId: n.relatedShopId,
     }));
   },
 
