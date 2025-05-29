@@ -1,3 +1,4 @@
+import { type } from 'os';
 import {
   proposeExchange,
   acceptExchange as acceptService,
@@ -19,6 +20,9 @@ export async function postExchangeProposal(req, res, next) {
     });
 
     const exchange = await proposeExchange(
+      
+      type="original",
+
       userId,
       targetCardId,
       requestCardId,

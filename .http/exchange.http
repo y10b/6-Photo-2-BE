@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJpYXQiOjE3NDg1MDIwMDMsImV4cCI6MTc0ODUwNTYwM30.Wyrd9IV1hEB2F6nI8AcVSCDVNpxkH8KZ16LXjvYUm44
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJpYXQiOjE3NDg1MDU3OTAsImV4cCI6MTc0ODUwOTM5MH0.zCnWGDkt3yVuVk4eHxTjMYy3j9pEaEhOkvMX1RbD3d0
 
 ### 1. 교환 제안 요청 (본인 카드로 요청해야함)
 POST http://localhost:5005/api/exchange
