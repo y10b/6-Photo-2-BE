@@ -1,7 +1,7 @@
 ### 판매 등록 테스트
 POST http://localhost:5005/api/shop
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMwNTIxOSwiZXhwIjoxNzQ4MzA4ODE5fQ.eRmWmSPMk0uYwdeEPx-tLdg4_6JADtCeFRUkw9NAUhk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMzODg1NCwiZXhwIjoxNzQ4MzQyNDU0fQ.4gIFJic1ZtBlzkGipjnXKPeNRK4LdMcg5CXxMhqmtaE
 
 {
   "photoCardId": 95,
@@ -11,8 +11,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhd
 }
 
 ### 삭제
-DELETE http://localhost:5005/api/shop/65
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMwNTIxOSwiZXhwIjoxNzQ4MzA4ODE5fQ.eRmWmSPMk0uYwdeEPx-tLdg4_6JADtCeFRUkw9NAUhk
+DELETE http://localhost:5005/api/shop/76
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMzODg1NCwiZXhwIjoxNzQ4MzQyNDU0fQ.4gIFJic1ZtBlzkGipjnXKPeNRK4LdMcg5CXxMhqmtaE
 
 
 ### 수정
@@ -33,4 +33,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhd
 
 ### IDLE 카드 조회(중복 카드 그룹핑, 수량 계산)
 GET http://localhost:5005/api/mypage/idle-cards
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMwNTIxOSwiZXhwIjoxNzQ4MzA4ODE5fQ.eRmWmSPMk0uYwdeEPx-tLdg4_6JADtCeFRUkw9NAUhk
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODQ3Nzg5NCwiZXhwIjoxNzQ4NDgxNDk0fQ.Wxc8M2MXSzMgtEjE7XaXlAND1I8m2Rnb8dHysfRE0NQ
+
+### 나의 판매 포토카드 조회
+GET http://localhost:5005/api/mypage/sales
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODQ4MTkwMiwiZXhwIjoxNzQ4NDg1NTAyfQ.BjKJ--NrvnkgQX37qpqeKPcYvXAvLnm4g5d2e5MfZjQ
+
+### 판매 포토카드 상세 조회
+GET http://localhost:5005/api/shop/65
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODQ4MTkwMiwiZXhwIjoxNzQ4NDg1NTAyfQ.BjKJ--NrvnkgQX37qpqeKPcYvXAvLnm4g5d2e5MfZjQ

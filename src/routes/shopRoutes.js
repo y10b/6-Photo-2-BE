@@ -13,12 +13,21 @@ router.post(
   extractUserFromToken,
   shopController.registerShop,
 );
+
+router.get(
+  '/shop/:shopId',
+  verifyAccessToken,
+  extractUserFromToken,
+  shopController.getShopDetail,
+);
+
 router.put(
   '/shop/:shopId',
   verifyAccessToken,
   extractUserFromToken,
   shopController.updateShop,
 );
+
 router.delete(
   '/shop/:shopId',
   verifyAccessToken,
