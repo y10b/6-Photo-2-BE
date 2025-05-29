@@ -1,7 +1,20 @@
 import prisma from '../prisma/client.js';
 import {BadRequestError, NotFoundError} from '../utils/customError.js';
 
-export async function proposeExchange(userId, targetCardId, requestCardId) {
+// 📌 교환 제안 생성
+export async function proposeExchange(
+  userId,
+  targetCardId,
+  requestCardId,
+  description,
+) {
+  console.log('🟡 proposeExchange 시작:', {
+    userId,
+    targetCardId,
+    requestCardId,
+    description,
+  });
+
   const [targetCard, requestCard] = await Promise.all([
     prisma.userCard.findUnique({
       where: {id: targetCardId},
@@ -12,6 +25,8 @@ export async function proposeExchange(userId, targetCardId, requestCardId) {
       include: {user: true},
     }),
   ]);
+
+  console.log('✅ 조회된 카드:', {targetCard, requestCard});
 
   if (!targetCard || !requestCard) {
     throw new NotFoundError('존재하지 않는 카드입니다.');
@@ -25,90 +40,95 @@ export async function proposeExchange(userId, targetCardId, requestCardId) {
     throw new BadRequestError('해당 카드는 교환 가능한 상태가 아닙니다.');
   }
 
-  return await prisma.exchange.create({
+  const exchange = await prisma.exchange.create({
     data: {
       requestCardId,
       targetCardId,
+      description,
       status: 'REQUESTED',
     },
   });
+
+  console.log('✅ 교환 제안 생성 완료:', exchange);
+  return exchange;
 }
 
-export async function acceptExchange(exchangeId) {
-  return await prisma.$transaction(async tx => {
-    const exchange = await tx.exchange.findUnique({
-      where: {id: exchangeId},
-      include: {
-        requestCard: true,
-        targetCard: true,
-      },
-    });
+// 📌 교환 수락
+export async function acceptExchange(exchangeId, userId) {
+  console.log('🟢 acceptExchange 시작:', {exchangeId, userId});
 
-    if (!exchange)
-      throw new NotFoundError('해당 교환 요청을 찾을 수 없습니다.');
-
-    const requestCard = exchange.requestCard;
-    const targetCard = exchange.targetCard;
-
-    await tx.userCard.update({
-      where: {id: requestCard.id},
-      data: {userId: targetCard.userId, status: 'SOLD'},
-    });
-
-    await tx.userCard.update({
-      where: {id: targetCard.id},
-      data: {userId: requestCard.userId, status: 'SOLD'},
-    });
-
-    await tx.exchange.update({
-      where: {id: exchangeId},
-      data: {status: 'ACCEPTED'},
-    });
-
-    return {message: '교환이 완료되었습니다.'};
-  });
-}
-
-export async function rejectExchange(exchangeId) {
-  return await prisma.exchange.update({
+  const exchange = await prisma.exchange.findUnique({
     where: {id: exchangeId},
-    data: {status: 'REJECTED'},
+    include: {
+      targetCard: true,
+      requestCard: true,
+    },
   });
+
+  if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
+  if (exchange.targetCard.userId !== userId)
+    throw new BadRequestError('본인의 카드에 대한 요청만 수락할 수 있습니다.');
+
+  // 상태 변경
+  const updated = await prisma.exchange.update({
+    where: {id: exchangeId},
+    data: {
+      status: 'ACCEPTED',
+    },
+  });
+
+  console.log('✅ 교환 수락 완료:', updated);
+  return updated;
 }
 
-// ✅ 수정된 부분: userId 기반 필터링 추가
-export async function getProposalsByTargetCardId(cardId, userId) {
-  const exchanges = await prisma.exchange.findMany({
+// 📌 교환 거절
+export async function rejectExchange(exchangeId, userId) {
+  console.log('🔴 rejectExchange 시작:', {exchangeId, userId});
+
+  const exchange = await prisma.exchange.findUnique({
+    where: {id: exchangeId},
+    include: {
+      targetCard: true,
+    },
+  });
+
+  if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
+  if (exchange.targetCard.userId !== userId)
+    throw new BadRequestError('본인의 카드에 대한 요청만 거절할 수 있습니다.');
+
+  const updated = await prisma.exchange.update({
+    where: {id: exchangeId},
+    data: {
+      status: 'REJECTED',
+    },
+  });
+
+  console.log('✅ 교환 거절 완료:', updated);
+  return updated;
+}
+
+// 📌 교환 제안 목록 조회
+export async function getExchangeProposals(cardId) {
+  console.log('📥 getExchangeProposals 시작:', {cardId});
+
+  const proposals = await prisma.exchange.findMany({
     where: {
       targetCardId: cardId,
-      status: 'REQUESTED',
-      requestCard: {
-        userId: userId, // 💡 내가 제시한 카드만
-      },
     },
     include: {
       requestCard: {
         include: {
-          photoCard: true,
-          user: true,
+          user: {
+            select: {
+              id: true,
+              nickname: true,
+            },
+          },
         },
       },
     },
   });
 
-  return exchanges.map(exchange => {
-    const card = exchange.requestCard;
-    const photoCard = card.photoCard;
-    const user = card.user;
-
-    return {
-      id: exchange.id,
-      title: photoCard.name,
-      imageUrl: photoCard.imageUrl,
-      grade: photoCard.grade,
-      genre: photoCard.genre,
-      nickname: user.nickname,
-      description: photoCard.description,
-    };
-  });
+  console.log('✅ 교환 제안 목록 조회 결과:', proposals);
+  return proposals;
 }

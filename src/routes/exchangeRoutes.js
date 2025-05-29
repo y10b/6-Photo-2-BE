@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  proposeExchange,
+  postExchangeProposal,
   acceptExchange,
   rejectExchange,
   getExchangeProposals,
@@ -12,13 +12,15 @@ import {
 
 const router = express.Router();
 
+// 교환 제안 생성
 router.post(
   '/exchange',
   verifyAccessToken,
   extractUserFromToken,
-  proposeExchange,
+  postExchangeProposal, // ✅ 이름 수정
 );
 
+// 교환 수락
 router.post(
   '/exchange/:id/accept',
   verifyAccessToken,
@@ -26,6 +28,7 @@ router.post(
   acceptExchange,
 );
 
+// 교환 거절
 router.post(
   '/exchange/:id/reject',
   verifyAccessToken,
@@ -33,7 +36,7 @@ router.post(
   rejectExchange,
 );
 
-// ✅ 인증 미들웨어 꼭 필요! → req.user.id 사용 가능하게
+// 카드별 교환 제안 목록 조회
 router.get(
   '/exchange/card/:cardId',
   verifyAccessToken,

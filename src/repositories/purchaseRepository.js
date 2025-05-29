@@ -14,6 +14,9 @@ export async function findShopById(shopId) {
                     genre: true,
                 },
             },
+            listedItems: {
+              select: { id: true }
+            },
         },
     });
 }
