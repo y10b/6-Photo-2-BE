@@ -5,46 +5,33 @@ import {startOfMonth, endOfMonth} from 'date-fns';
 // 필터 조건 생성 함수
 function createFilterOption({filterType, filterValue, keyword}) {
   const shop = {};
+  const photoCard = {};
 
-  // 키워드(카드 이름) 검색
   if (keyword) {
-    shop.photoCard = {
-      name: {
-        contains: keyword,
-      },
-    };
+    photoCard.name = {contains: keyword};
   }
 
-  // 필터링 분기(한 번에 하나의 필터타입만 선택 가능)
   if (filterType && filterValue) {
     const values = filterValue.split(',').map(v => v.toUpperCase());
 
     switch (filterType) {
       case 'grade':
-        shop.photoCard ??= {};
-        shop.photoCard.grade = {in: values};
+        photoCard.grade = {in: values};
         break;
       case 'genre':
-        shop.photoCard ??= {};
-        shop.photoCard.genre = {in: values};
+        photoCard.genre = {in: values};
         break;
       case 'soldOut':
-        if (filterValue === 'true') {
-          shop.remainingQuantity = 0;
-        } else if (filterValue === 'false') {
-          shop.remainingQuantity = {gt: 0};
-        }
+        shop.remainingQuantity = filterValue === 'true' ? 0 : {gt: 0};
         break;
       case 'method':
-        shop.listingType = {in: values}; // ['FOR_SALE'], ['FOR_SALE_AND_TRADE']
         break;
     }
   }
 
-  return {shop};
+  return {shop, photoCard};
 }
 
-// 정렬 조건 생성 함수
 function createSortOption(sort) {
   switch (sort) {
     case 'price-asc':
@@ -60,12 +47,27 @@ function createSortOption(sort) {
 }
 
 // 카드 타입 판별 함수
-function getCardType(status, remainingQuantity, listingType) {
+function getCardType(
+  status,
+  remainingQuantity,
+  listingType,
+  hasPendingExchange = false,
+) {
   if (status === 'SOLD') return 'soldout';
-  if (listingType === 'FOR_SALE' && remainingQuantity > 0) return 'for_sale';
-  if (listingType === 'FOR_SALE_AND_TRADE' && remainingQuantity > 0)
-    return 'exchange';
+
+  const isSoldOut = remainingQuantity === 0;
+
+  if (listingType === 'FOR_SALE') {
+    return isSoldOut ? 'for_sale_soldout' : 'for_sale';
+  }
+
+  if (listingType === 'FOR_SALE_AND_TRADE') {
+    if (hasPendingExchange) return 'exchange';
+    return isSoldOut ? 'soldout' : 'for_sale';
+  }
+
   if (status === 'IDLE') return 'my_card';
+
   return null;
 }
 
@@ -290,43 +292,47 @@ export async function findMySales({
   filterType,
   filterValue,
   keyword,
+  sort = 'latest',
   page = 1,
   take = 10,
 }) {
   const skip = (Number(page) - 1) * Number(take);
-  const {shop: shopFilter} = createFilterOption({
+  const {shop: shopWhere, photoCard: photoCardWhere} = createFilterOption({
     filterType,
     filterValue,
     keyword,
   });
+  const orderBy = createSortOption(sort);
 
-  const where = {
-    sellerId: userId,
-    ...shopFilter,
-  };
+  const user = await prisma.user.findUnique({
+    where: {id: userId},
+    select: {nickname: true},
+  });
 
-  const [totalCount, shops] = await Promise.all([
-    prisma.shop.count({where}),
-    prisma.shop.findMany({
-      where,
-      include: {
-        listedItems: {
-          include: {
-            user: true,
-          },
-        },
-        photoCard: true,
+  const results = [];
+
+  // 1. 판매 중 카드 (상점에 등록한 카드)
+  const shops = await prisma.shop.findMany({
+    where: {
+      sellerId: userId,
+      ...shopWhere,
+      photoCard: {
+        is: photoCardWhere,
       },
-      orderBy: [{createdAt: 'desc'}],
-      skip,
-      take: Number(take),
-    }),
-  ]);
+    },
+    include: {
+      listedItems: true,
+      photoCard: true,
+    },
+    orderBy,
+  });
 
-  const list = shops.flatMap(shop =>
-    shop.listedItems.map(userCard => ({
-      shopId: shop.id,
-      userCardId: userCard.id,
+  for (const shop of shops) {
+    results.push({
+      type: 'for_sale',
+      saleStatus: '판매 중',
+      photoCardId: shop.photoCardId,
+      shopIds: [shop.id],
       imageUrl: shop.photoCard.imageUrl,
       title: shop.photoCard.name,
       description: shop.photoCard.description,
@@ -335,28 +341,80 @@ export async function findMySales({
       price: shop.price,
       quantityLeft: shop.remainingQuantity,
       quantityTotal: shop.initialQuantity,
-      saleStatus: userCard.status,
-      type: getCardType(
-        userCard.status,
-        shop.remainingQuantity,
-        shop.listingType,
-      ),
+      listingType: shop.listingType,
       exchangeInfo: {
         genre: shop.exchangeGenre,
         grade: shop.exchangeGrade,
         description: shop.exchangeDescription,
       },
-      nickname: userCard.user?.nickname ?? null,
+      nickname: user.nickname,
       createdAt: shop.createdAt,
       updatedAt: shop.updatedAt,
-    })),
-  );
+    });
+  }
+
+  // 2. 교환 제시 중 카드 (내 카드로 교환 요청했으나 상점 등록 X)
+  const exchanges = await prisma.exchange.findMany({
+    where: {
+      status: 'REQUESTED',
+      requestCard: {
+        is: {
+          userId: userId,
+          photoCard: {
+            is: photoCardWhere,
+          },
+        },
+      },
+    },
+    include: {
+      requestCard: {
+        include: {
+          photoCard: true,
+        },
+      },
+    },
+  });
+
+  for (const ex of exchanges) {
+    const card = ex.requestCard;
+    results.push({
+      type: 'exchange_only',
+      saleStatus: '교환 제시 중',
+      photoCardId: card.photoCardId,
+      shopIds: [],
+      imageUrl: card.photoCard.imageUrl,
+      title: card.photoCard.name,
+      description: card.photoCard.description,
+      cardGenre: card.photoCard.genre,
+      cardGrade: card.photoCard.grade,
+      price: null,
+      quantityLeft: 1,
+      quantityTotal: 1,
+      listingType: null,
+      exchangeInfo: null,
+      nickname: user.nickname,
+      createdAt: card.createdAt,
+      updatedAt: card.updatedAt,
+    });
+  }
+
+  // filterType === method로 다시 필터링 (판매/교환 분류 필터)
+  const filtered = results.filter(item => {
+    if (filterType === 'method') {
+      if (filterValue === 'for_sale' && item.type === 'for_sale') return true;
+      if (filterValue === 'exchange' && item.type === 'exchange_only')
+        return true;
+      return false;
+    }
+    return true;
+  });
 
   return {
-    totalCount,
+    totalCount: filtered.length,
     currentPage: Number(page),
-    totalPages: Math.ceil(totalCount / Number(take)),
-    list,
+    totalPages: Math.ceil(filtered.length / Number(take)),
+    nickname: user.nickname,
+    result: filtered.slice(skip, skip + take),
   };
 }
 
