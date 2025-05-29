@@ -1,5 +1,8 @@
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import userService from "../../services/userService.js";
+import dotenv from 'dotenv';
+dotenv.config();
+
+import {Strategy as JwtStrategy, ExtractJwt} from 'passport-jwt';
+import userService from '../../services/userService.js';
 
 const accessTokenOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -9,7 +12,7 @@ const accessTokenOptions = {
 const cookieExtractor = function (req) {
   var token = null;
   if (req && req.cookies) {
-    token = req.cookies["refreshToken"];
+    token = req.cookies['refreshToken'];
   }
   return token;
 };

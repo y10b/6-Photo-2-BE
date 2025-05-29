@@ -1,15 +1,15 @@
-import { notificationService } from "../services/notificationService.js";
+import {notificationService} from '../services/notificationService.js';
 
 export const notificationController = {
   // 알림 생성
   async create(req, res, next) {
     try {
       const userId = req.user.id;
-      const { type, content } = req.body;
+      const {type, content} = req.body;
       const result = await notificationService.createNotification(
         userId,
         type,
-        content
+        content,
       );
 
       res.status(201).json(result);
