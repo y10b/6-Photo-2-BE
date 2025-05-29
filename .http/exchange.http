@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJpYXQiOjE3NDg0MTA2MzgsImV4cCI6MTc0ODQxNDIzOH0.2KPD-UuOC8oZUIqEIwHE84oM1XCGflPXoyqgXgqVV24
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJpYXQiOjE3NDg1MDIwMDMsImV4cCI6MTc0ODUwNTYwM30.Wyrd9IV1hEB2F6nI8AcVSCDVNpxkH8KZ16LXjvYUm44
 
 ### 1. 교환 제안 요청 (본인 카드로 요청해야함)
 POST http://localhost:5005/api/exchange
@@ -17,7 +17,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "targetCardId": 72,
+  "targetCardId": 69,
   "requestCardId": 21,
   "description": "이 카드와 교환하고 싶어요!"
 }

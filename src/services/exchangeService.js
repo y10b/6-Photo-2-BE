@@ -8,7 +8,7 @@ export async function proposeExchange(
   requestCardId,
   description,
 ) {
-  console.log('🟡 proposeExchange 시작:', {
+  console.log('🟡 [Service] proposeExchange 시작:', {
     userId,
     targetCardId,
     requestCardId,
@@ -26,7 +26,7 @@ export async function proposeExchange(
     }),
   ]);
 
-  console.log('✅ 조회된 카드:', {targetCard, requestCard});
+  console.log('✅ [Service] 조회된 카드:', {targetCard, requestCard});
 
   if (!targetCard || !requestCard) {
     throw new NotFoundError('존재하지 않는 카드입니다.');
@@ -40,17 +40,31 @@ export async function proposeExchange(
     throw new BadRequestError('해당 카드는 교환 가능한 상태가 아닙니다.');
   }
 
+  console.log('🟡 저장 직전 description:', description);
+
   const exchange = await prisma.exchange.create({
     data: {
       requestCardId,
       targetCardId,
-      description,
+      description: String(description),
       status: 'REQUESTED',
     },
   });
 
-  console.log('✅ 교환 제안 생성 완료:', exchange);
-  return exchange;
+  console.log('✅ [Service] 교환 제안 생성 완료:', {
+    id: exchange.id,
+    status: exchange.status,
+    description: exchange.description,
+  });
+
+  // 🔍 DB에서 다시 조회해서 실제로 저장됐는지 확인
+  const confirmed = await prisma.exchange.findUnique({
+    where: {id: exchange.id},
+  });
+
+  console.log('🔍 [Service] DB 재조회 결과:', confirmed);
+
+  return confirmed;
 }
 
 // 📌 교환 수락
@@ -69,7 +83,6 @@ export async function acceptExchange(exchangeId, userId) {
   if (exchange.targetCard.userId !== userId)
     throw new BadRequestError('본인의 카드에 대한 요청만 수락할 수 있습니다.');
 
-  // 상태 변경
   const updated = await prisma.exchange.update({
     where: {id: exchangeId},
     data: {

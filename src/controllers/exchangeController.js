@@ -11,12 +11,21 @@ export async function postExchangeProposal(req, res, next) {
     const userId = req.user.id;
     const {targetCardId, requestCardId, description} = req.body;
 
+    console.log('🧾 [Controller] 요청 데이터:', {
+      userId,
+      targetCardId,
+      requestCardId,
+      description,
+    });
+
     const exchange = await proposeExchange(
       userId,
       targetCardId,
       requestCardId,
       description,
     );
+
+    console.log('✅ [Controller] 생성된 교환 객체:', exchange);
 
     res.status(201).json({success: true, data: exchange});
   } catch (error) {
