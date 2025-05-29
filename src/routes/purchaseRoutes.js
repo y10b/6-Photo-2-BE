@@ -4,7 +4,7 @@ import { verifyAccessToken, extractUserFromToken } from "../middlewares/auth.mid
 
 const purchaseRouter = express.Router();
 
-purchaseRouter.get('/:shopId', photoCardController.getShopDetail);
+purchaseRouter.get('/:shopId', verifyAccessToken, extractUserFromToken, photoCardController.getShopDetail);
 
 purchaseRouter.post('/:shopId', verifyAccessToken, extractUserFromToken, photoCardController.purchaseCardController);
 export default purchaseRouter;
