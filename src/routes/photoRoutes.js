@@ -29,7 +29,7 @@ router.get(
 router.use('/mypage', verifyAccessToken, extractUserFromToken);
 router.get('/mypage/idle-cards', verifyAccessToken, getMyIDLECards);
 router.post('/mypage/create', createMyCard);
-router.get('/mypage/sales', getMySales);
+router.get('/mypage/sales', verifyAccessToken, getMySales);
 router.get('/mypage/creation-quota', getCardCreationQuota);
 
 export default router;

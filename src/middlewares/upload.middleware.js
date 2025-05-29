@@ -4,6 +4,10 @@ import fs from 'fs';
 
 const uploadFolder = 'uploads';
 
+if (!fs.existsSync(uploadFolder)) {
+  fs.mkdirSync(uploadFolder, {recursive: true});
+}
+
 // 저장 방법 설정
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
