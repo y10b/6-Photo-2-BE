@@ -1,14 +1,29 @@
-### 쿨타임 확인
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI0LCJpYXQiOjE3NDg0OTk5MzAsImV4cCI6MTc0ODUwMzUzMH0.ZHGmxnqO9-DDI2tbmZw77eiBAioil6elxYA_OF_uqDY
+### 로그인 테스트 (유저 로그인)
+POST http://localhost:5005/auth/signin
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "1234"
+}
+
+### [1] 쿨타임 확인
 GET http://localhost:5005/api/users/me/point/check
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODQxNjU2NywiZXhwIjoxNzQ4NDIwMTY3fQ.8xzORTuwBnGPat50jM363obn8Rh5CQ6RdzxCMJaiRpg
+Authorization: {{token}}
 Content-Type: application/json
 
-
-### 포인트 뽑기
+### [2] 포인트 뽑기
 POST http://localhost:5005/api/users/me/point/draw
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODQxNjU2NywiZXhwIjoxNzQ4NDIwMTY3fQ.8xzORTuwBnGPat50jM363obn8Rh5CQ6RdzxCMJaiRpg
+Authorization: {{token}}
 Content-Type: application/json
 
-### 내 정보 조회
+### [3] 쿨타임 강제 초기화 (개발용)
+PATCH http://localhost:5005/api/users/reset-point-cooldown
+Authorization: {{token}}
+Content-Type: application/json
+
+### [4] 내 정보 조회 (확인용)
 GET http://localhost:5005/api/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODQxNjU2NywiZXhwIjoxNzQ4NDIwMTY3fQ.8xzORTuwBnGPat50jM363obn8Rh5CQ6RdzxCMJaiRpg
+Authorization: {{token}}
+Content-Type: application/json
