@@ -3,10 +3,11 @@ POST http://localhost:5005/api/shop
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImlhdCI6MTc0ODMzODg1NCwiZXhwIjoxNzQ4MzQyNDU0fQ.4gIFJic1ZtBlzkGipjnXKPeNRK4LdMcg5CXxMhqmtaE
 
+
 {
-  "photoCardId": 95,
+  "photoCardId": 122,
   "quantity": 1,
-  "price": 5000,
+  "price": 12000,
   "listingType": "FOR_SALE"
 }
 
