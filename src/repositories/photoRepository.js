@@ -52,7 +52,7 @@ function getCardType(status, remainingQuantity, listingType) {
   if (listingType === 'FOR_SALE' && remainingQuantity > 0) return 'for_sale';
   if (listingType === 'FOR_SALE_AND_TRADE' && remainingQuantity > 0)
     return 'exchange';
-  if (status === 'IDLE') return 'my_idle_card';
+  if (status === 'IDLE') return 'my_card';
   return null;
 }
 
@@ -379,7 +379,7 @@ export async function findMySales({
   for (const ex of exchanges) {
     const card = ex.requestCard;
     results.push({
-      type: 'exchange_only',
+      type: 'for_sale',
       saleStatus: '교환 제시 중',
       photoCardId: card.photoCardId,
       shopIds: [],
@@ -402,9 +402,9 @@ export async function findMySales({
   // filterType === method로 다시 필터링 (판매/교환 분류 필터)
   const filtered = results.filter(item => {
     if (filterType === 'method') {
-      if (filterValue === 'for_sale' && item.type === 'for_sale') return true;
-      if (filterValue === 'exchange' && item.type === 'exchange_only')
-        return true;
+      if (filterValue === '판매 중') return item.saleStatus === '판매 중';
+      if (filterValue === '교환 제시 중')
+        return item.saleStatus === '교환 제시 중';
       return false;
     }
     return true;
@@ -486,6 +486,7 @@ export async function purchaseCard({userId, saleId, quantity}) {
   };
 }
 
+// 포토카드 생성
 export async function createMyCard(userId, data) {
   const monthStart = startOfMonth(new Date());
   const monthEnd = endOfMonth(new Date());
@@ -528,6 +529,7 @@ export async function createMyCard(userId, data) {
       genre: data.genre,
       price: data.price,
       initialQuantity: data.initialQuantity,
+      creatorId: userId,
     },
   });
 
@@ -576,30 +578,22 @@ export async function getCardCreationQuota(userId) {
   const monthStart = startOfMonth(new Date());
   const monthEnd = endOfMonth(new Date());
 
-  const createdThisMonth = await prisma.userCard.findMany({
+  // 해당 유저가 이번 달에 생성한 포토카드 개수
+  const createdThisMonth = await prisma.photoCard.findMany({
     where: {
-      userId,
+      creatorId: userId,
       createdAt: {
         gte: monthStart,
         lte: monthEnd,
       },
-      photoCard: {
-        createdAt: {
-          gte: monthStart,
-          lte: monthEnd,
-        },
-      },
     },
     select: {
-      photoCardId: true,
+      id: true,
     },
   });
 
   return {
-    remainingQuota: Math.max(
-      0,
-      3 - new Set(createdThisMonth.map(c => c.photoCardId)).size,
-    ),
+    remainingQuota: Math.max(0, MAX_MONTHLY_CARDS - createdThisMonth.length),
   };
 }
 
