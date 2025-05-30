@@ -62,6 +62,9 @@ async function seed() {
         imageUrl: card.imageUrl,
         price,
         initialQuantity: totalQuantity,
+        creator: {
+          connect: {id: userId},
+        },
       },
     });
 
