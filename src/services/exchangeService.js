@@ -1,3 +1,4 @@
+import prisma from '../prisma/client.js';
 import {
   findCardById,
   createExchange,
@@ -5,10 +6,20 @@ import {
   updateExchangeStatus,
   findExchangesByTargetCardId,
 } from '../repositories/exchangeRepository.js';
-import { BadRequestError, NotFoundError } from '../utils/customError.js';
+import {BadRequestError, NotFoundError} from '../utils/customError.js';
 
-export async function proposeExchange(userId, targetCardId, requestCardId, description) {
-  console.log('[Service] proposeExchange 호출:', { userId, targetCardId, requestCardId, description });
+export async function proposeExchange(
+  userId,
+  targetCardId,
+  requestCardId,
+  description,
+) {
+  console.log('[Service] proposeExchange 호출:', {
+    userId,
+    targetCardId,
+    requestCardId,
+    description,
+  });
 
   const requestCard = await findCardById(requestCardId);
   const targetCard = await findCardById(targetCardId);
@@ -31,7 +42,11 @@ export async function proposeExchange(userId, targetCardId, requestCardId, descr
     throw new BadRequestError('해당 카드는 교환 가능한 상태가 아닙니다.');
   }
 
-  const exchange = await createExchange(requestCardId, targetCardId, description);
+  const exchange = await createExchange(
+    requestCardId,
+    targetCardId,
+    description,
+  );
   console.log('[Service] 교환 제안 생성 완료:', exchange);
 
   const confirmed = await findExchangeById(exchange.id);
@@ -41,7 +56,7 @@ export async function proposeExchange(userId, targetCardId, requestCardId, descr
 }
 
 export async function acceptExchange(userId, exchangeId) {
-  console.log('[Service] acceptExchange 호출:', { userId, exchangeId });
+  console.log('[Service] acceptExchange 호출:', {userId, exchangeId});
 
   const exchange = await findExchangeById(exchangeId);
   if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
@@ -55,7 +70,7 @@ export async function acceptExchange(userId, exchangeId) {
 }
 
 export async function rejectExchange(userId, exchangeId) {
-  console.log('[Service] rejectExchange 호출:', { userId, exchangeId });
+  console.log('[Service] rejectExchange 호출:', {userId, exchangeId});
 
   const exchange = await findExchangeById(exchangeId);
   if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
@@ -69,10 +84,44 @@ export async function rejectExchange(userId, exchangeId) {
 }
 
 export async function getExchangeProposals(userId, cardId) {
-  console.log('[Service] getExchangeProposals 호출:', { userId, cardId });
+  console.log('[Service] getExchangeProposals 호출:', {userId, cardId});
 
-  // TODO: userId 검증 로직 필요하면 추가
   const proposals = await findExchangesByTargetCardId(cardId);
-  console.log('[Service] 교환 제안 목록:', proposals);
-  return proposals;
+
+  const formattedProposals = await Promise.all(
+    proposals.map(async exchange => {
+      const requestCard = exchange.requestCard;
+      let photoCard = requestCard?.photoCard;
+
+      if (!photoCard || !photoCard.id) {
+        photoCard = await prisma.photoCard.findUnique({
+          where: {id: requestCard.photoCardId},
+        });
+        console.log(
+          `[Service] 교환 ID ${exchange.id}의 photoCard 직접 조회 결과:`,
+          photoCard,
+        );
+      }
+
+      return {
+        id: exchange.id,
+        exchangeId: exchange.id,
+        requestCardId: exchange.requestCardId,
+        targetCardId: exchange.targetCardId,
+        status: exchange.status,
+        description: exchange.description,
+        createdAt: exchange.createdAt,
+        userNickname: requestCard.user?.nickname || '유저',
+        imageUrl: photoCard?.imageUrl || '/logo.svg',
+        name: photoCard?.name || '이름 없음',
+        grade: photoCard?.grade || 'COMMON',
+        genre: photoCard?.genre || '장르 없음',
+        price: photoCard?.price || 0,
+        cardDescription: photoCard?.description || '',
+      };
+    }),
+  );
+
+  console.log('[Service] 교환 제안 최종 변환 결과:', formattedProposals);
+  return formattedProposals;
 }
