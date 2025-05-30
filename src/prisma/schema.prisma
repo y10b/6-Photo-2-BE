@@ -81,6 +81,7 @@ model User {
   shopListings      Shop[]         @relation("UserShopListings") // 유저가 등록한 판매 게시글 목록 (새로 추가된 관계)
   provider          String         @default("local")
   providerId        String?        @unique
+  PhotoCard         PhotoCard[]
 }
 
 model PhotoCard {
@@ -94,6 +95,8 @@ model PhotoCard {
   initialQuantity Int // PhotoCard 자체의 최초 발행 수량
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+  creatorId       Int // 최초 발행자 id
+  creator         User       @relation(fields: [creatorId], references: [id])
   userCard        UserCard[] // 이 종류의 포토카드를 소유한 UserCard 목록
   shopListings    Shop[] // 이 종류의 포토카드가 등록된 판매 게시글 목록
 }
