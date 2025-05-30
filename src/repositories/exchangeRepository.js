@@ -34,17 +34,17 @@ export async function updateExchangeStatus(id, status) {
     });
 }
 
-export async function findExchangesByTargetCardId(cardId) {
+export async function findExchangesByTargetCardId(targetCardId) {
     return await prisma.exchange.findMany({
-        where: { targetCardId: cardId },
-        include: {
+        where: { targetCardId },
+        include: { 
+            targetCard: true, 
             requestCard: {
                 include: {
-                    user: {
-                        select: { id: true, nickname: true },
-                    },
-                },
-            },
+                    user: true,
+                    photoCard: true // photoCard 정보 포함
+                }
+            }
         },
     });
 }
