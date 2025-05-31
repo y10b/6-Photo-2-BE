@@ -1,6 +1,7 @@
 import * as purchaseService from '../services/purchaseService.js';
 
 export const getShopDetail = async (req, res, next) => {
+
     try {
         const userId = req.user.id;
         const shopId = Number(req.params.shopId);
@@ -32,8 +33,25 @@ export const getShopDetail = async (req, res, next) => {
         });
     } catch (error) {
         next(error);
+
     }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: shop.id,
+        price,
+        initialQuantity,
+        remainingQuantity,
+        sellerNickname: seller.nickname,
+        ...photoCard,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 };
+
 
 export const purchaseCardController = async (req, res, next) => {
     try {

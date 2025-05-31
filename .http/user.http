@@ -16,7 +16,7 @@ Cookie: refreshToken=yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI
 
 ### 내 정보 조회
 GET {{baseUrl}}/api/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0Nzg5ODg1OSwiZXhwIjoxNzQ3OTAyNDU5fQ.dX9DSLB9tfxBV_amiHgJLHq9cY62354-iEpioBlgalw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODQxNTk2MSwiZXhwIjoxNzQ4NDE5NTYxfQ.LnX2Bat1YKqyAEXx2I_7FSpjvaIJjrND8NL_PBOey-E
 
 ### 내 정보 수정
 PATCH {{baseUrl}}/api/users/me
