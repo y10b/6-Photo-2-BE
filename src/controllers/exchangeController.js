@@ -3,6 +3,7 @@ import {
   acceptExchange as acceptService,
   rejectExchange as rejectService,
   getExchangeProposals as getProposalsService,
+  cancelExchange as cancelService, // 새로 추가
 } from '../services/exchangeService.js';
 
 export async function postExchangeProposal(req, res, next) {
@@ -62,6 +63,21 @@ export async function getExchangeProposals(req, res, next) {
     res.json({ success: true, data: proposals });
   } catch (error) {
     console.error('[Controller] 교환 제안 목록 조회 오류:', error);
+    next(error);
+  }
+}
+
+export async function cancelExchange(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const exchangeId = Number(req.params.id);
+
+    console.log('[Controller] 교환 취소 요청:', { userId, exchangeId });
+
+    const exchange = await cancelService(userId, exchangeId);
+    res.json({ success: true, data: exchange });
+  } catch (error) {
+    console.error('[Controller] 교환 취소 오류:', error);
     next(error);
   }
 }

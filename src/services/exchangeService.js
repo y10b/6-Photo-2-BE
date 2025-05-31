@@ -125,3 +125,23 @@ export async function getExchangeProposals(userId, cardId) {
   console.log('[Service] 교환 제안 최종 변환 결과:', formattedProposals);
   return formattedProposals;
 }
+
+export async function cancelExchange(userId, exchangeId) {
+  console.log('[Service] cancelExchange 호출:', {userId, exchangeId});
+
+  const exchange = await findExchangeById(exchangeId);
+  if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
+
+  // 교환 요청을 보낸 사람만 취소할 수 있도록 검증
+  // requestCard의 userId와 현재 로그인한 userId가 일치해야 함
+  if (exchange.requestCard.userId !== userId)
+    throw new BadRequestError('본인이 보낸 교환 요청만 취소할 수 있습니다.');
+
+  // 이미 처리된 교환 요청은 취소할 수 없음
+  if (exchange.status !== 'REQUESTED')
+    throw new BadRequestError('이미 처리된 교환 요청은 취소할 수 없습니다.');
+
+  const updated = await updateExchangeStatus(exchangeId, 'CANCELLED');
+  console.log('[Service] 교환 취소 완료:', updated);
+  return updated;
+}
