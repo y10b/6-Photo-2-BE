@@ -4,7 +4,7 @@ export async function findShopById(shopId) {
   return await prisma.shop.findUnique({
     where: { id: Number(shopId) },
     include: {
-      seller: { select: { nickname: true } },
+      seller: { select: { id: true, nickname: true } },
       photoCard: {
         select: {
           name: true,
@@ -35,17 +35,24 @@ export async function purchaseCard(userId, shopId, quantity) {
           take: quantity,
         },
         photoCard: true,
-        seller: true, // seller 정보도 포함시키기
+        seller: true,
       },
     });
 
     if (!shop) throw new Error('판매 게시글을 찾을 수 없습니다.');
+
+    // 판매자와 구매자가 동일한 경우 구매 불가 (서비스 레이어에서도 검증하지만 안전을 위해 유지)
+    if (shop.seller.id === userId) {
+      throw new Error('본인이 등록한 상품은 구매할 수 없습니다.');
+    }
+
     if (
       shop.listingType !== 'FOR_SALE' &&
       shop.listingType !== 'FOR_SALE_AND_TRADE'
     ) {
       throw new Error('해당 판매 게시글은 구매 가능한 유형이 아닙니다.');
     }
+
     if (
       shop.remainingQuantity < quantity ||
       shop.listedItems.length < quantity
@@ -78,10 +85,6 @@ export async function purchaseCard(userId, shopId, quantity) {
     });
 
     // 2) 판매자 포인트 증가
-    if (!shop.seller) {
-      throw new Error('판매자 정보를 찾을 수 없습니다.');
-    }
-
     await tx.point.update({
       where: { userId: shop.seller.id },
       data: { balance: { increment: totalPrice } },
@@ -114,16 +117,17 @@ export async function purchaseCard(userId, shopId, quantity) {
     });
 
     return {
-      success: true,
       message: `${quantity}장 구매에 성공했습니다.`,
-      shopId: shop.id,
-      photoCardId: shop.photoCard.id,
-      grade: shop.photoCard.grade,
-      genre: shop.photoCard.genre,
-      userId,
-      initialQuantity: shop.initialQuantity,
-      purchasedQuantity: quantity,
-      remainingQuantity: updatedShop.remainingQuantity,
+      data: {
+        shopId: shop.id,
+        photoCardId: shop.photoCard.id,
+        grade: shop.photoCard.grade,
+        genre: shop.photoCard.genre,
+        userId,
+        initialQuantity: shop.initialQuantity,
+        purchasedQuantity: quantity,
+        remainingQuantity: updatedShop.remainingQuantity,
+      }
     };
   });
 }
