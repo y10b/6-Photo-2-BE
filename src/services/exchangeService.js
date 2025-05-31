@@ -24,12 +24,6 @@ export async function proposeExchange(
   const requestCard = await findCardById(requestCardId);
   const targetCard = await findCardById(targetCardId);
 
-  console.log('=== 디버깅: 본인 카드 검증 ===');
-  console.log('현재 로그인한 userId:', userId);
-  console.log('requestCard:', requestCard);
-  console.log('requestCard.user:', requestCard?.user);
-  console.log('requestCard.user.id:', requestCard?.user?.id);
-
   if (!requestCard || !targetCard) {
     throw new NotFoundError('존재하지 않는 카드입니다.');
   }
@@ -61,8 +55,18 @@ export async function acceptExchange(userId, exchangeId) {
   const exchange = await findExchangeById(exchangeId);
   if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
 
-  if (exchange.targetCard.userId !== userId)
+  // 교환 요청의 대상 카드 소유자 정보 로깅
+  console.log('✅ exchange.targetCard.userId:', exchange?.targetCard?.userId);
+  console.log('✅ 현재 로그인한 userId:', userId);
+
+  // 판매자 권한 확인 로직 수정
+  // 현재 로그인한 사용자가 대상 카드의 소유자인지 확인
+  if (exchange.targetCard.userId !== userId) {
+    // 추가 로깅으로 문제 파악
+    console.log('❌ 권한 오류: 카드 소유자와 현재 사용자가 일치하지 않음');
+    console.log('targetCard 전체 정보:', exchange.targetCard);
     throw new BadRequestError('본인의 카드에 대한 요청만 수락할 수 있습니다.');
+  }
 
   const updated = await updateExchangeStatus(exchangeId, 'ACCEPTED');
   console.log('[Service] 교환 수락 완료:', updated);
@@ -75,8 +79,12 @@ export async function rejectExchange(userId, exchangeId) {
   const exchange = await findExchangeById(exchangeId);
   if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
 
-  if (exchange.targetCard.userId !== userId)
+  console.log('✅ exchange.targetCard.userId:', exchange?.targetCard?.userId);
+  console.log('✅ 현재 로그인한 userId:', userId);
+
+  if (exchange.targetCard.userId !== userId) {
     throw new BadRequestError('본인의 카드에 대한 요청만 거절할 수 있습니다.');
+  }
 
   const updated = await updateExchangeStatus(exchangeId, 'REJECTED');
   console.log('[Service] 교환 거절 완료:', updated);
@@ -132,14 +140,13 @@ export async function cancelExchange(userId, exchangeId) {
   const exchange = await findExchangeById(exchangeId);
   if (!exchange) throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
 
-  // 교환 요청을 보낸 사람만 취소할 수 있도록 검증
-  // requestCard의 userId와 현재 로그인한 userId가 일치해야 함
-  if (exchange.requestCard.userId !== userId)
+  if (exchange.requestCard.userId !== userId) {
     throw new BadRequestError('본인이 보낸 교환 요청만 취소할 수 있습니다.');
+  }
 
-  // 이미 처리된 교환 요청은 취소할 수 없음
-  if (exchange.status !== 'REQUESTED')
+  if (exchange.status !== 'REQUESTED') {
     throw new BadRequestError('이미 처리된 교환 요청은 취소할 수 없습니다.');
+  }
 
   const updated = await updateExchangeStatus(exchangeId, 'CANCELLED');
   console.log('[Service] 교환 취소 완료:', updated);
