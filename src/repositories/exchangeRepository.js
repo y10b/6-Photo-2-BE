@@ -45,6 +45,10 @@ export async function updateExchangeStatus(id, status) {
     where: {id},
     data: {status},
   });
+  return await prisma.exchange.update({
+    where: {id},
+    data: {status},
+  });
 }
 
 export async function findExchangesByTargetCardId(targetCardId) {
@@ -56,6 +60,10 @@ export async function findExchangesByTargetCardId(targetCardId) {
           user: true,
           photoCard: true,
         },
+      },
+    },
+    orderBy: {createdAt: 'desc'},
+  });
       },
     },
     orderBy: {createdAt: 'desc'},

@@ -1,4 +1,5 @@
 import prisma from '../prisma/client.js';
+import prisma from '../prisma/client.js';
 import {
   findCardById,
   createExchange,
@@ -7,7 +8,20 @@ import {
   findExchangesByTargetCardId,
 } from '../repositories/exchangeRepository.js';
 import {BadRequestError, NotFoundError} from '../utils/customError.js';
+import {BadRequestError, NotFoundError} from '../utils/customError.js';
 
+export async function proposeExchange(
+  userId,
+  targetCardId,
+  requestCardId,
+  description,
+) {
+  console.log('[Service] proposeExchange 호출:', {
+    userId,
+    targetCardId,
+    requestCardId,
+    description,
+  });
 export async function proposeExchange(
   userId,
   targetCardId,
@@ -41,15 +55,19 @@ export async function proposeExchange(
     targetCardId,
     description,
   );
+  const exchange = await createExchange(
+    requestCardId,
+    targetCardId,
+    description,
+  );
   console.log('[Service] 교환 제안 생성 완료:', exchange);
 
   const confirmed = await findExchangeById(exchange.id);
-  console.log('[Service] DB 재조회 결과:', confirmed);
-
   return confirmed;
 }
 
 export async function acceptExchange(userId, exchangeId) {
+  console.log('[Service] acceptExchange 호출:', {userId, exchangeId});
   console.log('[Service] acceptExchange 호출:', {userId, exchangeId});
 
   const exchange = await findExchangeById(exchangeId);
@@ -67,13 +85,35 @@ export async function acceptExchange(userId, exchangeId) {
     console.log('targetCard 전체 정보:', exchange.targetCard);
     throw new BadRequestError('본인의 카드에 대한 요청만 수락할 수 있습니다.');
   }
+  }
 
-  const updated = await updateExchangeStatus(exchangeId, 'ACCEPTED');
-  console.log('[Service] 교환 수락 완료:', updated);
+  const updated = await prisma.$transaction(async tx => {
+    // 상태 변경
+    const acceptedExchange = await tx.exchange.update({
+      where: {id: exchangeId},
+      data: {status: 'ACCEPTED'},
+    });
+
+    // 카드 소유권 변경 (userId 스왑)
+    await tx.userCard.update({
+      where: {id: exchange.requestCardId},
+      data: {userId: exchange.targetCard.userId},
+    });
+
+    await tx.userCard.update({
+      where: {id: exchange.targetCardId},
+      data: {userId: exchange.requestCard.userId},
+    });
+
+    return acceptedExchange;
+  });
+
+  console.log('[Service] 교환 수락 및 소유권 이전 완료:', updated);
   return updated;
 }
 
 export async function rejectExchange(userId, exchangeId) {
+  console.log('[Service] rejectExchange 호출:', {userId, exchangeId});
   console.log('[Service] rejectExchange 호출:', {userId, exchangeId});
 
   const exchange = await findExchangeById(exchangeId);
@@ -85,6 +125,7 @@ export async function rejectExchange(userId, exchangeId) {
   if (exchange.targetCard.userId !== userId) {
     throw new BadRequestError('본인의 카드에 대한 요청만 거절할 수 있습니다.');
   }
+  }
 
   const updated = await updateExchangeStatus(exchangeId, 'REJECTED');
   console.log('[Service] 교환 거절 완료:', updated);
@@ -92,6 +133,7 @@ export async function rejectExchange(userId, exchangeId) {
 }
 
 export async function getExchangeProposals(userId, cardId) {
+  console.log('[Service] getExchangeProposals 호출:', {userId, cardId});
   console.log('[Service] getExchangeProposals 호출:', {userId, cardId});
 
   const proposals = await findExchangesByTargetCardId(cardId);
