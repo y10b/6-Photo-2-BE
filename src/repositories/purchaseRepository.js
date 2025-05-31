@@ -2,9 +2,9 @@ import prisma from '../prisma/client.js';
 
 export async function findShopById(shopId) {
   return await prisma.shop.findUnique({
-    where: {id: Number(shopId)},
+    where: { id: Number(shopId) },
     include: {
-      seller: {select: {nickname: true}},
+      seller: { select: { nickname: true } },
       photoCard: {
         select: {
           name: true,
@@ -20,18 +20,18 @@ export async function findShopById(shopId) {
 
 export async function findShopWithPhotoCard(shopId) {
   return await prisma.shop.findUnique({
-    where: {id: shopId},
-    include: {photoCard: true, seller: true},
+    where: { id: shopId },
+    include: { photoCard: true, seller: true },
   });
 }
 
 export async function purchaseCard(userId, shopId, quantity) {
   return await prisma.$transaction(async tx => {
     const shop = await tx.shop.findUnique({
-      where: {id: shopId},
+      where: { id: shopId },
       include: {
         listedItems: {
-          where: {status: 'LISTED'},
+          where: { status: 'LISTED' },
           take: quantity,
         },
         photoCard: true,
@@ -55,8 +55,8 @@ export async function purchaseCard(userId, shopId, quantity) {
 
     const totalPrice = shop.price * quantity;
     const buyer = await tx.user.findUnique({
-      where: {id: userId},
-      include: {point: true},
+      where: { id: userId },
+      include: { point: true },
     });
 
     if (!buyer?.point || buyer.point.balance < totalPrice) {
@@ -65,8 +65,8 @@ export async function purchaseCard(userId, shopId, quantity) {
 
     // 1) 구매자 포인트 차감
     await tx.point.update({
-      where: {userId},
-      data: {balance: {decrement: totalPrice}},
+      where: { userId },
+      data: { balance: { decrement: totalPrice } },
     });
 
     await tx.pointHistory.create({
@@ -83,8 +83,8 @@ export async function purchaseCard(userId, shopId, quantity) {
     }
 
     await tx.point.update({
-      where: {userId: shop.seller.id},
-      data: {balance: {increment: totalPrice}},
+      where: { userId: shop.seller.id },
+      data: { balance: { increment: totalPrice } },
     });
 
     await tx.pointHistory.create({
@@ -98,7 +98,7 @@ export async function purchaseCard(userId, shopId, quantity) {
     // 3) 카드 소유권 이전 처리
     for (const card of shop.listedItems) {
       await tx.userCard.update({
-        where: {id: card.id},
+        where: { id: card.id },
         data: {
           userId,
           status: 'IDLE',
@@ -109,8 +109,8 @@ export async function purchaseCard(userId, shopId, quantity) {
 
     // 4) 판매 게시글 남은 수량 업데이트
     const updatedShop = await tx.shop.update({
-      where: {id: shopId},
-      data: {remainingQuantity: {decrement: quantity}},
+      where: { id: shopId },
+      data: { remainingQuantity: { decrement: quantity } },
     });
 
     return {
