@@ -36,7 +36,7 @@ app.use(passport.initialize());
 // 라우터 등록
 app.use('/auth', authRouter);
 app.use('/api', photoRouter);
-app.use('/api', shopRouter);
+app.use('/api/shop', shopRouter);
 app.use('/api/users', userRouter);
 app.use('/api/purchase', purchaseRouter);
 app.use('/api', exchangeRouter);
