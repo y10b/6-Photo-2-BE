@@ -6,77 +6,59 @@ export const getShopDetail = async (req, res, next) => {
     const shopId = Number(req.params.shopId);
 
     if (!userId || isNaN(shopId)) {
-      return res
-        .status(400)
-        .json({success: false, message: '잘못된 요청입니다.'});
+      return res.status(400).json({message: '잘못된 요청입니다.'});
     }
 
-    const shop = await purchaseService.getShopDetail(shopId);
+    const result = await purchaseService.getShopDetailService(shopId);
 
-    if (!shop) {
+    if (!result.shop) {
       return res.status(404).json({
-        success: false,
         message: '해당 판매 게시글이 존재하지 않습니다.',
       });
     }
 
-    const {price, initialQuantity, remainingQuantity, seller, photoCard} = shop;
-
-    // 품절된 경우에도 상세 정보는 전달
-    if (remainingQuantity <= 0) {
+    if (result.shop.remainingQuantity <= 0) {
       return res.status(410).json({
-        success: false,
         message: '이미 판매 완료된 상품입니다.',
-        data: {
-          id: shop.id,
-          price,
-          initialQuantity,
-          remainingQuantity,
-          sellerNickname: seller.nickname,
-          ...photoCard,
-        },
+        data: result.data,
       });
     }
 
     res.status(200).json({
-      success: true,
-      data: {
-        id: shop.id,
-        price,
-        initialQuantity,
-        remainingQuantity,
-        sellerNickname: seller.nickname,
-        ...photoCard,
-      },
+      message: '판매 게시글 조회 성공',
+      data: result.data,
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const purchaseCardController = async (req, res) => {
-  const userId = req.user.id;
-  const shopId = Number(req.params.shopId);
-  const {quantity} = req.body;
-
-  if (!userId || isNaN(shopId) || typeof quantity !== 'number') {
-    return res
-      .status(400)
-      .json({success: false, message: '잘못된 요청입니다.'});
-  }
-
+export const purchaseCardController = async (req, res, next) => {
   try {
+    const userId = req.user.id;
+    const shopId = Number(req.params.shopId);
+    const {quantity} = req.body;
+
+    if (!userId || isNaN(shopId) || typeof quantity !== 'number') {
+      return res.status(400).json({message: '잘못된 요청입니다.'});
+    }
+
+    // 판매자와 구매자가 동일한지 확인하는 로직은 서비스 레이어로 이동
     const result = await purchaseService.purchaseCardService(
       userId,
       shopId,
       quantity,
     );
-    res.status(200).json(result);
+
+    res.status(200).json({
+      message: '카드 구매 성공',
+      data: result.data,
+    });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message || '카드 구매 중 오류가 발생했습니다.',
-      ...error.extraInfo,
+    const status = error.status || 500;
+    res.status(status).json({
+      message: error.message || '카드 구매 중 오류가 발생했습니다.',
+      data: error.extraInfo,
     });
   }
 };
