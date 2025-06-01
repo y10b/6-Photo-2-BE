@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJpYXQiOjE3NDg3MjcwNDcsImV4cCI6MTc0ODczMDY0N30.emWZN1LO2OjPMZR_MPtZTQgQcP8DaBvDGl-6IP7Suc4
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJpYXQiOjE3NDg3ODA3MzcsImV4cCI6MTc0ODc4NDMzN30.PS6EhIB0qA_dyNez5Wj123ZdAGvTh-XCWCWzy96RqD4
 ### 1. 교환 제안 요청 (본인 카드로 요청해야함)
 POST http://localhost:5005/api/exchange
 Content-Type: application/json
@@ -36,3 +36,4 @@ Authorization: Bearer {{accessToken}}
 ### 5. 판매 게시글에 대한 교환 제안 목록 조회 (판매자 입장)
 GET http://localhost:5005/api/exchange/shop/87
 Authorization: Bearer {{accessToken}}
+
