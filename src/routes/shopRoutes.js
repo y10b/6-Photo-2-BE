@@ -8,28 +8,28 @@ import {
 const router = express.Router();
 
 router.post(
-  '/shop',
+  '/',
   verifyAccessToken,
   extractUserFromToken,
   shopController.registerShop,
 );
 
 router.get(
-  '/shop/:shopId',
+  '/:shopId',
   verifyAccessToken,
   extractUserFromToken,
   shopController.getShopDetail,
 );
 
 router.put(
-  '/shop/:shopId',
+  '/:shopId',
   verifyAccessToken,
   extractUserFromToken,
   shopController.updateShop,
 );
 
 router.delete(
-  '/shop/:shopId',
+  '/:shopId',
   verifyAccessToken,
   extractUserFromToken,
   shopController.deleteShop,
