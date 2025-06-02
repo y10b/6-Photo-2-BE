@@ -9,9 +9,10 @@ import { verifyAccessToken, extractUserFromToken } from '../middlewares/auth.mid
 
 const router = express.Router();
 
+// 미들웨어 체인 순서 확인
 router.post('/exchange', verifyAccessToken, extractUserFromToken, postExchangeProposal);
 router.post('/exchange/:id/accept', verifyAccessToken, extractUserFromToken, acceptExchange);
 router.post('/exchange/:id/reject', verifyAccessToken, extractUserFromToken, rejectExchange);
-router.get('/exchange/card/:cardId', verifyAccessToken, extractUserFromToken, getExchangeProposals);
+router.get('/exchange/:shopId', verifyAccessToken, extractUserFromToken, getExchangeProposals);
 
 export default router;
