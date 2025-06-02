@@ -493,12 +493,13 @@ export async function createMyCard(userId, data) {
   // 이번 달 생성한 포토카드 수 조회 (userCard + photoCard 생성일 기준)
   const createdThisMonth = await prisma.userCard.findMany({
     where: {
-      creatorId: userId,
+      userId,
       createdAt: {
         gte: monthStart,
         lte: monthEnd,
       },
       photoCard: {
+        creatorId: userId,
         createdAt: {
           gte: monthStart,
           lte: monthEnd,
