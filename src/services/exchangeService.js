@@ -6,9 +6,10 @@ import {
   findExchangesByTargetCardId,
   findExchangesByShopId,
 } from '../repositories/exchangeRepository.js';
-import { BadRequestError, NotFoundError } from '../utils/customError.js';
-import { notificationService } from './notificationService.js';
+import { NotFoundError, BadRequestError } from '../utils/customError.js';
 import prisma from '../prisma/client.js';
+import { notificationRepository } from '../repositories/notificationRepository.js';
+import * as notificationService from '../services/notificationService.js';
 
 export async function proposeExchange(
   userId,
@@ -79,6 +80,101 @@ export async function proposeExchange(
   const grade = targetCard.photoCard.grade;
   const name = targetCard.photoCard.name;
   const relatedShopId = targetCard.shopListingId;
+  const ownerId = shop.seller.id;
+
+  const content = `${nickname}님이 [${grade} | ${name}]의 포토카드 교환을 제안했습니다.`;
+
+  await notificationService.createNotification(
+    ownerId,
+    'EXCHANGE_PROPOSED',
+    content,
+    relatedShopId,
+  );
+
+  return confirmed;
+}
+
+export async function proposeExchangeWithShopId(
+  userId,
+  shopId,
+  requestCardId,
+  description,
+) {
+  console.log('[Service] proposeExchangeWithShopId 호출:', {
+    userId,
+    shopId,
+    requestCardId,
+    description,
+  });
+
+  // 1. 판매글 정보 조회
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+    include: {
+      seller: true,
+      listedItems: {
+        take: 1, // 대표 카드 하나만 가져옴
+      },
+    },
+  });
+
+  if (!shop) {
+    throw new NotFoundError('존재하지 않는 판매글입니다.');
+  }
+
+  // 2. 판매자와 요청자가 같은지 확인
+  if (shop.sellerId === userId) {
+    throw new BadRequestError('본인의 판매글에는 교환을 제안할 수 없습니다.');
+  }
+
+  // 3. 판매 유형 확인
+  if (shop.listingType !== 'FOR_SALE_AND_TRADE') {
+    throw new BadRequestError('교환이 허용되지 않은 판매 게시글입니다.');
+  }
+
+  // 4. 요청 카드 정보 조회
+  const requestCard = await findCardById(requestCardId);
+  if (!requestCard) {
+    throw new NotFoundError('존재하지 않는 카드입니다.');
+  }
+
+  // 5. 요청 카드가 본인의 카드인지 확인
+  if (requestCard.user?.id !== userId) {
+    throw new BadRequestError('본인의 카드만 교환 제안할 수 있습니다.');
+  }
+
+  // 6. 요청 카드의 상태 확인
+  if (requestCard.status !== 'IDLE') {
+    throw new BadRequestError('교환을 요청하는 카드는 IDLE 상태여야 합니다.');
+  }
+
+  // 7. 대상 카드 정보 조회 (판매글의 첫 번째 카드)
+  if (!shop.listedItems || shop.listedItems.length === 0) {
+    throw new NotFoundError('판매 중인 카드가 없습니다.');
+  }
+
+  const targetCardId = shop.listedItems[0].id;
+  const targetCard = await findCardById(targetCardId);
+
+  if (!targetCard) {
+    throw new NotFoundError('대상 카드를 찾을 수 없습니다.');
+  }
+
+  // 8. 교환 제안 생성
+  const exchange = await createExchange(
+    requestCardId,
+    targetCardId,
+    description,
+  );
+  console.log('[Service] 교환 제안 생성 완료:', exchange);
+
+  const confirmed = await findExchangeById(exchange.id);
+
+  // 9. 알림 생성
+  const nickname = requestCard.user.nickname;
+  const grade = targetCard.photoCard.grade;
+  const name = targetCard.photoCard.name;
+  const relatedShopId = shopId;
   const ownerId = shop.seller.id;
 
   const content = `${nickname}님이 [${grade} | ${name}]의 포토카드 교환을 제안했습니다.`;
@@ -359,4 +455,30 @@ export async function getExchangeProposals(userId, shopId) {
     proposals: formattedProposals,
     isSeller
   };
+}
+
+// 특정 판매글에 대한 내 교환 제안 목록 조회
+export async function getMyExchangeRequestsForShop(userId, shopId) {
+  console.log('[Service] getMyExchangeRequestsForShop 호출:', { userId, shopId });
+
+  // 판매글 정보 조회
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+  });
+
+  if (!shop) {
+    throw new NotFoundError('해당 판매 게시글이 존재하지 않습니다.');
+  }
+
+  // 레포지토리 함수 사용
+  const myRequests = await findMyExchangeRequestsByShopId(userId, shopId);
+  return myRequests;
+}
+
+// 교환 가능한 내 카드 목록 조회
+export async function getMyExchangeableCards(userId) {
+  console.log('[Service] getMyExchangeableCards 호출:', userId);
+
+  const cards = await findMyExchangeableCards(userId);
+  return cards;
 }

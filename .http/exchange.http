@@ -9,26 +9,34 @@ Content-Type: application/json
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJpYXQiOjE3NDg4NTU2OTIsImV4cCI6MTc0ODg1OTI5Mn0.JBvvgADc6y4JzWjWgsV-0G9aJxWTnvngGKq0Tgv_aMU
-### 1. 교환 제안 요청 (본인 카드로 요청해야함)
-POST http://localhost:5005/api/exchange
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJpYXQiOjE3NDg4ODE4ODAsImV4cCI6MTc0ODg4NTQ4MH0.Z-kVWEb-jpD6fMfB6YW8b04J6uu7oCZwsqqcl6xozqY
+
+### 1. 판매글 ID를 이용한 교환 제안 요청
+POST http://localhost:5005/api/exchange/63/propose
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE5LCJpYXQiOjE3NDg4NDk2MTcsImV4cCI6MTc0ODg1MzIxN30.pM6t5MLvEomLl7Yhfsvu-Dp1BB4qi7cvErkIZzICIOE
-
-{
-  "targetCardId": 19,
-  "requestCardId": 96,
-  "description": "이거랑 바꿔요!"
-}
-
-### 2. 교환 수락 요청 (판매자 입장)
-POST http://localhost:5005/api/exchange/4/accept
 Authorization: Bearer {{accessToken}}
 
-### 3. 교환 거절 요청 (판매자 입장)
-POST http://localhost:5005/api/exchange/1/reject
+{
+  "requestCardId": 108,
+  "description": "이 카드로 교환해주세요!"
+}
+
+### 2. 특정 판매글에 대한 내 교환 제안 목록 조회
+GET http://localhost:5005/api/exchange/shop/123/my-requests
+Authorization: Bearer {{accessToken}}
+
+### 3. 교환 가능한 내 카드 목록 조회
+GET http://localhost:5005/api/exchange/my-cards
 Authorization: Bearer {{accessToken}}
 
 ### 4. 교환 제안 목록 조회 (판매자가 본인 카드에 온 제안들 확인)
 GET http://localhost:5005/api/exchange/87
+Authorization: Bearer {{accessToken}}
+
+### 5. 교환 수락 요청 (판매자 입장)
+POST http://localhost:5005/api/exchange/4/accept
+Authorization: Bearer {{accessToken}}
+
+### 6. 교환 거절 요청 (판매자 입장)
+POST http://localhost:5005/api/exchange/1/reject
 Authorization: Bearer {{accessToken}}
