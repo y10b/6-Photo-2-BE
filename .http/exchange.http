@@ -3,7 +3,7 @@ POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
 {
-  "email": "sj2@naver.com",
+  "email": "sj1@naver.com",
   "password": "1234"
 }
 
