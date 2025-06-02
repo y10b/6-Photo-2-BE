@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJpYXQiOjE3NDg4ODE4ODAsImV4cCI6MTc0ODg4NTQ4MH0.Z-kVWEb-jpD6fMfB6YW8b04J6uu7oCZwsqqcl6xozqY
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg4ODI3OTQsImV4cCI6MTc0ODg4NjM5NH0.Y9bKH-YN345yak6tn9SJdgOPuA5k9MyD9adpsQiolTs
 
 ### 1. 판매글 ID를 이용한 교환 제안 요청
 POST http://localhost:5005/api/exchange/63/propose
