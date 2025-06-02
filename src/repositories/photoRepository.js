@@ -330,9 +330,12 @@ export async function findMySales({
   });
 
   for (const shop of shops) {
+    const isSoldOut = shop.remainingQuantity === 0;
+
     results.push({
       type: 'my_sale',
       saleStatus: 'sale',
+      saleStatus: isSoldOut ? 'soldout' : 'sale',
       photoCardId: shop.photoCardId,
       shopIds: [shop.id],
       imageUrl: shop.photoCard.imageUrl,
