@@ -1,11 +1,5 @@
 import express from 'express';
-import {
-  signUp,
-  refresh,
-  passportLocalLogin,
-  passportGoogleStart,
-  passportGoogleCallback,
-} from '../controllers/authController.js';
+import authController from '../controllers/authController.js';
 import {
   validateSignup,
   validateEmailAndPassword,
@@ -15,15 +9,17 @@ import passport from '../config/passport.js'; // 이게 이미 되어 있어야 
 const router = express.Router();
 
 // 회원가입 라우트 (유효성 검사 미들웨어 추가)
-router.post('/signup', validateSignup, signUp);
-// 로그인 라우트 (유효성 검사 미들웨어 추가)
-// router.post("/signin", validateEmailAndPassword, signIn);
+router.post('/signup', validateSignup, authController.signUp);
 // 로그인 라우트 - Passport + JWT 인증
-router.post('/signin', validateEmailAndPassword, passportLocalLogin);
-router.post('/refresh', refresh);
+router.post(
+  '/signin',
+  validateEmailAndPassword,
+  authController.passportLocalLogin,
+);
+router.post('/refresh', authController.refresh);
 
 // 구글 로그인 시작
-router.get('/google', passportGoogleStart);
+router.get('/google', authController.passportGoogleStart);
 // 구글 로그인 콜백
 router.get(
   '/google/callback',
@@ -31,7 +27,7 @@ router.get(
     session: false,
     failureRedirect: '/auth/google/fail',
   }),
-  passportGoogleCallback,
+  authController.passportGoogleCallback,
 );
 
 export default router;

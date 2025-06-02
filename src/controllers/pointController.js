@@ -1,6 +1,6 @@
 import pointService from '../services/pointService.js';
 
-export const pointController = {
+const pointController = {
   // 쿨타임 확인
   async checkCooldown(req, res, next) {
     try {
@@ -23,3 +23,5 @@ export const pointController = {
     }
   },
 };
+
+export default pointController;
