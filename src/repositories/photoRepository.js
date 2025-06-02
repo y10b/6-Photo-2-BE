@@ -107,7 +107,8 @@ export async function findAllCards({
     nickname: shop.seller?.nickname ?? null,
     quantityLeft: shop.remainingQuantity,
     quantityTotal: shop.initialQuantity,
-    type: shop.remainingQuantity === 0 ? 'soldout' : 'for_sale',
+    type: 'market',
+    saleStatus: shop.remainingQuantity === 0 ? 'soldout' : 'sale',
     createdAt: shop.createdAt,
     updatedAt: shop.updatedAt,
   }));
@@ -270,7 +271,7 @@ export async function findMyIDLECards({
       cardGrade: card.photoCard.grade,
       status: card.status,
       saleStatus: card.status,
-      type: getCardType(card.status, 0, null),
+      type: 'original',
       createdAt: card.createdAt,
       updatedAt: card.updatedAt,
       quantityLeft: group.length,
@@ -330,8 +331,8 @@ export async function findMySales({
 
   for (const shop of shops) {
     results.push({
-      type: 'for_sale',
-      saleStatus: '판매 중',
+      type: 'my_sale',
+      saleStatus: 'sale',
       photoCardId: shop.photoCardId,
       shopIds: [shop.id],
       imageUrl: shop.photoCard.imageUrl,
@@ -379,10 +380,10 @@ export async function findMySales({
   for (const ex of exchanges) {
     const card = ex.requestCard;
     results.push({
-      type: 'for_sale',
-      saleStatus: '교환 제시 중',
+      type: 'my_sale',
+      saleStatus: 'exchange',
       photoCardId: card.photoCardId,
-      shopIds: [],
+      shopIds: [shop.id],
       imageUrl: card.photoCard.imageUrl,
       title: card.photoCard.name,
       description: card.photoCard.description,
@@ -402,10 +403,7 @@ export async function findMySales({
   // filterType === method로 다시 필터링 (판매/교환 분류 필터)
   const filtered = results.filter(item => {
     if (filterType === 'method') {
-      if (filterValue === '판매 중') return item.saleStatus === '판매 중';
-      if (filterValue === '교환 제시 중')
-        return item.saleStatus === '교환 제시 중';
-      return false;
+      return item.saleStatus === filterValue;
     }
     return true;
   });
@@ -495,7 +493,7 @@ export async function createMyCard(userId, data) {
   // 이번 달 생성한 포토카드 수 조회 (userCard + photoCard 생성일 기준)
   const createdThisMonth = await prisma.userCard.findMany({
     where: {
-      userId,
+      creatorId: userId,
       createdAt: {
         gte: monthStart,
         lte: monthEnd,
@@ -566,7 +564,7 @@ export async function createMyCard(userId, data) {
     quantityTotal: photoCard.initialQuantity,
     status: firstUserCard.status,
     saleStatus: firstUserCard.status,
-    type: 'my_idle_card',
+    type: 'original',
     createdAt: firstUserCard.createdAt,
     updatedAt: firstUserCard.updatedAt,
   };
