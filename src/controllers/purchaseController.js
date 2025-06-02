@@ -30,14 +30,20 @@ export const getShopDetail = async (req, res, next) => {
     if (result.data.isSeller) {
       return res.status(200).json({
         message: '본인이 등록한 판매 게시글입니다.',
-        data: result.data
+        data: {
+          ...result.data,
+          isSeller: true
+        }
       });
     }
 
     // 구매자인 경우 (isSeller가 false)
     res.status(200).json({
       message: '판매 게시글 조회 성공',
-      data: result.data
+      data: {
+        ...result.data,
+        isSeller: false
+      }
     });
   } catch (error) {
     next(error);
