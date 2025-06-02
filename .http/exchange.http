@@ -1,4 +1,4 @@
-### 0. 로그인 (Access Token 획득)
+### 0. 로그인 
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
