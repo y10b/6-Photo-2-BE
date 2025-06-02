@@ -2,7 +2,7 @@ import * as purchaseRepository from '../repositories/purchaseRepository.js';
 import userRepository from '../repositories/userRepository.js';
 import { notificationService } from './notificationService.js';
 
-export async function getShopDetailService(shopId, userId) {
+export async function getShopDetailService(shopId) {
   const shop = await purchaseRepository.findShopById(shopId);
 
   if (!shop) {
@@ -10,9 +10,6 @@ export async function getShopDetailService(shopId, userId) {
   }
 
   const { price, initialQuantity, remainingQuantity, seller, photoCard } = shop;
-
-  // 현재 사용자가 판매자인지 확인
-  const isSeller = seller.id === userId;
 
   return {
     shop,
@@ -22,7 +19,6 @@ export async function getShopDetailService(shopId, userId) {
       initialQuantity,
       remainingQuantity,
       sellerNickname: seller.nickname,
-      isSeller, // 판매자 여부 추가
       ...photoCard,
     }
   };
