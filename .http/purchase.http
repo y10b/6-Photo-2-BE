@@ -1,5 +1,5 @@
 GET http://localhost:5005/api/purchase/1
-
+Authorization: Bearer 
 ###
 POST http://localhost:5005/api/purchase/24
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc0ODQxMzI4MiwiZXhwIjoxNzQ4NDE2ODgyfQ.6Hf45cxAhJ66BYLpCnyX5j4BItoZdWooP9CUJIUjOiI
