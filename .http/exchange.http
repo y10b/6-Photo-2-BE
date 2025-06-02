@@ -1,35 +1,39 @@
-### 0. 로그인 (Access Token 획득)
+### 0. 로그인 
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
 {
-  "email": "user13@example.com",
+  "email": "sj2@naver.com",
   "password": "1234"
 }
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJpYXQiOjE3NDg1MDU3OTAsImV4cCI6MTc0ODUwOTM5MH0.zCnWGDkt3yVuVk4eHxTjMYy3j9pEaEhOkvMX1RbD3d0
-
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJpYXQiOjE3NDg3ODA3MzcsImV4cCI6MTc0ODc4NDMzN30.PS6EhIB0qA_dyNez5Wj123ZdAGvTh-XCWCWzy96RqD4
 ### 1. 교환 제안 요청 (본인 카드로 요청해야함)
 POST http://localhost:5005/api/exchange
 Content-Type: application/json
-Authorization: Bearer {{accessToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJpYXQiOjE3NDg3MjY0MDUsImV4cCI6MTc0ODczMDAwNX0.e3ngYt3YSveAQ_gcMcEatiLtG53EPB8mlYCNX7HHURc
 
 {
-  "targetCardId": 69,
-  "requestCardId": 21,
-  "description": "이 카드와 교환하고 싶어요!"
+  "targetCardId": 282,
+  "requestCardId": 291,
+  "description": "이거랑 바꿔요!"
 }
 
 ### 2. 교환 수락 요청 (판매자 입장)
-POST http://localhost:5005/api/exchange/4/accept
-Authorization: Bearer {{accessToken}}
+POST http://localhost:5005/api/exchange/18/accept
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg3MjAyNzUsImV4cCI6MTc0ODcyMzg3NX0.-eNHuuJn-NH9YbCxz3ZWwgaPgvICuZVaccqJYBliPrU
 
 ### 3. 교환 거절 요청 (판매자 입장)
-POST http://localhost:5005/api/exchange/1/reject
+POST http://localhost:5005/api/exchange/23/reject
 Authorization: Bearer {{accessToken}}
 
 ### 4. 교환 제안 목록 조회 (판매자가 본인 카드에 온 제안들 확인)
-GET http://localhost:5005/api/exchange/card/12
+GET http://localhost:5005/api/exchange/card/282
 Authorization: Bearer {{accessToken}}
+
+### 5. 판매 게시글에 대한 교환 제안 목록 조회 (판매자 입장)
+GET http://localhost:5005/api/exchange/shop/87
+Authorization: Bearer {{accessToken}}
+
