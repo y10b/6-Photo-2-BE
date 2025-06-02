@@ -1,11 +1,9 @@
-import prisma from '../prisma/client.js';
 import {
   findCardById,
   createExchange,
   findExchangeById,
   updateExchangeStatus,
   findExchangesByTargetCardId,
-  findExchangesByShopId,
 } from '../repositories/exchangeRepository.js';
 import {BadRequestError, NotFoundError} from '../utils/customError.js';
 import {notificationService} from './notificationService.js';
@@ -25,6 +23,12 @@ export async function proposeExchange(
 
   const requestCard = await findCardById(requestCardId);
   const targetCard = await findCardById(targetCardId);
+
+  console.log('=== 디버깅: 본인 카드 검증 ===');
+  console.log('현재 로그인한 userId:', userId);
+  console.log('requestCard:', requestCard);
+  console.log('requestCard.user:', requestCard?.user);
+  console.log('requestCard.user.id:', requestCard?.user?.id);
 
   if (!requestCard || !targetCard) {
     throw new NotFoundError('존재하지 않는 카드입니다.');
@@ -64,6 +68,7 @@ export async function proposeExchange(
     targetCardId,
     description,
   );
+  console.log('[Service] 교환 제안 생성 완료:', exchange);
 
   const confirmed = await findExchangeById(exchange.id);
 
@@ -277,28 +282,6 @@ export async function rejectExchange(userId, exchangeId) {
   );
 
   console.log('[Service] 교환 거절 완료:', updated);
-  return updated;
-}
-
-export async function cancelExchange(userId, exchangeId) {
-  console.log('[Service] cancelExchange 호출:', {userId, exchangeId});
-
-  const exchange = await findExchangeById(exchangeId);
-  if (!exchange) {
-    throw new NotFoundError('해당 교환 요청이 존재하지 않습니다.');
-  }
-
-  // 교환 상태 확인
-  if (exchange.status !== 'REQUESTED') {
-    throw new BadRequestError('이미 처리된 교환 요청은 취소할 수 없습니다.');
-  }
-
-  // 교환 요청자 권한 확인
-  if (exchange.requestCard.userId !== userId) {
-    throw new BadRequestError('본인이 요청한 교환만 취소할 수 있습니다.');
-  }
-
-  const updated = await updateExchangeStatus(exchangeId, 'CANCELLED');
   return updated;
 }
 

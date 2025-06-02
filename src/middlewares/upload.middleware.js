@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import {v4 as uuidv4} from 'uuid';
 
 const uploadFolder = 'uploads';
 
@@ -16,10 +17,9 @@ const storage = multer.diskStorage({
 
   // 저장할 파일 설정
   filename: function (req, file, callback) {
-    const ext = path.extname(file.originalname); // 확장자
-    const baseName = path.basename(file.originalname, ext); // 확장자 뺀 파일명
-    const newFileName = `${baseName}-${Date.now()}${ext}`;
-    callback(null, newFileName);
+    const ext = path.extname(file.originalname);
+    const safeFileName = `${uuidv4()}-${Date.now()}${ext}`;
+    callback(null, safeFileName);
   },
 });
 
