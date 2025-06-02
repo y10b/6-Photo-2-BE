@@ -564,7 +564,7 @@ export async function createMyCard(userId, data) {
     quantityTotal: photoCard.initialQuantity,
     status: firstUserCard.status,
     saleStatus: firstUserCard.status,
-    type: 'my_card',
+    type: 'original',
     createdAt: firstUserCard.createdAt,
     updatedAt: firstUserCard.updatedAt,
   };
