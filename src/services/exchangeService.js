@@ -97,7 +97,7 @@ export async function acceptExchange(userId, exchangeId) {
     shopListingId: targetCard.shopListingId
   });
 
-  // 판매자 권한 확인 - 직접 shop 정보 조회
+  // 판매자 권한 확인 
   const shopId = targetCard.shopListingId;
   console.log('✅ 판매 게시글 ID:', shopId);
   

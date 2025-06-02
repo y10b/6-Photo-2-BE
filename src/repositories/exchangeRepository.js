@@ -1,4 +1,3 @@
-// repositories/exchangeRepository.js
 import prisma from '../prisma/client.js';
 
 export async function findCardById(cardId) {
@@ -7,7 +6,7 @@ export async function findCardById(cardId) {
     include: {
       user: true,
       photoCard: true,
-      shopListing: true  // shopListing 정보 포함
+      shopListing: true  
     },
   });
 }
@@ -39,7 +38,7 @@ export async function findExchangeById(exchangeId) {
         include: {
           user: true,
           photoCard: true,
-          shopListing: true, // 판매 게시글 정보 포함
+          shopListing: true, 
         },
       },
     },
@@ -68,9 +67,8 @@ export async function findExchangesByTargetCardId(targetCardId) {
   });
 }
 
-// 새로 추가: 판매 게시글 ID로 교환 제안 목록 조회
+// 판매 게시글 ID로 교환 제안 목록 조회
 export async function findExchangesByShopId(shopId) {
-  // 해당 shopId에 등록된 모든 UserCard 찾기
   const listedCards = await prisma.userCard.findMany({
     where: {
       shopListingId: shopId,
@@ -90,7 +88,7 @@ export async function findExchangesByShopId(shopId) {
       targetCardId: {
         in: cardIds,
       },
-      status: 'REQUESTED', // 요청 상태인 교환만 조회
+      status: 'REQUESTED', 
     },
     include: {
       requestCard: {
