@@ -17,6 +17,14 @@ router.post(
   authController.passportLocalLogin,
 );
 router.post('/refresh', authController.refresh);
+router.post('/signout', (req, res) => {
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+  });
+  res.status(200).json({message: '로그아웃 완료'});
+});
 
 // 구글 로그인 시작
 router.get('/google', authController.passportGoogleStart);

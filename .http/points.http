@@ -1,4 +1,4 @@
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI0LCJpYXQiOjE3NDg0OTk5MzAsImV4cCI6MTc0ODUwMzUzMH0.ZHGmxnqO9-DDI2tbmZw77eiBAioil6elxYA_OF_uqDY
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI3LCJpYXQiOjE3NDg4ODUyOTMsImV4cCI6MTc0ODg4ODg5M30.KB-vjpiGo5G52EAxpbrkrV4nreiht-rRsYo2e7kZpXo
 ### 로그인 테스트 (유저 로그인)
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
@@ -19,9 +19,13 @@ Authorization: {{token}}
 Content-Type: application/json
 
 ### [3] 쿨타임 강제 초기화 (개발용)
-PATCH http://localhost:5005/api/users/reset-point-cooldown
+PATCH http://localhost:5005/api/users/set-point-cooldown
 Authorization: {{token}}
 Content-Type: application/json
+
+{
+  "remainSeconds": 10
+}
 
 ### [4] 내 정보 조회 (확인용)
 GET http://localhost:5005/api/users/me
