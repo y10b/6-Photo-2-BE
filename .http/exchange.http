@@ -3,14 +3,13 @@ POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
 {
-  "email": "user2@example.com",
+  "email": "user3@",
   "password": "1234"
 }
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5MTE3OTIsImV4cCI6MTc0ODkxNTM5Mn0.tFVdL745CFdcdpsmOBgcitfc1HCir0GQSkbqwIIwAPI
-
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5Mjg2MTUsImV4cCI6MTc0ODkzMjIxNX0.WPgh552OkxQUAlqlZoeLJo-c21Pmts-D6EQz98q4gqM
 
 ### 1. 교환 제안 목록 조회 (판매자가 본인 카드에 온 제안들 확인)
 GET http://localhost:5005/api/exchange/87
@@ -19,7 +18,7 @@ Authorization: Bearer {{accessToken}}
 
 ### 2. 교환 요청 생성 (구매자가 판매자의 카드에 교환 제안) 
 POST http://localhost:5005/api/exchange/111
-Authorization: Bearer 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5MjM1OTAsImV4cCI6MTc0ODkyNzE5MH0.LSdrlEeUsOV2M7nOyMX6xS30dcJOkMO05eJHac8-biM
 Content-Type: application/json
 
 {
