@@ -362,6 +362,7 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
         imageUrl: request.targetCard.photoCard.imageUrl,
         genre: request.targetCard.photoCard.genre,
         grade: request.targetCard.photoCard.grade
+
       },
       shopListing: {
         id: request.targetCard.shopListing.id,
@@ -376,6 +377,7 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
         imageUrl: request.requestCard.photoCard.imageUrl,
         genre: request.requestCard.photoCard.genre,
         grade: request.requestCard.photoCard.grade
+
       },
       user: request.requestCard.user
     }

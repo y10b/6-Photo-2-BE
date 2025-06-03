@@ -48,43 +48,4 @@ router.post(
   pointController.draw,
 ); // 포인트 뽑기
 
-// 개발용: 로그인된 유저의 쿨타임을 임의 시간으로 설정
-router.patch(
-  '/set-point-cooldown',
-  verifyAccessToken,
-  extractUserFromToken,
-  async (req, res) => {
-    const userId = req.user.id;
-    const {remainSeconds} = req.body;
-
-    if (
-      typeof remainSeconds !== 'number' ||
-      remainSeconds < 0 ||
-      remainSeconds > 3600
-    ) {
-      return res
-        .status(400)
-        .json({message: 'remainSeconds는 0~3600 사이 숫자여야 합니다.'});
-    }
-
-    // 현재 시각 기준, 남은 시간을 맞춰서 lastDrawAt 설정
-    const now = new Date();
-    const adjustedLastDrawAt = new Date(
-      now.getTime() - (3600 - remainSeconds) * 1000,
-    );
-
-    await prisma.point.upsert({
-      where: {userId},
-      update: {lastDrawAt: adjustedLastDrawAt},
-      create: {
-        userId,
-        balance: 0,
-        lastDrawAt: adjustedLastDrawAt,
-      },
-    });
-
-    res.json({success: true, remainSeconds});
-  },
-);
-
 export default router;

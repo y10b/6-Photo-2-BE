@@ -1,6 +1,27 @@
 import prisma from '../prisma/client.js';
 import userRepository from '../repositories/userRepository.js';
 
+const gradeWeights = [
+  {grade: 'common', range: [100, 1000], weight: 60},
+  {grade: 'rare', range: [1000, 3000], weight: 20},
+  {grade: 'epic', range: [3000, 5000], weight: 10},
+  {grade: 'legendary', range: [5000, 10000], weight: 10},
+];
+function getWeightedGrade() {
+  const total = gradeWeights.reduce((sum, g) => sum + g.weight, 0);
+  const rand = Math.random() * total;
+
+  let acc = 0;
+  for (const g of gradeWeights) {
+    acc += g.weight;
+    if (rand <= acc) return g;
+  }
+}
+function getRandomPointByGrade(gradeInfo) {
+  const [min, max] = gradeInfo.range;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 const pointService = {
   async checkCooldown(userId) {
     const user = await userRepository.findById(userId);
@@ -23,40 +44,13 @@ const pointService = {
   async draw(userId) {
     const user = await userRepository.findById(userId);
     const point = user.point;
-
     const now = new Date();
     const diff = now - new Date(point.lastDrawAt);
 
     if (diff < 3600 * 1000) throw new Error('아직 뽑을 수 없습니다');
 
-    // 1. 가중 랜덤 로직 적용 (0-100 생성)
-    const weightedValues = [
-      ...Array(30)
-        .fill()
-        .map((_, i) => i), // 0~29 (30개)
-      ...Array(20)
-        .fill()
-        .map((_, i) => i + 30), // 30~49 (20개)
-      ...Array(10)
-        .fill()
-        .map((_, i) => i + 50), // 50~59 (10개)
-      ...Array(5)
-        .fill()
-        .map((_, i) => i + 60), // 60~64 (5개)
-      ...Array(3)
-        .fill()
-        .map((_, i) => i + 65), // 65~67 (3개)
-      ...Array(2)
-        .fill()
-        .map((_, i) => i + 68), // 68~69 (2개)
-      70,
-      75,
-      80,
-      90,
-      100, // (5개)
-    ];
-    const value =
-      weightedValues[Math.floor(Math.random() * weightedValues.length)];
+    const selectedGrade = getWeightedGrade();
+    const value = getRandomPointByGrade(selectedGrade);
 
     const updated = await prisma.$transaction(async tx => {
       const updatedPoint = await tx.point.update({
@@ -78,7 +72,11 @@ const pointService = {
       return updatedPoint;
     });
 
-    return {point: value, totalPoint: updated.balance};
+    return {
+      point: value,
+      totalPoint: updated.balance,
+      grade: selectedGrade.grade,
+    };
   },
 };
 

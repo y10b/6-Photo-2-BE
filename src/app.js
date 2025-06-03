@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middlewares/error.middleware.js';

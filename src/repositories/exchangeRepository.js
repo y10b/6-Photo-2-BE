@@ -109,7 +109,15 @@ export const findMyExchangeRequests = async (userId, status, page, limit, shopLi
     include: {
       targetCard: {
         include: {
-          photoCard: true,
+          photoCard: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+              grade: true,
+              genre: true
+            }
+          },
           shopListing: {
             include: {
               seller: {
@@ -125,12 +133,20 @@ export const findMyExchangeRequests = async (userId, status, page, limit, shopLi
       },
       requestCard: {
         include: {
-          photoCard: true,
+
+          photoCard: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true,
+              grade: true,
+              genre: true
+            }
+          },
           user: {
             select: {
               id: true,
-              nickname: true,
-              email: true
+              nickname: true
             }
           }
         }
