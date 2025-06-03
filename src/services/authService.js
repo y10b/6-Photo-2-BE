@@ -1,13 +1,30 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import {fileURLToPath} from 'url';
+
+// ESM에서 __dirname 대체
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ✅ .env 파일 명시적으로 로드
+dotenv.config({path: path.resolve(__dirname, '../../.env')});
+
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import userRepository from '../repositories/userRepository.js';
 
 const SALT_ROUNDS = 10;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error(
+    '❌ JWT_SECRET이 설정되지 않았습니다. .env 위치 또는 dotenv.config() 경로를 확인하세요.',
+  );
+}
 
 const authService = {
   // 회원가입
-  async register({ email, nickname, password }) {
+  async register({email, nickname, password}) {
     const existingEmail = await userRepository.findByEmail(email);
     if (existingEmail) {
       const error = new Error('이미 존재하는 이메일입니다.');
@@ -34,7 +51,7 @@ const authService = {
   },
 
   // 로그인
-  async login({ email, password }) {
+  async login({email, password}) {
     const user = await userRepository.findByEmail(email);
 
     if (!user) {
@@ -64,9 +81,9 @@ const authService = {
 
   // 토큰 생성
   generateToken(user, type = 'access') {
-    const payload = { userId: user.id };
+    const payload = {userId: user.id};
     const expiresIn = type === 'refresh' ? '14d' : '1h';
-    return jwt.sign(payload, JWT_SECRET, { expiresIn });
+    return jwt.sign(payload, JWT_SECRET, {expiresIn});
   },
 
   // 리프레시 토큰으로 access 토큰 재발급
@@ -82,7 +99,7 @@ const authService = {
       }
 
       const newAccessToken = this.generateToken(user, 'access');
-      return { accessToken: newAccessToken };
+      return {accessToken: newAccessToken};
     } catch {
       const error = new Error('토큰을 갱신할 수 없습니다.');
       error.code = 401;
@@ -122,7 +139,7 @@ const authService = {
       throw new Error('user 객체가 null 또는 undefined입니다.');
     }
 
-    const { encryptedPassword, refreshToken, point, ...safeUser } = user;
+    const {encryptedPassword, refreshToken, point, ...safeUser} = user;
     return {
       ...safeUser,
       pointBalance: point?.balance || 0,
