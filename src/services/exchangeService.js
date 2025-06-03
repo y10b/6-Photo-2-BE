@@ -46,35 +46,46 @@ export async function getExchangeProposals(userId, shopId) {
   // 교환 제안 목록 조회
   const proposals = await findExchangesByShopId(shopId);
 
-  const formattedProposals = await Promise.all(
-    proposals.map(async exchange => {
-      const requestCard = exchange.requestCard;
-      let photoCard = requestCard?.photoCard;
-
-      if (!photoCard || !photoCard.id) {
-        photoCard = await prisma.photoCard.findUnique({
-          where: { id: requestCard.photoCardId },
-        });
+  // 응답 데이터 포맷팅
+  const formattedProposals = proposals.map(proposal => ({
+    id: proposal.id,
+    status: proposal.status,
+    description: proposal.description,
+    createdAt: proposal.createdAt,
+    updatedAt: proposal.updatedAt,
+    userNickname: proposal.requestCard.user.nickname,
+    targetCard: {
+      id: proposal.targetCard.id,
+      photoCard: {
+        id: proposal.targetCard.photoCard.id,
+        name: proposal.targetCard.photoCard.name,
+        imageUrl: proposal.targetCard.photoCard.imageUrl,
+        genre: proposal.targetCard.photoCard.genre,
+        grade: proposal.targetCard.photoCard.grade
+      },
+      shopListing: {
+        id: proposal.targetCard.shopListing.id,
+        seller: {
+          id: proposal.targetCard.user.id,
+          nickname: proposal.targetCard.user.nickname
+        }
       }
-
-      return {
-        id: exchange.id,
-        exchangeId: exchange.id,
-        requestCardId: exchange.requestCardId,
-        targetCardId: exchange.targetCardId,
-        status: exchange.status,
-        description: exchange.description,
-        createdAt: exchange.createdAt,
-        userNickname: requestCard.user?.nickname || '유저',
-        imageUrl: photoCard?.imageUrl || '/logo.svg',
-        name: photoCard?.name || '이름 없음',
-        grade: photoCard?.grade || 'COMMON',
-        genre: photoCard?.genre || '장르 없음',
-        price: photoCard?.price || 0,
-        cardDescription: photoCard?.description || '',
-      };
-    }),
-  );
+    },
+    requestCard: {
+      id: proposal.requestCard.id,
+      photoCard: {
+        id: proposal.requestCard.photoCard.id,
+        name: proposal.requestCard.photoCard.name,
+        imageUrl: proposal.requestCard.photoCard.imageUrl,
+        genre: proposal.requestCard.photoCard.genre,
+        grade: proposal.requestCard.photoCard.grade
+      },
+      user: {
+        id: proposal.requestCard.user.id,
+        nickname: proposal.requestCard.user.nickname
+      }
+    }
+  }));
 
   return {
     proposals: formattedProposals,
@@ -349,8 +360,9 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
         id: request.targetCard.photoCard.id,
         name: request.targetCard.photoCard.name,
         imageUrl: request.targetCard.photoCard.imageUrl,
-        grade: request.targetCard.photoCard.grade,
-        genre: request.targetCard.photoCard.genre
+        genre: request.targetCard.photoCard.genre,
+        grade: request.targetCard.photoCard.grade
+
       },
       shopListing: {
         id: request.targetCard.shopListing.id,
@@ -363,8 +375,9 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
         id: request.requestCard.photoCard.id,
         name: request.requestCard.photoCard.name,
         imageUrl: request.requestCard.photoCard.imageUrl,
-        grade: request.requestCard.photoCard.grade,
-        genre: request.requestCard.photoCard.genre
+        genre: request.requestCard.photoCard.genre,
+        grade: request.requestCard.photoCard.grade
+
       },
       user: request.requestCard.user
     }
