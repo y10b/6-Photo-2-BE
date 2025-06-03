@@ -5,17 +5,17 @@
 
 ## **팀원 구성**
 
-김단이 (개인 Github 링크)
+김단이 ([개인 Github 링크](https://github.com/danikim8))
 
 김승준 ([개인 Github 링크](https://github.com/y10b))
 
-백지연 ([개인 Github 링크] (https://github.com/jyeon03))
+백지연 ([개인 Github 링크](https://github.com/jyeon03))
 
-오보람 ([개인 Github 링크] (https://github.com/elisaohh))
+오보람 ([개인 Github 링크](https://github.com/elisaohh))
 
 윤세준 (개인 Github 링크)
 
-임정빈 (개인 Github 링크)
+임정빈 ([개인 Github 링크](https://github.com/jbinyim))
 
 ---
 
@@ -41,6 +41,21 @@
 - 생성 제한
   - 한 달에 카드 3장 생성 제한
  의
+---
+
+## **팀원별 구현 기능 상세**
+
+### **김단이**
+
+- **인증 API**
+  - Passport.js 기반 로컬 & OAuth(Google) 로그인 구현
+  - JWT + Refresh Token 발급 및 쿠키 저장 처리
+- **포인트 API**
+  - 포인트 뽑기 쿨타임 체크 및 초기화 API 구현
+  - 등급별 포인트 범위 랜덤 지급 로직 구현
+- **유저 API**
+  - 유저 정보 조회 (`GET /api/users/me`)
+
 ### **백지연**
 
 ![IDLE 포토카드 목록 조회 모달](public/dev/sale-list.png)
