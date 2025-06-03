@@ -11,7 +11,7 @@
 
 백지연 ([개인 Github 링크] (https://github.com/jyeon03))
 
-오보람 (개인 Github 링크)
+오보람 ([개인 Github 링크] (https://github.com/elisaohh))
 
 윤세준 (개인 Github 링크)
 
@@ -86,7 +86,9 @@
 
 ### **백지연**
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+![IDLE 포토카드 목록 조회 모달](public/dev/sale-list.png)
+![IDLE 포토카드 판매 등록 모달](public/dev/sale-registeration.png)
+![판매 포토카드 상세 페이지](public/dev/sale-detail.png)
 
 - **모델 설계 및 정의**
   - ERD 설계
@@ -100,13 +102,13 @@
 
 (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
 
-- **관리자 페이지**
-  - path parameter를 사용하여 학생 페이지와 동적 라우팅 기능 구현
-  - 학생별 정보 목록 carousel 슬라이더 구현
-  - fetch(PATCH, DELETE)를 사용하여 개인정보 수정 및 탈퇴 기능 구현
-  - fetch(POST, PATCH, DELETE)를 사용하여 학생 정보 CRUD 기능 구현
-- **공용 Button 컴포넌트**
-  - 공용으로 사용할 Button 컴포넌트 구현
+- **공용 Modal 컴포넌트**
+  - 공용으로 사용할 반응형 Modal 컴포넌트 구현
+- **조회 기능 -BE+FE**
+  - 마켓 플레이스/마이갤러리/나의 판매카드 조회
+  - 포토카드 생성
+  - 페이지 메인 레이아웃 및 필터 바텀시트
+  - 검색, 필터, 정렬, 무한스크롤, 페이지네이션 구현
 
 ### **윤세준**
 
