@@ -5,7 +5,8 @@ export async function findExchangesByShopId(shopId) {
         where: {
             targetCard: {
                 shopListingId: shopId
-            }
+            },
+            status: 'REQUESTED'  
         },
         include: {
             targetCard: {
@@ -74,3 +75,66 @@ export async function updateExchange(exchangeId, status) {
     }
   });
 }
+
+export async function deleteExchange(exchangeId) {
+  return await prisma.exchange.delete({
+    where: { id: exchangeId }
+  });
+}
+
+export const findMyExchangeRequests = async (userId, status, page, limit, shopListingId) => {
+  const skip = (page - 1) * limit;
+  
+  // 기본 필터 조건
+  const where = {
+    requestCard: {
+      userId: userId
+    },
+    ...(status && { status }),
+    ...(shopListingId && {
+      targetCard: {
+        shopListingId: parseInt(shopListingId)
+      }
+    })
+  };
+
+  // 전체 개수 조회
+  const total = await prisma.exchange.count({
+    where
+  });
+
+  // 교환 요청 목록 조회
+  const items = await prisma.exchange.findMany({
+    where,
+    include: {
+      targetCard: {
+        include: {
+          photoCard: true,
+          shopListing: {
+            include: {
+              seller: {
+                select: {
+                  id: true,
+                  nickname: true,
+                  email: true
+                }
+              }
+            }
+          }
+        }
+      },
+      requestCard: {
+        include: {
+          photoCard: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    },
+    skip,
+    take: limit
+  });
+
+  return { items, total };
+};

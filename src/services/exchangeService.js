@@ -2,6 +2,8 @@ import {
   findExchangesByShopId,
   createExchange,
   updateExchange,
+  deleteExchange,
+  findMyExchangeRequests,
 } from '../repositories/exchangeRepository.js';
 import { NotFoundError, BadRequestError } from '../utils/customError.js';
 import prisma from '../prisma/client.js';
@@ -126,13 +128,16 @@ export async function createExchangeRequest(userId, shopId, requestCardId, descr
     throw new BadRequestError('본인이 소유한 카드만 교환 요청할 수 있습니다.');
   }
 
-  // 이미 교환 요청한 적이 있는지 확인
+  // 이미 교환 요청한 적이 있는지 확인 (거절된 요청은 제외)
   const existingExchange = await prisma.exchange.findFirst({
     where: {
       targetCard: { shopListingId: shopId },
       requestCard: { 
         userId: userId,
-        id: requestCardId  // 같은 카드로 중복 요청했는지 체크
+        id: requestCardId
+      },
+      status: {
+        not: 'REJECTED'  
       }
     }
   });
@@ -200,3 +205,86 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
     updatedAt: updatedExchange.updatedAt
   };
 }
+
+export async function cancelExchangeRequest(userId, exchangeId) {
+  console.log('[Service] cancelExchangeRequest 호출:', { userId, exchangeId });
+
+  // 교환 요청 정보 조회
+  const exchange = await prisma.exchange.findUnique({
+    where: { id: exchangeId },
+    include: {
+      requestCard: true
+    }
+  });
+
+  if (!exchange) {
+    throw new NotFoundError('해당 교환 요청을 찾을 수 없습니다.');
+  }
+
+  // 요청자 여부 확인
+  const isRequester = exchange.requestCard.userId === userId;
+  if (!isRequester) {
+    throw new BadRequestError('교환 요청을 취소할 권한이 없습니다.');
+  }
+
+  // 이미 처리된 요청인지 확인
+  if (exchange.status !== 'REQUESTED') {
+    throw new BadRequestError('이미 처리된 교환 요청은 취소할 수 없습니다.');
+  }
+
+  // 교환 요청 삭제
+  await deleteExchange(exchangeId);
+
+  return {
+    id: exchangeId,
+    message: '교환 요청이 취소되었습니다.'
+  };
+}
+
+export const getMyExchangeRequests = async (userId, status, page, limit, shopListingId) => {
+  console.log('getMyExchangeRequests called with:', { userId, status, page, limit, shopListingId });
+
+  // status 유효성 검사
+  if (status && !['REQUESTED', 'ACCEPTED', 'REJECTED'].includes(status)) {
+    throw new BadRequestError('Invalid status value');
+  }
+
+  // 교환 요청 목록 조회
+  const { items, total } = await findMyExchangeRequests(userId, status, page, limit, shopListingId);
+
+  // 응답 데이터 포맷팅
+  const formattedRequests = items.map(request => ({
+    id: request.id,
+    status: request.status,
+    description: request.description,
+    createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+    targetCard: {
+      id: request.targetCard.id,
+      photoCard: {
+        id: request.targetCard.photoCard.id,
+        name: request.targetCard.photoCard.name,
+        imageUrl: request.targetCard.photoCard.imageUrl
+      },
+      shopListing: {
+        id: request.targetCard.shopListing.id,
+        seller: request.targetCard.shopListing.seller
+      }
+    },
+    requestCard: {
+      id: request.requestCard.id,
+      photoCard: {
+        id: request.requestCard.photoCard.id,
+        name: request.requestCard.photoCard.name,
+        imageUrl: request.requestCard.photoCard.imageUrl
+      }
+    }
+  }));
+
+  return {
+    requests: formattedRequests,
+    total,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit)
+  };
+};

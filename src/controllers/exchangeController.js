@@ -2,6 +2,8 @@ import {
   getExchangeProposals as getProposalsService,
   createExchangeRequest as createExchangeRequestService,
   updateExchangeStatus as updateExchangeStatusService,
+  cancelExchangeRequest as cancelExchangeRequestService,
+  getMyExchangeRequests as getMyExchangeRequestsService,
 } from '../services/exchangeService.js';
 
 export async function getExchangeProposals(req, res, next) {
@@ -63,3 +65,50 @@ export async function updateExchangeStatus(req, res, next) {
     return next(error);
   }
 }
+
+export async function cancelExchangeRequest(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const exchangeId = Number(req.params.exchangeId);
+
+    console.log(`[Controller] 교환 요청 취소: userId=${userId}, exchangeId=${exchangeId}`);
+
+    const result = await cancelExchangeRequestService(userId, exchangeId);
+
+    return res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('[Controller] 교환 요청 취소 오류:', error);
+    return next(error);
+  }
+}
+
+export const getMyExchangeRequests = async (req, res) => {
+  try {
+    const { status, page = 1, limit = 10, shopListingId } = req.query;
+    const userId = req.user.id;
+
+    console.log('getMyExchangeRequests called with:', { userId, status, page, limit, shopListingId });
+
+    const result = await getMyExchangeRequestsService(
+      userId,
+      status,
+      parseInt(page),
+      parseInt(limit),
+      shopListingId
+    );
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error in getMyExchangeRequests:', error);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
