@@ -46,35 +46,46 @@ export async function getExchangeProposals(userId, shopId) {
   // 교환 제안 목록 조회
   const proposals = await findExchangesByShopId(shopId);
 
-  const formattedProposals = await Promise.all(
-    proposals.map(async exchange => {
-      const requestCard = exchange.requestCard;
-      let photoCard = requestCard?.photoCard;
-
-      if (!photoCard || !photoCard.id) {
-        photoCard = await prisma.photoCard.findUnique({
-          where: { id: requestCard.photoCardId },
-        });
+  // 응답 데이터 포맷팅
+  const formattedProposals = proposals.map(proposal => ({
+    id: proposal.id,
+    status: proposal.status,
+    description: proposal.description,
+    createdAt: proposal.createdAt,
+    updatedAt: proposal.updatedAt,
+    userNickname: proposal.requestCard.user.nickname,
+    targetCard: {
+      id: proposal.targetCard.id,
+      photoCard: {
+        id: proposal.targetCard.photoCard.id,
+        name: proposal.targetCard.photoCard.name,
+        imageUrl: proposal.targetCard.photoCard.imageUrl,
+        genre: proposal.targetCard.photoCard.genre,
+        grade: proposal.targetCard.photoCard.grade
+      },
+      shopListing: {
+        id: proposal.targetCard.shopListing.id,
+        seller: {
+          id: proposal.targetCard.user.id,
+          nickname: proposal.targetCard.user.nickname
+        }
       }
-
-      return {
-        id: exchange.id,
-        exchangeId: exchange.id,
-        requestCardId: exchange.requestCardId,
-        targetCardId: exchange.targetCardId,
-        status: exchange.status,
-        description: exchange.description,
-        createdAt: exchange.createdAt,
-        userNickname: requestCard.user?.nickname || '유저',
-        imageUrl: photoCard?.imageUrl || '/logo.svg',
-        name: photoCard?.name || '이름 없음',
-        grade: photoCard?.grade || 'COMMON',
-        genre: photoCard?.genre || '장르 없음',
-        price: photoCard?.price || 0,
-        cardDescription: photoCard?.description || '',
-      };
-    }),
-  );
+    },
+    requestCard: {
+      id: proposal.requestCard.id,
+      photoCard: {
+        id: proposal.requestCard.photoCard.id,
+        name: proposal.requestCard.photoCard.name,
+        imageUrl: proposal.requestCard.photoCard.imageUrl,
+        genre: proposal.requestCard.photoCard.genre,
+        grade: proposal.requestCard.photoCard.grade
+      },
+      user: {
+        id: proposal.requestCard.user.id,
+        nickname: proposal.requestCard.user.nickname
+      }
+    }
+  }));
 
   return {
     proposals: formattedProposals,
@@ -132,12 +143,12 @@ export async function createExchangeRequest(userId, shopId, requestCardId, descr
   const existingExchange = await prisma.exchange.findFirst({
     where: {
       targetCard: { shopListingId: shopId },
-      requestCard: { 
+      requestCard: {
         userId: userId,
         id: requestCardId
       },
       status: {
-        not: 'REJECTED'  
+        not: 'REJECTED'
       }
     }
   });
@@ -205,7 +216,7 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
   // 교환 요청 상태 업데이트 및 카드 소유권 변경
   const updatedExchange = await prisma.$transaction(async (tx) => {
     console.log('[교환 승인 시작] 교환 ID:', exchangeId);
-    
+
     // 1. 교환 요청 상태 업데이트
     const updatedExchange = await tx.exchange.update({
       where: { id: exchangeId },
@@ -223,7 +234,7 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
 
       // 구매자가 제시한 카드(requestCard)의 소유자를 판매자로 변경
       await tx.userCard.update({
-        where: { 
+        where: {
           id: exchange.requestCardId,
           user: { id: exchange.requestCard.userId } // 현재 소유자가 구매자인지 확인
         },
@@ -236,7 +247,7 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
 
       // 판매자의 판매 게시글 카드(targetCard)의 소유자를 구매자로 변경
       await tx.userCard.update({
-        where: { 
+        where: {
           id: exchange.targetCardId,
           user: { id: exchange.targetCard.shopListing.sellerId } // 현재 소유자가 판매자인지 확인
         },
@@ -250,7 +261,7 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
       // 판매 게시글 상태를 'SOLD'로 변경
       await tx.shop.update({
         where: { id: exchange.targetCard.shopListingId },
-        data: { 
+        data: {
           remainingQuantity: 0,
           listingType: 'FOR_SALE' // 교환이 완료되었으므로 일반 판매 상태로 변경
         }
@@ -299,18 +310,18 @@ export async function cancelExchangeRequest(userId, exchangeId) {
   // 요청자 여부 확인
   const isRequester = exchange.requestCard.userId === userId;
   if (!isRequester) {
-    console.log('[Service] 권한 없음 - 요청자가 아님:', { 
-      userId, 
-      requesterId: exchange.requestCard.userId 
+    console.log('[Service] 권한 없음 - 요청자가 아님:', {
+      userId,
+      requesterId: exchange.requestCard.userId
     });
     throw new BadRequestError('교환 요청을 취소할 권한이 없습니다.');
   }
 
   // 이미 처리된 요청인지 확인
   if (exchange.status !== 'REQUESTED') {
-    console.log('[Service] 이미 처리된 요청:', { 
-      exchangeId, 
-      currentStatus: exchange.status 
+    console.log('[Service] 이미 처리된 요청:', {
+      exchangeId,
+      currentStatus: exchange.status
     });
     throw new BadRequestError('이미 처리된 교환 요청은 취소할 수 없습니다.');
   }
@@ -348,7 +359,9 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
       photoCard: {
         id: request.targetCard.photoCard.id,
         name: request.targetCard.photoCard.name,
-        imageUrl: request.targetCard.photoCard.imageUrl
+        imageUrl: request.targetCard.photoCard.imageUrl,
+        genre: request.targetCard.photoCard.genre,
+        grade: request.targetCard.photoCard.grade
       },
       shopListing: {
         id: request.targetCard.shopListing.id,
@@ -360,8 +373,11 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
       photoCard: {
         id: request.requestCard.photoCard.id,
         name: request.requestCard.photoCard.name,
-        imageUrl: request.requestCard.photoCard.imageUrl
-      }
+        imageUrl: request.requestCard.photoCard.imageUrl,
+        genre: request.requestCard.photoCard.genre,
+        grade: request.requestCard.photoCard.grade
+      },
+      user: request.requestCard.user
     }
   }));
 

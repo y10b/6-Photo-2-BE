@@ -1,32 +1,32 @@
 import prisma from '../prisma/client.js';
 
 export async function findExchangesByShopId(shopId) {
-    return await prisma.exchange.findMany({
-        where: {
-            targetCard: {
-                shopListingId: shopId
-            },
-            status: 'REQUESTED'  
-        },
+  return await prisma.exchange.findMany({
+    where: {
+      targetCard: {
+        shopListingId: shopId
+      },
+      status: 'REQUESTED'
+    },
+    include: {
+      targetCard: {
         include: {
-            targetCard: {
-                include: {
-                    user: true,
-                    photoCard: true,
-                    shopListing: true
-                }
-            },
-            requestCard: {
-                include: {
-                    user: true,
-                    photoCard: true
-                }
-            }
-        },
-        orderBy: {
-            createdAt: 'desc'
+          user: true,
+          photoCard: true,
+          shopListing: true
         }
-    });
+      },
+      requestCard: {
+        include: {
+          user: true,
+          photoCard: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
 }
 
 // 교환 요청 생성
@@ -84,7 +84,7 @@ export async function deleteExchange(exchangeId) {
 
 export const findMyExchangeRequests = async (userId, status, page, limit, shopListingId) => {
   const skip = (page - 1) * limit;
-  
+
   // 기본 필터 조건
   const where = {
     requestCard: {
@@ -125,7 +125,14 @@ export const findMyExchangeRequests = async (userId, status, page, limit, shopLi
       },
       requestCard: {
         include: {
-          photoCard: true
+          photoCard: true,
+          user: {
+            select: {
+              id: true,
+              nickname: true,
+              email: true
+            }
+          }
         }
       }
     },
