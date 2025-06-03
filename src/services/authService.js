@@ -116,7 +116,7 @@ const authService = {
     return this.filterUser(updated);
   },
 
-  // 비밀번호/토큰 제거
+  // 비밀번호/토큰 제거.
   filterUser(user) {
     if (!user) {
       throw new Error('user 객체가 null 또는 undefined입니다.');
