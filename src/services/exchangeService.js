@@ -217,58 +217,92 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
   const updatedExchange = await prisma.$transaction(async (tx) => {
     console.log('[교환 승인 시작] 교환 ID:', exchangeId);
 
-    // 1. 교환 요청 상태 업데이트
+    // 1. 현재 상태 확인
+    const [requestCard, targetCard, shop] = await Promise.all([
+      tx.userCard.findUnique({
+        where: { id: exchange.requestCardId }
+      }),
+      tx.userCard.findUnique({
+        where: { id: exchange.targetCardId }
+      }),
+      tx.shop.findUnique({
+        where: { id: exchange.targetCard.shopListingId }
+      })
+    ]);
+
+    if (!requestCard || !targetCard || !shop) {
+      throw new BadRequestError('필요한 데이터를 찾을 수 없습니다.');
+    }
+
+    // 남은 수량 확인
+    if (shop.remainingQuantity <= 0) {
+      throw new BadRequestError('더 이상 교환 가능한 카드가 없습니다.');
+    }
+
+    // 2. 교환 요청 상태 업데이트
     const updatedExchange = await tx.exchange.update({
       where: { id: exchangeId },
       data: { status }
     });
     console.log('[교환 상태 업데이트 완료] 상태:', status);
 
-    // 2. 교환이 수락된 경우에만 카드 소유권 변경
+    // 3. 교환이 수락된 경우에만 카드 소유권 변경 및 상태 업데이트
     if (status === 'ACCEPTED') {
       console.log('[카드 교환 시작]');
-      console.log('- 판매자 ID:', exchange.targetCard.shopListing.sellerId);
-      console.log('- 구매자 ID:', exchange.requestCard.userId);
-      console.log('- 교환 요청 카드 ID:', exchange.requestCardId);
-      console.log('- 판매 게시글 카드 ID:', exchange.targetCardId);
+      
+      try {
+        // 구매자가 제시한 카드의 소유자를 판매자로 변경
+        await tx.userCard.update({
+          where: { id: exchange.requestCardId },
+          data: {
+            userId: exchange.targetCard.shopListing.sellerId,
+            status: 'IDLE',
+            shopListingId: null // 판매 게시글 연결 해제
+          }
+        });
+        console.log('[구매자 카드 소유권 변경 완료] 카드 ID:', exchange.requestCardId);
 
-      // 구매자가 제시한 카드(requestCard)의 소유자를 판매자로 변경
-      await tx.userCard.update({
-        where: {
-          id: exchange.requestCardId,
-          user: { id: exchange.requestCard.userId } // 현재 소유자가 구매자인지 확인
-        },
-        data: {
-          user: { connect: { id: exchange.targetCard.shopListing.sellerId } }, // 판매자로 변경
-          status: 'IDLE'
+        // 판매자의 카드 소유자를 구매자로 변경
+        await tx.userCard.update({
+          where: { id: exchange.targetCardId },
+          data: {
+            userId: exchange.requestCard.userId,
+            status: 'IDLE',
+            shopListingId: null // 판매 게시글 연결 해제
+          }
+        });
+        console.log('[판매자 카드 소유권 변경 완료] 카드 ID:', exchange.targetCardId);
+
+        // 판매 게시글의 남은 수량 감소
+        const newRemainingQuantity = shop.remainingQuantity - 1;
+        await tx.shop.update({
+          where: { id: shop.id },
+          data: {
+            remainingQuantity: newRemainingQuantity,
+            ...(newRemainingQuantity === 0 ? {
+              listingType: 'FOR_SALE'
+            } : {})
+          }
+        });
+        console.log('[판매 게시글 상태 변경 완료] remainingQuantity:', newRemainingQuantity);
+
+        // 다른 교환 요청들을 거절 상태로 변경
+        if (newRemainingQuantity === 0) {
+          await tx.exchange.updateMany({
+            where: {
+              targetCardId: exchange.targetCardId,
+              status: 'REQUESTED',
+              id: { not: exchangeId }
+            },
+            data: { status: 'REJECTED' }
+          });
+          console.log('[남은 교환 요청 거절 처리 완료]');
         }
-      });
-      console.log('[구매자 카드 소유권 변경 완료] 카드 ID:', exchange.requestCardId);
 
-      // 판매자의 판매 게시글 카드(targetCard)의 소유자를 구매자로 변경
-      await tx.userCard.update({
-        where: {
-          id: exchange.targetCardId,
-          user: { id: exchange.targetCard.shopListing.sellerId } // 현재 소유자가 판매자인지 확인
-        },
-        data: {
-          user: { connect: { id: exchange.requestCard.userId } }, // 구매자로 변경
-          status: 'IDLE'
-        }
-      });
-      console.log('[판매자 카드 소유권 변경 완료] 카드 ID:', exchange.targetCardId);
-
-      // 판매 게시글 상태를 'SOLD'로 변경
-      await tx.shop.update({
-        where: { id: exchange.targetCard.shopListingId },
-        data: {
-          remainingQuantity: 0,
-          listingType: 'FOR_SALE' // 교환이 완료되었으므로 일반 판매 상태로 변경
-        }
-      });
-      console.log('[판매 게시글 상태 변경 완료] remainingQuantity: 0');
-
-      console.log('[카드 교환 완료]');
+      } catch (error) {
+        console.error('[카드 교환 실패]', error);
+        throw new BadRequestError('카드 교환 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     }
 
     return updatedExchange;

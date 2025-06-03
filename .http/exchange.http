@@ -1,4 +1,4 @@
-### 0. 로그인 
+### 0. 로그인 (유저)
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
@@ -9,8 +9,7 @@ Content-Type: application/json
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5NTYyNTAsImV4cCI6MTc0ODk1OTg1MH0.nZzoJkrpnef3qlwxbJPaYnHR2I1uUHJxw8hYXH9xU1Y
-
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5Njc3NzIsImV4cCI6MTc0ODk3MTM3Mn0.yzEliyzQ-7MSsBTXMYT8F4nts4IpDfEj-KtaBGAoiRI
 
 ### 1. 교환 제안 목록 조회 (판매자가 본인 카드에 온 제안들 확인)
 GET http://localhost:5005/api/exchange/87
@@ -18,17 +17,17 @@ Authorization: Bearer {{accessToken}}
 
 
 ### 2. 교환 요청 생성 (구매자가 판매자의 카드에 교환 제안) 
-POST http://localhost:5005/api/exchange/113
+POST http://localhost:5005/api/exchange/120
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "requestCardId": 287,
-  "description": "저랑 해요~"
+  "requestCardId": 208,
+  "description": "리스티드된 카드가 교환요청합니다.."
 }
 
 ### 3. 교환 요청 승인 (판매자가 교환 요청을 승인)
-PATCH http://localhost:5005/api/exchange/98/status
+PATCH http://localhost:5005/api/exchange/118/status
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
