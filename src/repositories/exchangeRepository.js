@@ -133,6 +133,7 @@ export const findMyExchangeRequests = async (userId, status, page, limit, shopLi
       },
       requestCard: {
         include: {
+
           photoCard: {
             select: {
               id: true,
