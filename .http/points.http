@@ -1,4 +1,4 @@
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI3LCJpYXQiOjE3NDg5MzU3NTAsImV4cCI6MTc0ODkzOTM1MH0.aeJI7PfSf2oIdmwM572fV3slgegSjnjp-NME2vovdrg
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI3LCJpYXQiOjE3NDg5NjIwOTIsImV4cCI6MTc0ODk2NTY5Mn0.gMyXVK2BUunGUW5Bhc_RwgbYAVTfu-l7xkcm7DwlakQ
 ### 로그인 테스트 (유저 로그인)
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
