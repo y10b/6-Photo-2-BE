@@ -1,26 +1,9 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import {fileURLToPath} from 'url';
-
-// ESM에서 __dirname 대체
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ✅ .env 파일 명시적으로 로드
-dotenv.config({path: path.resolve(__dirname, '../../.env')});
-
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import userRepository from '../repositories/userRepository.js';
 
 const SALT_ROUNDS = 10;
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error(
-    '❌ JWT_SECRET이 설정되지 않았습니다. .env 위치 또는 dotenv.config() 경로를 확인하세요.',
-  );
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 const authService = {
   // 회원가입
@@ -133,7 +116,7 @@ const authService = {
     return this.filterUser(updated);
   },
 
-  // 비밀번호/토큰 제거
+  // 비밀번호/토큰 제거.
   filterUser(user) {
     if (!user) {
       throw new Error('user 객체가 null 또는 undefined입니다.');
