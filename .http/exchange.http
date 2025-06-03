@@ -9,7 +9,7 @@ Content-Type: application/json
 
 ###
 
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5NTQ0NjksImV4cCI6MTc0ODk1ODA2OX0.fUaZu5s3ta-aFaoch-yxF_v-ZDAUu4L6Sn7na5XbBic
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5NTYyNTAsImV4cCI6MTc0ODk1OTg1MH0.nZzoJkrpnef3qlwxbJPaYnHR2I1uUHJxw8hYXH9xU1Y
 
 
 ### 1. 교환 제안 목록 조회 (판매자가 본인 카드에 온 제안들 확인)
