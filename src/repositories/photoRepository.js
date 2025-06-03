@@ -46,16 +46,6 @@ function createSortOption(sort) {
   }
 }
 
-// 카드 타입 판별 함수
-function getCardType(status, remainingQuantity, listingType) {
-  if (status === 'SOLD') return 'soldout';
-  if (listingType === 'FOR_SALE' && remainingQuantity > 0) return 'for_sale';
-  if (listingType === 'FOR_SALE_AND_TRADE' && remainingQuantity > 0)
-    return 'exchange';
-  if (status === 'IDLE') return 'my_card';
-  return null;
-}
-
 // 마켓플레이스에 등록된 포토카드 조회
 export async function findAllCards({
   filterType,
@@ -119,80 +109,6 @@ export async function findAllCards({
     totalPages: Math.ceil(totalCount / Number(take)),
     result,
   };
-}
-
-// 포토카드 상세 조회
-// - 내가 올린 카드일 경우 교환 제안 목록도 포함됨
-export async function findCardById(userCardId, currentUserId) {
-  const userCard = await prisma.userCard.findUnique({
-    where: {id: userCardId},
-    include: {
-      photoCard: true,
-      shopListing: true,
-      user: true,
-    },
-  });
-
-  if (!userCard) throw new Error('카드 정보를 찾을 수 없습니다.');
-
-  const {photoCard, shopListing, user} = userCard;
-  const isSeller = userCard.userId === currentUserId;
-
-  const baseData = {
-    cardId: photoCard.id,
-    userCardId: userCard.id,
-    imageUrl: photoCard.imageUrl,
-    title: photoCard.name,
-    description: photoCard.description,
-    cardGenre: photoCard.genre,
-    cardGrade: photoCard.grade,
-    price: shopListing?.price,
-    nickname: user.nickname,
-    quantityLeft: shopListing?.remainingQuantity,
-    quantityTotal: shopListing?.initialQuantity,
-    saleStatus: userCard.status,
-    type: getCardType(
-      userCard.status,
-      shopListing?.remainingQuantity,
-      shopListing?.listingType,
-    ),
-    isSeller,
-    createdAt: userCard.createdAt,
-    updatedAt: userCard.updatedAt,
-  };
-
-  // 내가 올린 카드일 경우 교환 제안 리스트 포함
-  if (isSeller) {
-    const exchanges = await prisma.exchange.findMany({
-      where: {targetCardId: userCard.id},
-      include: {
-        requestCard: {
-          include: {
-            user: true,
-            photoCard: true,
-          },
-        },
-      },
-    });
-
-    baseData.exchangeProposals = exchanges.map(ex => ({
-      exchangeId: ex.id,
-      requesterNickname: ex.requestCard.user.nickname,
-      offeredCardId: ex.requestCard.id,
-      offeredCardName: ex.requestCard.photoCard.name,
-      offeredCardGrade: ex.requestCard.photoCard.grade,
-      offeredCardGenre: ex.requestCard.photoCard.genre,
-    }));
-    // 구매자일 경우 교환 정보 표시
-  } else if (shopListing) {
-    baseData.exchangeInfo = {
-      genre: shopListing.exchangeGenre,
-      grade: shopListing.exchangeGrade,
-      description: shopListing.exchangeDescription,
-    };
-  }
-
-  return baseData;
 }
 
 // 마이 갤러리 전체 조회
@@ -601,7 +517,6 @@ export async function getCardCreationQuota(userId) {
 
 export default {
   findAllCards,
-  findCardById,
   findMyIDLECards,
   findMySales,
   purchaseCard,

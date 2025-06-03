@@ -22,21 +22,12 @@ export async function getAllCards(req, res, next) {
     });
 
     res.json(cards);
-  } catch (err) {
-    next(err);
-  }
-}
-
-// 카드 상세 정보 조회
-export async function getCardDetail(req, res, next) {
-  try {
-    const card = await photoService.getCardDetail(
-      Number(req.params.id),
-      req.user?.id,
-    );
-    res.json(card);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({
+      message:
+        error.message || '전체 카드 목록을 불러오는 중 오류가 발생했습니다.',
+    });
   }
 }
 
@@ -54,8 +45,13 @@ export async function getMyIDLECards(req, res, next) {
       filterValue,
     });
     res.json(cards);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({
+      message:
+        error.message || '마이 갤러리 카드를 불러오는 중 오류가 발생했습니다.',
+      data: error.extraInfo,
+    });
   }
 }
 
@@ -74,8 +70,14 @@ export async function getMySales(req, res, next) {
     });
 
     res.json(sales);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({
+      message:
+        error.message ||
+        '나의 판매 포토카드를 불러오는 중 오류가 발생했습니다.',
+      data: error.extraInfo,
+    });
   }
 }
 
@@ -103,8 +105,11 @@ export async function createMyCard(req, res, next) {
     const userId = req.user.id;
     const result = await photoService.createMyCard(userId, req.body);
     res.status(201).json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({
+      message: error.message || '포토카드를 생성하는 중 오류가 발생했습니다.',
+    });
   }
 }
 
@@ -113,8 +118,11 @@ export async function getCardCreationQuota(req, res, next) {
   try {
     const userId = req.user.id;
     const result = await photoService.getCardCreationQuota(userId);
-    res.json(result); // { remainingQuota: 1 }
-  } catch (err) {
-    next(err);
+    res.json(result);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({
+      message: error.message,
+    });
   }
 }
