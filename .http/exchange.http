@@ -1,4 +1,4 @@
-### 0. 로그인 
+### 0. 로그인 (유저)
 POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
