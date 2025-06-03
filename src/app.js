@@ -39,7 +39,7 @@ app.use('/api', photoRouter);
 app.use('/api/shop', shopRouter);
 app.use('/api/users', userRouter);
 app.use('/api/purchase', purchaseRouter);
-app.use('/api/exchange', exchangeRouter);
+app.use('/api', exchangeRouter);
 app.use('/api/notification', notificationRouter);
 app.use('/api/upload', uploadRouter);
 
