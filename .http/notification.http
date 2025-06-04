@@ -9,7 +9,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhd
 
 ###
 GET http://localhost:5005/api/notification
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc0ODMyOTk3MywiZXhwIjoxNzQ4MzMzNTczfQ.sTfpohok5OQ_RubXonCADyXyMNvkJk5O_QOHfak2ePo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5OTY2MzMsImV4cCI6MTc0OTAwMDIzM30.16u9eWNpbw9YkXAk1bLOdJl1ArBJsEkQ-bRz-v3ojm4
 
 ###
 PATCH http://localhost:5005/api/notification/1/read
