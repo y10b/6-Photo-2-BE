@@ -199,7 +199,7 @@ export async function findMyIDLECards({
     currentPage: Number(page),
     totalPages: Math.ceil(groupedList.length / Number(take)),
     nickname: user.nickname,
-    result: groupedList,
+    result: groupedList.slice(skip, skip + take),
   };
 }
 
