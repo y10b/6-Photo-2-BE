@@ -109,3 +109,136 @@
 ---
 
 ## **파일 구조**
+
+```
+6-Photo-2-BE
+├─ .DS_Store
+├─ .http
+│  ├─ auth.http
+│  ├─ exchange.http
+│  ├─ notification.http
+│  ├─ points.http
+│  ├─ purchase.http
+│  ├─ sale.http
+│  └─ user.http
+├─ .nvmrc
+├─ .prettierrc
+├─ DB
+│  ├─ cards.json
+│  └─ users.json
+├─ README.md
+├─ package-lock.json
+├─ package.json
+├─ public
+│  └─ dev
+│     ├─ sale-detail.png
+│     ├─ sale-list.png
+│     └─ sale-registeration.png
+├─ src
+│  ├─ .DS_Store
+│  ├─ app.js
+│  ├─ config
+│  │  └─ passport.js
+│  ├─ controllers
+│  │  ├─ authController.js
+│  │  ├─ exchangeController.js
+│  │  ├─ notificationController.js
+│  │  ├─ photoController.js
+│  │  ├─ pointController.js
+│  │  ├─ purchaseController.js
+│  │  ├─ shopController.js
+│  │  └─ userController.js
+│  ├─ middlewares
+│  │  ├─ .DS_Store
+│  │  ├─ auth.middleware.js
+│  │  ├─ error.middleware.js
+│  │  ├─ passport
+│  │  │  ├─ googleStrategy.js
+│  │  │  ├─ jwtStrategy.js
+│  │  │  └─ localStrategy.js
+│  │  └─ upload.middleware.js
+│  ├─ prisma
+│  │  ├─ client.js
+│  │  ├─ migrations
+│  │  │  ├─ 20250516002925_init
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250516051358_init
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250516073549_remove_unique_shop_listing_id
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250523080631_oauth
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250523083146_oauth2
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250528001531_feat_relatedshopid
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250528042721_add_last_draw_at
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250528071213_move_last_draw_at_to_point
+│  │  │  │  └─ migration.sql
+│  │  │  ├─ 20250530052646_add_creator_id_to_photo_card
+│  │  │  │  └─ migration.sql
+│  │  │  └─ migration_lock.toml
+│  │  ├─ schema.prisma
+│  │  └─ seed.js
+│  ├─ repositories
+│  │  ├─ exchangeRepository.js
+│  │  ├─ notificationRepository.js
+│  │  ├─ photoRepository.js
+│  │  ├─ purchaseRepository.js
+│  │  ├─ shopRepository.js
+│  │  └─ userRepository.js
+│  ├─ routes
+│  │  ├─ authRoutes.js
+│  │  ├─ exchangeRoutes.js
+│  │  ├─ notificationRoute.js
+│  │  ├─ photoRoutes.js
+│  │  ├─ purchaseRoutes.js
+│  │  ├─ shopRoutes.js
+│  │  ├─ uploadRoutes.js
+│  │  └─ userRoutes.js
+│  ├─ services
+│  │  ├─ authService.js
+│  │  ├─ exchangeService.js
+│  │  ├─ notificationService.js
+│  │  ├─ photoService.js
+│  │  ├─ pointService.js
+│  │  ├─ purchaseService.js
+│  │  ├─ shopService.js
+│  │  └─ userService.js
+│  └─ utils
+│     ├─ customError.js
+│     └─ timeFormat.js
+└─ uploads
+   ├─ 1.jpg
+   ├─ 10.jpg
+   ├─ 11.jpg
+   ├─ 12.jpg
+   ├─ 13.jpg
+   ├─ 14.jpg
+   ├─ 15.jpg
+   ├─ 16.jpg
+   ├─ 17.jpg
+   ├─ 18.jpg
+   ├─ 19.jpg
+   ├─ 2.jpg
+   ├─ 20.jpg
+   ├─ 21.jpg
+   ├─ 22.jpg
+   ├─ 23.jpg
+   ├─ 24.jpg
+   ├─ 25.jpg
+   ├─ 26.jpg
+   ├─ 3.jpg
+   ├─ 4.jpg
+   ├─ 474b5853-eb7d-46ad-a71f-35514759f5d3-1748909548817.jpeg
+   ├─ 5.jpg
+   ├─ 6.jpg
+   ├─ 7.jpg
+   ├─ 8.jpg
+   ├─ 9.jpg
+   ├─ _ (1)-1748850025812.jpeg
+   ├─ _-1748787408155.jpeg
+   └─ f9-Qqr0oPVJnyPbCVqNBgOk4wGfJTwQKRS15GG7Ui3DC0_KMCw8gvMwy4voW0-wet77R-Uvz1iz3IQMBOBbQ3A-1748571659322.webp
+
+```

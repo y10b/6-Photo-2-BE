@@ -17,7 +17,7 @@ async function verify(accessToken, refreshToken, profile, done) {
   );
 
   if (!user || !user.id) {
-    console.error('❌ user undefined in verify()');
+    console.error(' user undefined in verify()');
     return done(null, false); // 인증 실패 처리
   }
   done(null, user); // req.user = user;

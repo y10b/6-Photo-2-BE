@@ -1,7 +1,7 @@
-import {readFile} from 'fs/promises';
+import { readFile } from 'fs/promises';
 import path from 'path';
 import bcrypt from 'bcrypt';
-import {PrismaClient} from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -38,13 +38,13 @@ async function seed() {
   for (const card of cards) {
     const userId = card.userId;
 
-    const userExists = await prisma.user.findUnique({where: {id: userId}});
+    const userExists = await prisma.user.findUnique({ where: { id: userId } });
     if (!userExists) {
       console.warn(`❗️ 유저 ID ${userId} 없음 → 카드 ${card.name} 건너뜀`);
       continue;
     }
 
-    const {price, totalQuantity, remainingQuantity} = card;
+    const { price, totalQuantity, remainingQuantity } = card;
     if (typeof price !== 'number' || typeof totalQuantity !== 'number') {
       console.warn(
         `❗️ price 또는 totalQuantity 누락 → 카드 ${card.name} 건너뜀`,
@@ -63,7 +63,7 @@ async function seed() {
         price,
         initialQuantity: totalQuantity,
         creator: {
-          connect: {id: userId},
+          connect: { id: userId },
         },
       },
     });
@@ -87,7 +87,7 @@ async function seed() {
       });
 
       if (status === 'LISTED' || status === 'SOLD') {
-        userCardIds.push({id: userCard.id});
+        userCardIds.push({ id: userCard.id });
       }
 
       statusList.push(status);
@@ -101,16 +101,15 @@ async function seed() {
           initialQuantity: totalQuantity,
           remainingQuantity,
           listingType: 'FOR_SALE',
-          seller: {connect: {id: userId}},
-          photoCard: {connect: {id: photoCard.id}},
-          listedItems: {connect: userCardIds},
+          seller: { connect: { id: userId } },
+          photoCard: { connect: { id: photoCard.id } },
+          listedItems: { connect: userCardIds },
         },
       });
     }
 
     console.log(
-      `✅ Seeded card: ${
-        card.name
+      `✅ Seeded card: ${card.name
       } (userId: ${userId}) → UserCards: ${statusList.join(', ')}`,
     );
   }
