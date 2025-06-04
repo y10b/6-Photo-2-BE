@@ -199,7 +199,7 @@ export async function findMyIDLECards({
     currentPage: Number(page),
     totalPages: Math.ceil(groupedList.length / Number(take)),
     nickname: user.nickname,
-    result: groupedList,
+    result: groupedList.slice(skip, skip + take),
   };
 }
 
@@ -340,6 +340,8 @@ export async function findMySales({
     }
     return true;
   });
+
+  filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return {
     totalCount: filtered.length,

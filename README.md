@@ -13,7 +13,7 @@
 
 오보람 ([개인 Github 링크](https://github.com/elisaohh))
 
-윤세준 (개인 Github 링크)
+윤세준 ([개인 Github 링크](https://github.com/YSJ0228))
 
 임정빈 ([개인 Github 링크](https://github.com/jbinyim))
 
@@ -40,7 +40,7 @@
   - 포인트 적립 및 구매 판매에 따라 포인트 차감 구현
 - 생성 제한
   - 한 달에 카드 3장 생성 제한
- 의
+
 ---
 
 ## **팀원별 구현 기능 상세**
@@ -56,84 +56,66 @@
 - **유저 API**
   - 유저 정보 조회 (`GET /api/users/me`)
 
-### **백지연**
+### **김승준**
 
-![IDLE 포토카드 목록 조회 모달](public/dev/sale-list.png)
-![IDLE 포토카드 판매 등록 모달](public/dev/sale-registeration.png)
-![판매 포토카드 상세 페이지](public/dev/sale-detail.png)
+- **에러 미들웨어 API**
+  - 에러 상황에 맞는 커스텀 에러 유틸과 미들웨어 작성
+- **구매**
+  - 구매 상세 조회
+  - 구매 요청
+ 
+### **백지연**
 
 - **모델 설계 및 정의**
   - ERD 설계
   - 스키마 정의
-- **판매 기능(Desktop: 모달, Tablet: 바텀시트, Mobile: 페이지) - BE+FE**
-  - 판매 등록
-  - 판매 조회
-  - 판매 상세 페이지(조회, 수정, 삭제)
+- **판매 기능**
+  - 판매 포토카드 등록
+  - 판매 수정
+  - 판매 삭제
+  - 판매 상세 조회
+  - IDLE 목록 조회
 
 ### **오보람**
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
-
-- **공용 Modal 컴포넌트**
-  - 공용으로 사용할 반응형 Modal 컴포넌트 구현
-- **조회 기능 -BE+FE**
-  - 마켓 플레이스/마이갤러리/나의 판매카드 조회
+- **카드 조회 기능**
+  - 마켓 플레이스 조회
+  - 마이갤러리/나의 판매카드 조회
+  - 필터 카운트
+- **카드 생성 기능**
   - 포토카드 생성
-  - 페이지 메인 레이아웃 및 필터 바텀시트
-  - 검색, 필터, 정렬, 무한스크롤, 페이지네이션 구현
+  - 포토카드 생성 제한
 
 ### **윤세준**
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
+- **포토카드 교환 기능**
+  - 교환 요청 생성
+  - 교환 요청 거절
+  - 교환 요청 승인
+  - 교환 요청 취소
+- **포토카트 교환 페이지**
+  - 교환 요청된 포토카드 조회
 
-- **관리자 페이지**
-  - fetch(GET)를 사용하여 학생별 시간 정보 표시 및 수강생 접속 현황 정보 표시
-  - 반응형 레이아웃 구현
-- **마이 페이지**
-  - fetch(PATCH, DELETE)를 사용하여 수강생의 개인정보 수정 및 탈퇴 기능 구현
-- **공용 Modal 컴포넌트**
-  - 공용으로 사용할 Modal 컴포넌트 구현
 
 ### **임정빈**
 
-(자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
-
-- **관리자 페이지**
-  - fetch(GET)를 사용하여 학생별 시간 정보 표시 및 수강생 접속 현황 정보 표시
-  - 반응형 레이아웃 구현
-- **마이 페이지**
-  - fetch(PATCH, DELETE)를 사용하여 수강생의 개인정보 수정 및 탈퇴 기능 구현
-- **공용 Modal 컴포넌트**
-  - 공용으로 사용할 Modal 컴포넌트 구현
+- **알림 기능**
+  - 주요 이벤트가 발생할 때 알림.
+  - 카드 구매
+  - 교환 제안
+  - 교환 승인
+  - 교환 거절
 
 ---
 
 ## **파일 구조**
-
 ```
 6-Photo-2-BE
 ├─ .DS_Store
 ├─ .http
-│  ├─ auth.http
-│  ├─ exchange.http
-│  ├─ notification.http
-│  ├─ points.http
-│  ├─ purchase.http
-│  ├─ sale.http
-│  └─ user.http
-├─ .nvmrc
-├─ .prettierrc
 ├─ DB
-│  ├─ cards.json
-│  └─ users.json
-├─ README.md
-├─ package-lock.json
-├─ package.json
 ├─ public
 │  └─ dev
-│     ├─ sale-detail.png
-│     ├─ sale-list.png
-│     └─ sale-registeration.png
 ├─ src
 │  ├─ .DS_Store
 │  ├─ app.js
@@ -160,25 +142,6 @@
 │  ├─ prisma
 │  │  ├─ client.js
 │  │  ├─ migrations
-│  │  │  ├─ 20250516002925_init
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250516051358_init
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250516073549_remove_unique_shop_listing_id
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250523080631_oauth
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250523083146_oauth2
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250528001531_feat_relatedshopid
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250528042721_add_last_draw_at
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250528071213_move_last_draw_at_to_point
-│  │  │  │  └─ migration.sql
-│  │  │  ├─ 20250530052646_add_creator_id_to_photo_card
-│  │  │  │  └─ migration.sql
-│  │  │  └─ migration_lock.toml
 │  │  ├─ schema.prisma
 │  │  └─ seed.js
 │  ├─ repositories
@@ -210,35 +173,5 @@
 │     ├─ customError.js
 │     └─ timeFormat.js
 └─ uploads
-   ├─ 1.jpg
-   ├─ 10.jpg
-   ├─ 11.jpg
-   ├─ 12.jpg
-   ├─ 13.jpg
-   ├─ 14.jpg
-   ├─ 15.jpg
-   ├─ 16.jpg
-   ├─ 17.jpg
-   ├─ 18.jpg
-   ├─ 19.jpg
-   ├─ 2.jpg
-   ├─ 20.jpg
-   ├─ 21.jpg
-   ├─ 22.jpg
-   ├─ 23.jpg
-   ├─ 24.jpg
-   ├─ 25.jpg
-   ├─ 26.jpg
-   ├─ 3.jpg
-   ├─ 4.jpg
-   ├─ 474b5853-eb7d-46ad-a71f-35514759f5d3-1748909548817.jpeg
-   ├─ 5.jpg
-   ├─ 6.jpg
-   ├─ 7.jpg
-   ├─ 8.jpg
-   ├─ 9.jpg
-   ├─ _ (1)-1748850025812.jpeg
-   ├─ _-1748787408155.jpeg
-   └─ f9-Qqr0oPVJnyPbCVqNBgOk4wGfJTwQKRS15GG7Ui3DC0_KMCw8gvMwy4voW0-wet77R-Uvz1iz3IQMBOBbQ3A-1748571659322.webp
 
 ```

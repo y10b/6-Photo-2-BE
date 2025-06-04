@@ -175,6 +175,7 @@ export async function createExchangeRequest(
 
   // 교환 알림
   const notificationContent = `${requestCard.user.nickname}님이 [${requestCard.photoCard.grade} | ${requestCard.photoCard.name}]의 포토카드 교환을 제안했습니다.`;
+  console.log(notificationContent);
 
   await notificationService.createNotification(
     shop.sellerId,
