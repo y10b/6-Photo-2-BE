@@ -1,10 +1,10 @@
-GET http://localhost:5005/api/purchase/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5MzA2MTEsImV4cCI6MTc0ODkzNDIxMX0.tMqbOqwpqmXGI5qegDtQHU1PiTLEbvEFsCNISytfqak
+GET http://localhost:5005/api/purchase/81
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcyLCJpYXQiOjE3NDkwMDgwNDgsImV4cCI6MTc0OTAxMTY0OH0.nAsGYK6HLEjOkvtAuOi-H74AACqkZPsBi7csU_mTvpg
 ###
-POST http://localhost:5005/api/purchase/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIyLCJpYXQiOjE3NDg5MzA2MTEsImV4cCI6MTc0ODkzNDIxMX0.tMqbOqwpqmXGI5qegDtQHU1PiTLEbvEFsCNISytfqak
+POST http://localhost:5005/api/purchase/140
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI0LCJpYXQiOjE3NDkwMDgyMjgsImV4cCI6MTc0OTAxMTgyOH0.bh8Dbfs8Zoo2acw6Qkq7FsbmGux-zepyQLEqkDy5qf4
 Content-Type: application/json
 
 {
-      "quantity": 2
+      "quantity": 1
 }
