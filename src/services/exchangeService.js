@@ -5,21 +5,22 @@ import {
   deleteExchange,
   findMyExchangeRequests,
 } from '../repositories/exchangeRepository.js';
-import { NotFoundError, BadRequestError } from '../utils/customError.js';
+import {NotFoundError, BadRequestError} from '../utils/customError.js';
 import prisma from '../prisma/client.js';
+import {notificationService} from './notificationService.js';
 
 export async function getExchangeProposals(userId, shopId) {
-  console.log('[Service] getExchangeProposals 호출:', { userId, shopId });
+  console.log('[Service] getExchangeProposals 호출:', {userId, shopId});
 
   // 판매 게시글 정보 조회
   const shop = await prisma.shop.findUnique({
-    where: { id: shopId },
+    where: {id: shopId},
     include: {
       seller: true,
       listedItems: {
         take: 1, // 대표 카드 하나만 가져옴
-      }
-    }
+      },
+    },
   });
 
   if (!shop) {
@@ -33,13 +34,15 @@ export async function getExchangeProposals(userId, shopId) {
   if (!isSeller) {
     const userProposals = await prisma.exchange.findFirst({
       where: {
-        targetCard: { shopListingId: shopId },
-        requestCard: { userId: userId }
-      }
+        targetCard: {shopListingId: shopId},
+        requestCard: {userId: userId},
+      },
     });
 
     if (!userProposals) {
-      throw new BadRequestError('해당 판매 게시글의 교환 제안을 조회할 권한이 없습니다.');
+      throw new BadRequestError(
+        '해당 판매 게시글의 교환 제안을 조회할 권한이 없습니다.',
+      );
     }
   }
 
@@ -61,15 +64,15 @@ export async function getExchangeProposals(userId, shopId) {
         name: proposal.targetCard.photoCard.name,
         imageUrl: proposal.targetCard.photoCard.imageUrl,
         genre: proposal.targetCard.photoCard.genre,
-        grade: proposal.targetCard.photoCard.grade
+        grade: proposal.targetCard.photoCard.grade,
       },
       shopListing: {
         id: proposal.targetCard.shopListing.id,
         seller: {
           id: proposal.targetCard.user.id,
-          nickname: proposal.targetCard.user.nickname
-        }
-      }
+          nickname: proposal.targetCard.user.nickname,
+        },
+      },
     },
     requestCard: {
       id: proposal.requestCard.id,
@@ -78,33 +81,42 @@ export async function getExchangeProposals(userId, shopId) {
         name: proposal.requestCard.photoCard.name,
         imageUrl: proposal.requestCard.photoCard.imageUrl,
         genre: proposal.requestCard.photoCard.genre,
-        grade: proposal.requestCard.photoCard.grade
+        grade: proposal.requestCard.photoCard.grade,
       },
       user: {
         id: proposal.requestCard.user.id,
-        nickname: proposal.requestCard.user.nickname
-      }
-    }
+        nickname: proposal.requestCard.user.nickname,
+      },
+    },
   }));
 
   return {
     proposals: formattedProposals,
-    isSeller
+    isSeller,
   };
 }
 
-export async function createExchangeRequest(userId, shopId, requestCardId, description) {
-  console.log('[Service] createExchangeRequest 호출:', { userId, shopId, requestCardId });
+export async function createExchangeRequest(
+  userId,
+  shopId,
+  requestCardId,
+  description,
+) {
+  console.log('[Service] createExchangeRequest 호출:', {
+    userId,
+    shopId,
+    requestCardId,
+  });
 
   // 판매 게시글 정보 조회
   const shop = await prisma.shop.findUnique({
-    where: { id: shopId },
+    where: {id: shopId},
     include: {
       seller: true,
       listedItems: {
         take: 1,
-      }
-    }
+      },
+    },
   });
 
   if (!shop) {
@@ -113,7 +125,9 @@ export async function createExchangeRequest(userId, shopId, requestCardId, descr
 
   // 판매자 본인은 교환 요청할 수 없음
   if (shop.sellerId === userId) {
-    throw new BadRequestError('자신의 판매 게시글에는 교환 요청을 할 수 없습니다.');
+    throw new BadRequestError(
+      '자신의 판매 게시글에는 교환 요청을 할 수 없습니다.',
+    );
   }
 
   // 교환 가능한 게시글인지 확인
@@ -123,11 +137,11 @@ export async function createExchangeRequest(userId, shopId, requestCardId, descr
 
   // 요청 카드가 존재하는지 확인
   const requestCard = await prisma.userCard.findUnique({
-    where: { id: requestCardId },
+    where: {id: requestCardId},
     include: {
       user: true,
-      photoCard: true
-    }
+      photoCard: true,
+    },
   });
 
   if (!requestCard) {
@@ -142,15 +156,15 @@ export async function createExchangeRequest(userId, shopId, requestCardId, descr
   // 이미 교환 요청한 적이 있는지 확인 (거절된 요청은 제외)
   const existingExchange = await prisma.exchange.findFirst({
     where: {
-      targetCard: { shopListingId: shopId },
+      targetCard: {shopListingId: shopId},
       requestCard: {
         userId: userId,
-        id: requestCardId
+        id: requestCardId,
       },
       status: {
-        not: 'REJECTED'
-      }
-    }
+        not: 'REJECTED',
+      },
+    },
   });
 
   if (existingExchange) {
@@ -162,35 +176,55 @@ export async function createExchangeRequest(userId, shopId, requestCardId, descr
     targetCardId: shop.listedItems[0].id,
     requestCardId: requestCardId,
     description: description || '',
-    status: 'REQUESTED'
+    status: 'REQUESTED',
   });
+
+  // 교환 알림
+  const notificationContent = `${requestCard.user.nickname}님이 [${requestCard.photoCard.grade} | ${requestCard.photoCard.name}]의 포토카드 교환을 제안했습니다.`;
+
+  await notificationService.createNotification(
+    shop.sellerId,
+    'EXCHANGE_PROPOSED',
+    notificationContent,
+    shopId,
+  );
 
   return {
     id: exchange.id,
     status: exchange.status,
-    createdAt: exchange.createdAt
+    createdAt: exchange.createdAt,
   };
 }
 
 export async function updateExchangeStatus(userId, exchangeId, status) {
-  console.log('[Service] updateExchangeStatus 호출:', { userId, exchangeId, status });
+  console.log('[Service] updateExchangeStatus 호출:', {
+    userId,
+    exchangeId,
+    status,
+  });
 
   // 교환 요청 정보 조회
   const exchange = await prisma.exchange.findUnique({
-    where: { id: exchangeId },
+    where: {id: exchangeId},
     include: {
       targetCard: {
         include: {
-          shopListing: true,
-          user: true
-        }
+          shopListing: {
+            include: {
+              seller: true,
+            },
+          },
+          user: true,
+          photoCard: true,
+        },
       },
       requestCard: {
         include: {
-          user: true
-        }
-      }
-    }
+          user: true,
+          photoCard: true,
+        },
+      },
+    },
   });
 
   if (!exchange) {
@@ -214,20 +248,20 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
   }
 
   // 교환 요청 상태 업데이트 및 카드 소유권 변경
-  const updatedExchange = await prisma.$transaction(async (tx) => {
+  const updatedExchange = await prisma.$transaction(async tx => {
     console.log('[교환 승인 시작] 교환 ID:', exchangeId);
 
     // 1. 현재 상태 확인
     const [requestCard, targetCard, shop] = await Promise.all([
       tx.userCard.findUnique({
-        where: { id: exchange.requestCardId }
+        where: {id: exchange.requestCardId},
       }),
       tx.userCard.findUnique({
-        where: { id: exchange.targetCardId }
+        where: {id: exchange.targetCardId},
       }),
       tx.shop.findUnique({
-        where: { id: exchange.targetCard.shopListingId }
-      })
+        where: {id: exchange.targetCard.shopListingId},
+      }),
     ]);
 
     if (!requestCard || !targetCard || !shop) {
@@ -241,50 +275,61 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
 
     // 2. 교환 요청 상태 업데이트
     const updatedExchange = await tx.exchange.update({
-      where: { id: exchangeId },
-      data: { status }
+      where: {id: exchangeId},
+      data: {status},
     });
     console.log('[교환 상태 업데이트 완료] 상태:', status);
 
     // 3. 교환이 수락된 경우에만 카드 소유권 변경 및 상태 업데이트
     if (status === 'ACCEPTED') {
       console.log('[카드 교환 시작]');
-      
+
       try {
         // 구매자가 제시한 카드의 소유자를 판매자로 변경
         await tx.userCard.update({
-          where: { id: exchange.requestCardId },
+          where: {id: exchange.requestCardId},
           data: {
             userId: exchange.targetCard.shopListing.sellerId,
             status: 'IDLE',
-            shopListingId: null // 판매 게시글 연결 해제
-          }
+            shopListingId: null, // 판매 게시글 연결 해제
+          },
         });
-        console.log('[구매자 카드 소유권 변경 완료] 카드 ID:', exchange.requestCardId);
+        console.log(
+          '[구매자 카드 소유권 변경 완료] 카드 ID:',
+          exchange.requestCardId,
+        );
 
         // 판매자의 카드 소유자를 구매자로 변경
         await tx.userCard.update({
-          where: { id: exchange.targetCardId },
+          where: {id: exchange.targetCardId},
           data: {
             userId: exchange.requestCard.userId,
             status: 'IDLE',
-            shopListingId: null // 판매 게시글 연결 해제
-          }
+            shopListingId: null, // 판매 게시글 연결 해제
+          },
         });
-        console.log('[판매자 카드 소유권 변경 완료] 카드 ID:', exchange.targetCardId);
+        console.log(
+          '[판매자 카드 소유권 변경 완료] 카드 ID:',
+          exchange.targetCardId,
+        );
 
         // 판매 게시글의 남은 수량 감소
         const newRemainingQuantity = shop.remainingQuantity - 1;
         await tx.shop.update({
-          where: { id: shop.id },
+          where: {id: shop.id},
           data: {
             remainingQuantity: newRemainingQuantity,
-            ...(newRemainingQuantity === 0 ? {
-              listingType: 'FOR_SALE'
-            } : {})
-          }
+            ...(newRemainingQuantity === 0
+              ? {
+                  listingType: 'FOR_SALE',
+                }
+              : {}),
+          },
         });
-        console.log('[판매 게시글 상태 변경 완료] remainingQuantity:', newRemainingQuantity);
+        console.log(
+          '[판매 게시글 상태 변경 완료] remainingQuantity:',
+          newRemainingQuantity,
+        );
 
         // 다른 교환 요청들을 거절 상태로 변경
         if (newRemainingQuantity === 0) {
@@ -292,40 +337,66 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
             where: {
               targetCardId: exchange.targetCardId,
               status: 'REQUESTED',
-              id: { not: exchangeId }
+              id: {not: exchangeId},
             },
-            data: { status: 'REJECTED' }
+            data: {status: 'REJECTED'},
           });
           console.log('[남은 교환 요청 거절 처리 완료]');
         }
-
       } catch (error) {
         console.error('[카드 교환 실패]', error);
-        throw new BadRequestError('카드 교환 중 오류가 발생했습니다. 다시 시도해주세요.');
+        throw new BadRequestError(
+          '카드 교환 중 오류가 발생했습니다. 다시 시도해주세요.',
+        );
       }
     }
 
     return updatedExchange;
   });
 
+  //  알림 교환 승인/거절
+  const shopId = exchange.targetCard.shopListingId;
+  const requesterUserId = exchange.requestCard.userId;
+  const sellerNickname = exchange.targetCard.user.nickname;
+
+  if (status === 'ACCEPTED') {
+    const notificationContent = `${sellerNickname}님과의 [${exchange.targetCard.photoCard.grade} | ${exchange.targetCard.photoCard.name}]의 포토카드 교환이 성사되었습니다.`;
+
+    await notificationService.createNotification(
+      requesterUserId,
+      'EXCHANGE_ACCEPTED',
+      notificationContent,
+      shopId,
+    );
+  } else if (status === 'REJECTED') {
+    const notificationContent = `${sellerNickname}님과의 [${exchange.targetCard.photoCard.grade} | ${exchange.targetCard.photoCard.name}]의 포토카드 교환이 거절되었습니다.`;
+
+    await notificationService.createNotification(
+      requesterUserId,
+      'EXCHANGE_DECLINED',
+      notificationContent,
+      shopId,
+    );
+  }
+
   console.log('[교환 승인 프로세스 완료]');
   return updatedExchange;
 }
 
 export async function cancelExchangeRequest(userId, exchangeId) {
-  console.log('[Service] 교환 취소 요청 시작:', { userId, exchangeId });
+  console.log('[Service] 교환 취소 요청 시작:', {userId, exchangeId});
 
   // 교환 요청 정보 조회
   const exchange = await prisma.exchange.findUnique({
-    where: { id: exchangeId },
+    where: {id: exchangeId},
     include: {
       requestCard: true,
       targetCard: {
         include: {
-          shopListing: true
-        }
-      }
-    }
+          shopListing: true,
+        },
+      },
+    },
   });
 
   if (!exchange) {
@@ -338,7 +409,7 @@ export async function cancelExchangeRequest(userId, exchangeId) {
     status: exchange.status,
     requestCardId: exchange.requestCardId,
     targetCardId: exchange.targetCardId,
-    requesterId: exchange.requestCard.userId
+    requesterId: exchange.requestCard.userId,
   });
 
   // 요청자 여부 확인
@@ -346,7 +417,7 @@ export async function cancelExchangeRequest(userId, exchangeId) {
   if (!isRequester) {
     console.log('[Service] 권한 없음 - 요청자가 아님:', {
       userId,
-      requesterId: exchange.requestCard.userId
+      requesterId: exchange.requestCard.userId,
     });
     throw new BadRequestError('교환 요청을 취소할 권한이 없습니다.');
   }
@@ -355,7 +426,7 @@ export async function cancelExchangeRequest(userId, exchangeId) {
   if (exchange.status !== 'REQUESTED') {
     console.log('[Service] 이미 처리된 요청:', {
       exchangeId,
-      currentStatus: exchange.status
+      currentStatus: exchange.status,
     });
     throw new BadRequestError('이미 처리된 교환 요청은 취소할 수 없습니다.');
   }
@@ -366,12 +437,24 @@ export async function cancelExchangeRequest(userId, exchangeId) {
 
   return {
     id: exchangeId,
-    message: '교환 요청이 취소되었습니다.'
+    message: '교환 요청이 취소되었습니다.',
   };
 }
 
-export const getMyExchangeRequests = async (userId, status, page, limit, shopListingId) => {
-  console.log('getMyExchangeRequests called with:', { userId, status, page, limit, shopListingId });
+export const getMyExchangeRequests = async (
+  userId,
+  status,
+  page,
+  limit,
+  shopListingId,
+) => {
+  console.log('getMyExchangeRequests called with:', {
+    userId,
+    status,
+    page,
+    limit,
+    shopListingId,
+  });
 
   // status 유효성 검사
   if (status && !['REQUESTED', 'ACCEPTED', 'REJECTED'].includes(status)) {
@@ -379,7 +462,13 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
   }
 
   // 교환 요청 목록 조회
-  const { items, total } = await findMyExchangeRequests(userId, status, page, limit, shopListingId);
+  const {items, total} = await findMyExchangeRequests(
+    userId,
+    status,
+    page,
+    limit,
+    shopListingId,
+  );
 
   // 응답 데이터 포맷팅
   const formattedRequests = items.map(request => ({
@@ -395,13 +484,12 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
         name: request.targetCard.photoCard.name,
         imageUrl: request.targetCard.photoCard.imageUrl,
         genre: request.targetCard.photoCard.genre,
-        grade: request.targetCard.photoCard.grade
-
+        grade: request.targetCard.photoCard.grade,
       },
       shopListing: {
         id: request.targetCard.shopListing.id,
-        seller: request.targetCard.shopListing.seller
-      }
+        seller: request.targetCard.shopListing.seller,
+      },
     },
     requestCard: {
       id: request.requestCard.id,
@@ -410,17 +498,16 @@ export const getMyExchangeRequests = async (userId, status, page, limit, shopLis
         name: request.requestCard.photoCard.name,
         imageUrl: request.requestCard.photoCard.imageUrl,
         genre: request.requestCard.photoCard.genre,
-        grade: request.requestCard.photoCard.grade
-
+        grade: request.requestCard.photoCard.grade,
       },
-      user: request.requestCard.user
-    }
+      user: request.requestCard.user,
+    },
   }));
 
   return {
     requests: formattedRequests,
     total,
     currentPage: page,
-    totalPages: Math.ceil(total / limit)
+    totalPages: Math.ceil(total / limit),
   };
 };
