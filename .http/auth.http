@@ -13,8 +13,8 @@ POST http://localhost:5005/auth/signin
 Content-Type: application/json
 
 {
-  "email": "test5@example.com",
-  "password": "password123"
+  "email": "k-jun03@naver.com",
+  "password": "1234"
 }
 
 ### 로그인 테스트 (신규 가입 사용자)
@@ -70,4 +70,13 @@ Content-Type: application/json
 {
   "email": "wrong@example.com",
   "password": "wrongpassword"
+}
+
+### 로그인 테스트
+POST http://localhost:5005/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123!"
 }
