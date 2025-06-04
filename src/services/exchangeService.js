@@ -357,7 +357,7 @@ export async function updateExchangeStatus(userId, exchangeId, status) {
   //  알림 교환 승인/거절
   const shopId = exchange.targetCard.shopListingId;
   const requesterUserId = exchange.requestCard.userId;
-  const sellerNickname = exchange.targetCard.user.nickname;
+  const sellerNickname = exchange.targetCard.shopListing.seller.nickname;
 
   if (status === 'ACCEPTED') {
     const notificationContent = `${sellerNickname}님과의 [${exchange.targetCard.photoCard.grade} | ${exchange.targetCard.photoCard.name}]의 포토카드 교환이 성사되었습니다.`;
