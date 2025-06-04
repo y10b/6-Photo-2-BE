@@ -9,7 +9,7 @@
     "price": 1000,
     "totalQuantity": 10,
     "remainingQuantity": 8,
-    "imageUrl": "/uploads/1.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/64/72/bf/6472bf0e6be359e6c416a2adb3ba8cba.jpg"
   },
   {
     "id": 2,
@@ -21,7 +21,7 @@
     "price": 5000,
     "totalQuantity": 4,
     "remainingQuantity": 3,
-    "imageUrl": "/uploads/2.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/3a/04/83/3a0483cfc6f42306157e185fda61e917.jpg"
   },
   {
     "id": 3,
@@ -33,7 +33,7 @@
     "price": 4000,
     "totalQuantity": 5,
     "remainingQuantity": 2,
-    "imageUrl": "/uploads/3.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/47/2e/15/472e15cc84f8a8bc6c04dd3a4cbf03cd.jpg"
   },
   {
     "id": 4,
@@ -45,7 +45,7 @@
     "price": 1000,
     "totalQuantity": 10,
     "remainingQuantity": 10,
-    "imageUrl": "/uploads/4.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/f5/cd/39/f5cd39cbea88e94c08089ac490b7b95f.jpg"
   },
   {
     "id": 5,
@@ -57,7 +57,7 @@
     "price": 4700,
     "totalQuantity": 8,
     "remainingQuantity": 4,
-    "imageUrl": "/uploads/5.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/f5/cd/39/f5cd39cbea88e94c08089ac490b7b95f.jpg"
   },
   {
     "id": 6,
@@ -69,7 +69,7 @@
     "price": 1000,
     "totalQuantity": 10,
     "remainingQuantity": 10,
-    "imageUrl": "/uploads/6.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/04/c3/73/04c3737b9e2744f3895d572012c0c5aa.jpg"
   },
   {
     "id": 7,
@@ -81,7 +81,7 @@
     "price": 4400,
     "totalQuantity": 8,
     "remainingQuantity": 2,
-    "imageUrl": "/uploads/7.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/f2/90/fa/f290fadb6da1ff313dc6694f2ce5bf72.jpg"
   },
   {
     "id": 8,
@@ -93,7 +93,7 @@
     "price": 800,
     "totalQuantity": 10,
     "remainingQuantity": 9,
-    "imageUrl": "/uploads/8.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/ec/b5/d7/ecb5d7ca7bf9bdedcaf99b1d0a5ec5d9.jpg"
   },
   {
     "id": 9,
@@ -105,7 +105,7 @@
     "price": 10000,
     "totalQuantity": 1,
     "remainingQuantity": 1,
-    "imageUrl": "/uploads/9.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/cb/b3/9d/cbb39d5380a7b2394d8a1578e70cfee5.jpg"
   },
   {
     "id": 10,
@@ -117,7 +117,7 @@
     "price": 8000,
     "totalQuantity": 2,
     "remainingQuantity": 1,
-    "imageUrl": "/uploads/10.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/00/eb/57/00eb57552baf7f19402ea000a563e084.jpg"
   },
   {
     "id": 11,
@@ -129,7 +129,7 @@
     "price": 980,
     "totalQuantity": 7,
     "remainingQuantity": 6,
-    "imageUrl": "/uploads/11.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/44/a8/34/44a8349122f3305efca85ac8aed033df.jpg"
   },
   {
     "id": 12,
@@ -141,7 +141,7 @@
     "price": 2800,
     "totalQuantity": 7,
     "remainingQuantity": 5,
-    "imageUrl": "/uploads/12.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/9d/09/ee/9d09ee7fd04b13848f43372fdbcd8733.jpg"
   },
   {
     "id": 13,
@@ -153,7 +153,7 @@
     "price": 1900,
     "totalQuantity": 8,
     "remainingQuantity": 4,
-    "imageUrl": "/uploads/13.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/bb/99/23/bb99235f8a691b06b722725baff47e13.jpg"
   },
   {
     "id": 14,
@@ -165,7 +165,7 @@
     "price": 2000,
     "totalQuantity": 10,
     "remainingQuantity": 9,
-    "imageUrl": "/uploads/14.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/18/b6/1a/18b61ad64d26b84a7b9ecc0e55a5a326.jpg"
   },
   {
     "id": 15,
@@ -177,7 +177,7 @@
     "price": 600,
     "totalQuantity": 2,
     "remainingQuantity": 2,
-    "imageUrl": "/uploads/15.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/92/55/bb/9255bb0f32fad058e4188631feb55f8d.jpg"
   },
   {
     "id": 16,
@@ -189,7 +189,7 @@
     "price": 4700,
     "totalQuantity": 8,
     "remainingQuantity": 4,
-    "imageUrl": "/uploads/16.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/ae/f4/5e/aef45e25c566c33b3508fa57dcf66764.jpg"
   },
   {
     "id": 17,
@@ -201,7 +201,7 @@
     "price": 9700,
     "totalQuantity": 10,
     "remainingQuantity": 10,
-    "imageUrl": "/uploads/17.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/fe/26/77/fe2677b677dc4491ed1c1082044d423e.jpg"
   },
   {
     "id": 18,
@@ -213,7 +213,7 @@
     "price": 770,
     "totalQuantity": 10,
     "remainingQuantity": 9,
-    "imageUrl": "/uploads/18.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/53/35/66/533566722ee5ac042c9eee956d407a57.jpg"
   },
   {
     "id": 19,
@@ -225,7 +225,7 @@
     "price": 9999,
     "totalQuantity": 10,
     "remainingQuantity": 9,
-    "imageUrl": "/uploads/19.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/87/19/83/871983f08600b3e5e06bd760ab33781a.jpg"
   },
   {
     "id": 20,
@@ -237,7 +237,7 @@
     "price": 2222,
     "totalQuantity": 10,
     "remainingQuantity": 9,
-    "imageUrl": "/uploads/20.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/8f/ec/97/8fec971bdb38b91b392f69815697d321.jpg"
   },
   {
     "id": 21,
@@ -249,7 +249,7 @@
     "price": 999,
     "totalQuantity": 10,
     "remainingQuantity": 7,
-    "imageUrl": "/uploads/21.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/88/98/7a/88987ad8c665bf9e6bfd49d2b49f5f85.jpg"
   },
   {
     "id": 22,
@@ -261,7 +261,7 @@
     "price": 10000,
     "totalQuantity": 10,
     "remainingQuantity": 8,
-    "imageUrl": "/uploads/22.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/45/07/38/450738c7a5fbb06633809baf281995d5.jpg"
   },
   {
     "id": 23,
@@ -273,19 +273,19 @@
     "price": 4400,
     "totalQuantity": 8,
     "remainingQuantity": 4,
-    "imageUrl": "/uploads/23.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/e6/f8/dc/e6f8dc75aeececb36bb6335adad876dc.jpg"
   },
   {
     "id": 24,
     "userId": 1,
     "name": "봄",
-    "description": "토모사키",
+    "description": "철도",
     "genre": "TRAVEL",
     "grade": "rare",
     "price": 2300,
     "totalQuantity": 2,
     "remainingQuantity": 1,
-    "imageUrl": "/uploads/24.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/24/af/b7/24afb7a36cb8ad89e079158068084064.jpg"
   },
   {
     "id": 25,
@@ -297,7 +297,7 @@
     "price": 4447,
     "totalQuantity": 8,
     "remainingQuantity": 4,
-    "imageUrl": "/uploads/25.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/23/9f/02/239f02a0f8f0a1af7d0e855eb15c44ad.jpg"
   },
   {
     "id": 26,
@@ -309,6 +309,102 @@
     "price": 2100,
     "totalQuantity": 10,
     "remainingQuantity": 9,
-    "imageUrl": "/uploads/26.jpg"
+    "imageUrl": "https://i.pinimg.com/736x/8e/3f/eb/8e3feb2ab167bc9d97229a64a96d0730.jpg"
+  },
+  {
+    "id": 26,
+    "userId": 11,
+    "name": "기죽지마",
+    "description": "너 별거 없어",
+    "genre": "OBJECT",
+    "grade": "rare",
+    "price": 2100,
+    "totalQuantity": 10,
+    "remainingQuantity": 9,
+    "imageUrl": "https://i.pinimg.com/736x/bc/01/4b/bc014b31f6037d5ac5f0d4d9c0013872.jpg"
+  },
+  {
+    "id": 27,
+    "userId": 4,
+    "name": "카리나",
+    "description": "로켓펀처",
+    "genre": "PORTRAIT",
+    "grade": "LEGENDARY",
+    "price": 8700,
+    "totalQuantity": 7,
+    "remainingQuantity": 5,
+    "imageUrl": "https://i.pinimg.com/736x/a3/fb/1c/a3fb1c4b262a64f1ae69e9a26a02afc8.jpg"
+  },
+  {
+    "id": 28,
+    "userId": 6,
+    "name": "윈터",
+    "description": "빵긋",
+    "genre": "PORTRAIT",
+    "grade": "SUPER_RARE",
+    "price": 4421,
+    "totalQuantity": 10,
+    "remainingQuantity": 9,
+    "imageUrl": "https://i.pinimg.com/736x/3c/4d/e3/3c4de3520ec89d50da1e2168995cdd8d.jpg"
+  },
+  {
+    "id": 29,
+    "userId": 8,
+    "name": "불행",
+    "description": "마음을 비우면 행복해져요!",
+    "genre": "OBJECT",
+    "grade": "rare",
+    "price": 2100,
+    "totalQuantity": 6,
+    "remainingQuantity": 2,
+    "imageUrl": "https://i.pinimg.com/736x/c2/88/8c/c2888c7e75ab48c737dcf134745c7890.jpg"
+  },
+  {
+    "id": 30,
+    "userId": 11,
+    "name": "기죽지마",
+    "description": "너 별거 없어",
+    "genre": "OBJECT",
+    "grade": "rare",
+    "price": 2100,
+    "totalQuantity": 10,
+    "remainingQuantity": 9,
+    "imageUrl": "https://i.pinimg.com/736x/bc/01/4b/bc014b31f6037d5ac5f0d4d9c0013872.jpg"
+  },
+  {
+    "id": 31,
+    "userId": 11,
+    "name": "기적",
+    "description": "기적이야 기적 밍기적",
+    "genre": "OBJECT",
+    "grade": "SUPER_RARE",
+    "price": 4600,
+    "totalQuantity": 4,
+    "remainingQuantity": 3,
+    "imageUrl": "https://i.pinimg.com/736x/93/e7/6b/93e76bd407e84f9fd985ce82a49914da.jpg"
+  },
+  {
+    "id": 32,
+    "userId": 12,
+    "name": "당당하게 걷기",
+    "description": "짜증내지 않기",
+    "genre": "OBJECT",
+    "grade": "rare",
+    "price": 2100,
+    "totalQuantity": 10,
+    "remainingQuantity": 9,
+    "imageUrl": "https://i.pinimg.com/736x/03/c5/d5/03c5d59566dede91b05a3f3b477c360a.jpg"
+  },
+  {
+    "id": 33,
+    "userId": 7,
+    "name": "진",
+    "description": "라면",
+    "genre": "PORTRAIT",
+    "grade": "LEGENDARY",
+    "price": 8700,
+    "totalQuantity": 1,
+    "remainingQuantity": 0,
+    "imageUrl": "https://i.pinimg.com/736x/4a/ac/53/4aac53c9847dd13311c033e19ffbba59.jpg"
   }
 ]

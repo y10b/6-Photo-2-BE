@@ -1,5 +1,5 @@
-GET http://localhost:5005/api/purchase/81
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcyLCJpYXQiOjE3NDkwMDgwNDgsImV4cCI6MTc0OTAxMTY0OH0.nAsGYK6HLEjOkvtAuOi-H74AACqkZPsBi7csU_mTvpg
+GET http://localhost:5005/api/purchase/43
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJpYXQiOjE3NDkwMzUyODIsImV4cCI6MTc0OTAzODg4Mn0.R99S2jeZjovDLbjS3NbVScxa8A8FX_j-wAcavRkxBhY
 ###
 POST http://localhost:5005/api/purchase/140
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI0LCJpYXQiOjE3NDkwMDgyMjgsImV4cCI6MTc0OTAxMTgyOH0.bh8Dbfs8Zoo2acw6Qkq7FsbmGux-zepyQLEqkDy5qf4

@@ -2,7 +2,7 @@ import * as purchaseRepository from '../repositories/purchaseRepository.js';
 import userRepository from '../repositories/userRepository.js';
 import { notificationService } from './notificationService.js';
 
-export async function getShopDetailService(shopId) {
+export async function getShopDetailService(shopId, userId) {
   const shop = await purchaseRepository.findShopById(shopId);
 
   if (!shop) {
@@ -10,6 +10,7 @@ export async function getShopDetailService(shopId) {
   }
 
   const { price, initialQuantity, remainingQuantity, seller, photoCard } = shop;
+  const isSeller = seller.id === userId;
 
   return {
     shop,
@@ -19,6 +20,7 @@ export async function getShopDetailService(shopId) {
       initialQuantity,
       remainingQuantity,
       sellerNickname: seller.nickname,
+      isSeller,
       ...photoCard,
     }
   };
