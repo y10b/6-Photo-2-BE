@@ -293,6 +293,15 @@ export async function findMySales({
           photoCard: true,
         },
       },
+      targetCard: {
+        include: {
+          shopListing: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -302,17 +311,22 @@ export async function findMySales({
       type: 'my_sale',
       saleStatus: 'exchange',
       photoCardId: card.photoCardId,
-      shopIds: [shop.id],
+      shopIds: [card.shopId],
+      targetShopId: ex.targetCard?.shopListing?.id ?? null, // 클릭 시 제안보낸 shop으로 이동
       imageUrl: card.photoCard.imageUrl,
       title: card.photoCard.name,
       description: card.photoCard.description,
       cardGenre: card.photoCard.genre,
       cardGrade: card.photoCard.grade,
-      price: null,
+      price: card.photoCard.price, // 생성할 때 등록한 가격
       quantityLeft: 1,
       quantityTotal: 1,
       listingType: null,
-      exchangeInfo: null,
+      exchangeInfo: {
+        genre: card.shopListing?.exchangeGenre ?? null,
+        grade: card.shopListing?.exchangeGrade ?? null,
+        description: card.shopListing?.exchangeDescription ?? null,
+      },
       nickname: user.nickname,
       createdAt: card.createdAt,
       updatedAt: card.updatedAt,
