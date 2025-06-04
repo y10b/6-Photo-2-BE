@@ -102,3 +102,69 @@
 ---
 
 ## **파일 구조**
+```
+6-Photo-2-BE
+├─ .DS_Store
+├─ .http
+├─ DB
+├─ public
+│  └─ dev
+├─ src
+│  ├─ .DS_Store
+│  ├─ app.js
+│  ├─ config
+│  │  └─ passport.js
+│  ├─ controllers
+│  │  ├─ authController.js
+│  │  ├─ exchangeController.js
+│  │  ├─ notificationController.js
+│  │  ├─ photoController.js
+│  │  ├─ pointController.js
+│  │  ├─ purchaseController.js
+│  │  ├─ shopController.js
+│  │  └─ userController.js
+│  ├─ middlewares
+│  │  ├─ .DS_Store
+│  │  ├─ auth.middleware.js
+│  │  ├─ error.middleware.js
+│  │  ├─ passport
+│  │  │  ├─ googleStrategy.js
+│  │  │  ├─ jwtStrategy.js
+│  │  │  └─ localStrategy.js
+│  │  └─ upload.middleware.js
+│  ├─ prisma
+│  │  ├─ client.js
+│  │  ├─ migrations
+│  │  ├─ schema.prisma
+│  │  └─ seed.js
+│  ├─ repositories
+│  │  ├─ exchangeRepository.js
+│  │  ├─ notificationRepository.js
+│  │  ├─ photoRepository.js
+│  │  ├─ purchaseRepository.js
+│  │  ├─ shopRepository.js
+│  │  └─ userRepository.js
+│  ├─ routes
+│  │  ├─ authRoutes.js
+│  │  ├─ exchangeRoutes.js
+│  │  ├─ notificationRoute.js
+│  │  ├─ photoRoutes.js
+│  │  ├─ purchaseRoutes.js
+│  │  ├─ shopRoutes.js
+│  │  ├─ uploadRoutes.js
+│  │  └─ userRoutes.js
+│  ├─ services
+│  │  ├─ authService.js
+│  │  ├─ exchangeService.js
+│  │  ├─ notificationService.js
+│  │  ├─ photoService.js
+│  │  ├─ pointService.js
+│  │  ├─ purchaseService.js
+│  │  ├─ shopService.js
+│  │  └─ userService.js
+│  └─ utils
+│     ├─ customError.js
+│     └─ timeFormat.js
+└─ uploads
+
+```
