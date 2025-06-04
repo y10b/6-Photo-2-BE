@@ -62,8 +62,8 @@ const findShopById = async shopId => {
   return await prisma.shop.findUnique({
     where: {id: Number(shopId)},
     include: {
-      photoCard: true, 
-      seller: true, 
+      photoCard: true,
+      seller: true,
     },
   });
 };
@@ -86,10 +86,27 @@ const resetUserCardsToIdle = async shopId => {
 };
 
 /**
- * Shop 삭제
+ * Shop 삭제 + 관련 UserCard 상태 업데이트
  */
 const deleteShop = async shopId => {
-  return await prisma.shop.delete({where: {id: shopId}});
+  return await prisma.$transaction(async tx => {
+    // 1. UserCard 상태 변경
+    await tx.userCard.updateMany({
+      where: {
+        shopListingId: shopId,
+        status: 'LISTED',
+      },
+      data: {
+        status: 'IDLE',
+        shopListingId: null,
+      },
+    });
+
+    // 2. Shop 삭제
+    return await tx.shop.delete({
+      where: {id: shopId},
+    });
+  });
 };
 
 /**
