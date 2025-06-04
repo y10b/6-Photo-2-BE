@@ -341,6 +341,8 @@ export async function findMySales({
     return true;
   });
 
+  filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   return {
     totalCount: filtered.length,
     currentPage: Number(page),
