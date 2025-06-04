@@ -1,0 +1,33 @@
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI3LCJpYXQiOjE3NDg5NjIwOTIsImV4cCI6MTc0ODk2NTY5Mn0.gMyXVK2BUunGUW5Bhc_RwgbYAVTfu-l7xkcm7DwlakQ
+### 로그인 테스트 (유저 로그인)
+POST http://localhost:5005/auth/signin
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "1234"
+}
+
+### [1] 쿨타임 확인
+GET http://localhost:5005/api/users/me/point/check
+Authorization: {{token}}
+Content-Type: application/json
+
+### [2] 포인트 뽑기
+POST http://localhost:5005/api/users/me/point/draw
+Authorization: {{token}}
+Content-Type: application/json
+
+### [3] 쿨타임 강제 초기화 (개발용)
+PATCH http://localhost:5005/api/users/set-point-cooldown
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "remainSeconds": 10
+}
+
+### [4] 내 정보 조회 (확인용)
+GET http://localhost:5005/api/users/me
+Authorization: {{token}}
+Content-Type: application/json

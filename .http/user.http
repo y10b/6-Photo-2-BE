@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+### 토큰 저장
+@accessToken = yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0NzgxNzgwNCwiZXhwIjoxNzQ5MDI3NDA0fQ.jKFUoDZaoiZmO1z--8ku8n_JpENTQBevzzJjXmPsTR8
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0NzgxNzgwNCwiZXhwIjoxNzQ3ODIxNDA0fQ.IZhUCqq8RldOzemFII9CxIEYALMMifcgMMTTHagFvb0
+
+### 토큰 갱신 -- Not working properly
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+Cookie: refreshToken=yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0NzgxNzgwNCwiZXhwIjoxNzQ5MDI3NDA0fQ.jKFUoDZaoiZmO1z--8ku8n_JpENTQBevzzJjXmPsTR8
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### 내 정보 조회
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0ODQxNTk2MSwiZXhwIjoxNzQ4NDE5NTYxfQ.LnX2Bat1YKqyAEXx2I_7FSpjvaIJjrND8NL_PBOey-E
+
+### 내 정보 수정
+PATCH {{baseUrl}}/api/users/me
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0NzgxNzY0NSwiZXhwIjoxNzQ3ODIxMjQ1fQ.aAgMGXjyKOJgqryenfyvNQQcQBpJjpzv6zOAN0Kfxos
+
+{
+  "nickname": "updateduser"
+}
+
+### 내 카드 목록 조회
+GET {{baseUrl}}/api/users/me/cards
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0NzgxNzY0NSwiZXhwIjoxNzQ3ODIxMjQ1fQ.aAgMGXjyKOJgqryenfyvNQQcQBpJjpzv6zOAN0Kfxos
+
+### 내 판매 목록 조회
+GET {{baseUrl}}/api/users/me/sales
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc0NzgxNzY0NSwiZXhwIjoxNzQ3ODIxMjQ1fQ.aAgMGXjyKOJgqryenfyvNQQcQBpJjpzv6zOAN0Kfxos
+
+### 다른 사용자 정보 조회 (닉네임으로)
+GET {{baseUrl}}/api/users/testuser
