@@ -27,6 +27,14 @@ function validateEmailAndPassword(req, res, next) {
     error.code = 422;
     throw error;
   }
+
+  // 비밀번호 최소 8자 이상 검증
+  if (password.length < 8) {
+    const error = new Error("비밀번호는 최소 8자 이상이어야 합니다.");
+    error.code = 422;
+    throw error;
+  }
+
   next();
 }
 
@@ -38,6 +46,14 @@ function validateSignup(req, res, next) {
     error.code = 422;
     throw error;
   }
+
+  // 비밀번호 최소 8자 이상 검증
+  if (password.length < 8) {
+    const error = new Error("비밀번호는 최소 8자 이상이어야 합니다.");
+    error.code = 422;
+    throw error;
+  }
+
   next();
 }
 

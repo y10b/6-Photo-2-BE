@@ -6,9 +6,14 @@ const authController = {
   // 회원가입 핸들러
   async signUp(req, res, next) {
     try {
-      const {email, nickname, password, image} = req.body;
+      const { email, nickname, password, image } = req.body;
       if (!email || !nickname || !password) {
-        return res.status(400).json({message: '모든 필드를 입력해주세요.'});
+        return res.status(400).json({ message: '모든 필드를 입력해주세요.' });
+      }
+
+      // 비밀번호 최소 8자 이상 검증
+      if (password.length < 8) {
+        return res.status(400).json({ message: '비밀번호는 최소 8자 이상이어야 합니다.' });
       }
 
       const user = await authService.register({
@@ -29,7 +34,7 @@ const authController = {
       const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
       if (!refreshToken) {
-        return res.status(400).json({message: '리프레시 토큰이 필요합니다.'});
+        return res.status(400).json({ message: '리프레시 토큰이 필요합니다.' });
       }
 
       const result = await authService.refreshAccessToken(refreshToken);
@@ -43,7 +48,7 @@ const authController = {
   passportLocalLogin(req, res, next) {
     passport.authenticate(
       'local',
-      {session: false},
+      { session: false },
       async (err, user, info) => {
         if (err || !user) {
           return res.status(401).json({
@@ -88,7 +93,7 @@ const authController = {
         );
         return res
           .status(500)
-          .json({message: 'Google 로그인 실패: 유저 정보 없음'});
+          .json({ message: 'Google 로그인 실패: 유저 정보 없음' });
       }
 
       const accessToken = authService.generateToken(user, 'access');
