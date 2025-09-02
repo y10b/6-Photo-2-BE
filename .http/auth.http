@@ -80,3 +80,9 @@ Content-Type: application/json
   "email": "test@example.com",
   "password": "password123!"
 }
+
+### 구글 로그인 시작 (OAuth 인증 URL로 리디렉션)
+GET http://localhost:5005/auth/google
+
+### 구글 로그인 콜백 테스트 (브라우저에서 자동으로 호출됨)
+GET http://localhost:5005/auth/google/callback
