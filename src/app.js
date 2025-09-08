@@ -15,8 +15,8 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // CORS 설정
 const corsOrigin = process.env.NODE_ENV === 'development'
-  ? process.env.DEV_URL
-  : process.env.PROD_URL;
+  ? process.env.DEV_URL || 'http://localhost:3000'
+  : process.env.PROD_URL || 'https://6-photo-2-fe.vercel.app';
 
 app.use(
   cors({
@@ -32,6 +32,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(passport.initialize());
+
 
 // 라우터 등록
 app.use('/auth', authRouter);
