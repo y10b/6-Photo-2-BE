@@ -5,23 +5,17 @@ import cors from 'cors';
 import passport from './config/passport.js';
 import path from 'path';
 
-import photoRouter from './routes/photoRoutes.js';
-import shopRouter from './routes/shopRoutes.js';
-import purchaseRouter from './routes/purchaseRoutes.js';
 import authRouter from './routes/authRoutes.js';
-import notificationRouter from './routes/notificationRoute.js';
-import exchangeRouter from './routes/exchangeRoutes.js';
-import userRouter from './routes/userRoutes.js';
-import uploadRouter from './routes/uploadRoutes.js';
+import apiRouter from './routes/apiRoutes.js';
 
 const app = express();
-const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT;
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://6-photo-2-fe.vercel.app'],
+    origin: process.env.NODE_ENV === 'development' ? process.env.DEV_URL : process.env.PROD_URL,
     credentials: true,
   }),
 );
@@ -33,13 +27,7 @@ app.use(passport.initialize());
 
 // 라우터 등록
 app.use('/auth', authRouter);
-app.use('/api', photoRouter);
-app.use('/api/shop', shopRouter);
-app.use('/api/users', userRouter);
-app.use('/api/purchase', purchaseRouter);
-app.use('/api/exchange', exchangeRouter);
-app.use('/api/notification', notificationRouter);
-app.use('/api/upload', uploadRouter);
+app.use('/api', apiRouter);
 
 //미들웨어
 app.use(errorHandler);
