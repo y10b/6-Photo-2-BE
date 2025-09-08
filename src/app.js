@@ -13,10 +13,18 @@ const PORT = process.env.PORT;
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// CORS 설정
+const corsOrigin = process.env.NODE_ENV === 'development'
+  ? process.env.DEV_URL
+  : process.env.PROD_URL;
+
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'development' ? process.env.DEV_URL : process.env.PROD_URL,
+    origin: corsOrigin,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    optionsSuccessStatus: 200,
   }),
 );
 
