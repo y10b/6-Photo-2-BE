@@ -18,9 +18,24 @@ const corsOrigin = process.env.NODE_ENV === 'development'
   ? process.env.DEV_URL || 'http://localhost:3000'
   : process.env.PROD_URL || 'https://6-photo-2-fe.vercel.app';
 
+console.log('=== 서버 시작 디버깅 ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DEV_URL:', process.env.DEV_URL);
+console.log('PROD_URL:', process.env.PROD_URL);
+console.log('corsOrigin:', corsOrigin);
+console.log('========================');
+
+// 요청 로깅 미들웨어
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log('Origin:', req.headers.origin);
+  console.log('User-Agent:', req.headers['user-agent']);
+  next();
+});
+
 app.use(
   cors({
-    origin: corsOrigin,
+    origin: true, // 강제로 모든 Origin 허용
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
